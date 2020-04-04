@@ -49,8 +49,6 @@ def register(request):
             username = register_form.cleaned_data['username']
             password1 = register_form.cleaned_data['password1']
             password2 = register_form.cleaned_data['password2']
-            email = register_form.cleaned_data['email']
-            sex = register_form.cleaned_data['sex']
             if password1 != password2:  # 判断两次密码是否相同
                 message = "两次输入的密码不同！"
                 return render(request, 'login/register.html', locals())
@@ -59,20 +57,15 @@ def register(request):
                 if same_name_user:  # 用户名唯一
                     message = '用户已经存在，请重新选择用户名！'
                     return render(request, 'login/register.html', locals())
-                same_email_user = models.User.objects.filter(email=email)
-                if same_email_user:  # 邮箱地址唯一
-                    message = '该邮箱地址已被注册，请使用别的邮箱！'
-                    return render(request, 'login/register.html', locals())
-
+                
                 # 当一切都OK的情况下，创建新用户
 
                 new_user = models.User.objects.create()
                 new_user.name = username
                 new_user.password = hash_code(password1) # 使用加密密码
-                new_user.email = email
-                new_user.sex = sex
                 new_user.save()
                 return redirect('/login/')  # 自动跳转到登录页面
+        return render(request, 'login/register.html', locals())
     register_form = forms.RegisterForm()
     return render(request, 'login/register.html', locals())
 
@@ -89,38 +82,52 @@ def logout(request):
 
 def add(request):
     if request.method == "POST":
-        register_form = forms.RegisterForm(request.POST)
+        add_form = forms.AddForm(request.POST)
+        print(add_form)
+        print(add_form.is_valid())
         message = "请检查填写的内容！"
-        if register_form.is_valid():  # 获取数据
-            username = register_form.cleaned_data['username']
-            password1 = register_form.cleaned_data['password1']
-            
-            email = register_form.cleaned_data['email']
-            sex = register_form.cleaned_data['sex']
-            
-            
+        if add_form.is_valid():  # 获取数据
+            username = add_form.cleaned_data['username']
+            email = add_form.cleaned_data['email']
+            name = add_form.cleaned_data['name']
+            sex = add_form.cleaned_data['sex']
+            idc = add_form.cleaned_data['idc']
+            age = add_form.cleaned_data['age']
+            major = add_form.cleaned_data['major']
+
+            print(username)
+
             same_name_user = models.User.objects.filter(name=username)
-            if same_name_user:  # 用户名唯一
-                message = '用户已经存在，请重新选择用户名！'
-                return render(request, 'login/register.html', locals())
-            same_email_user = models.User.objects.filter(email=email)
+            if same_name_user:  # 学号唯一
+                message = '学号已经存在，请重新输入学号！'
+                return render(request, 'login/add.html', locals())
+            same_email_user = models.StudentInformationModel.objects.filter(email=email)
             if same_email_user:  # 邮箱地址唯一
                 message = '该邮箱地址已被注册，请使用别的邮箱！'
-                return render(request, 'login/register.html', locals())
+                return render(request, 'login/add.html', locals())
 
             # 当一切都OK的情况下，创建新用户
 
             new_user = models.User.objects.create()
             new_user.name = username
-            new_user.password = hash_code(password1) # 使用加密密码
-            new_user.email = email
-            new_user.sex = sex
+            new_user.password = hash_code(username) # 使用学号当做初始加密密码
             new_user.save()
-            return redirect('/login/')  # 自动跳转到登录页面
-    register_form = forms.RegisterForm()
-    return render(request, 'login/register.html', locals())
 
+            obj = models.User.objects.get(name=username)
+            models.StudentInformationModel.objects.create(stu_id=obj,
+                email=email,
+                name=name,
+                sex=sex,
+                idc=idc,
+                age=age,
+                major=major)
+            message = '增加成功'   
+            return render(request, 'login/add.html', locals())
+        #return render(request, 'login/add.html', locals())
+    add_form = forms.AddForm()
+    return render(request, 'login/add.html', locals())
 
+'''
 # 查询
 def select(request):
     if request.method == "POST":
@@ -224,3 +231,4 @@ def update(request):
         return render(request, 'studentManage/update.html', context)
     else:
         return render(request, 'studentManage/update.html', context)
+'''

@@ -2,14 +2,11 @@ from django.db import models
 
 # Create your models here.
 class User(models.Model):
-    gender = (
-        ('male','男'),
-        ('female','女'),
-    )
+
     name = models.CharField(max_length=128, unique=True, verbose_name='学生ID')
     password = models.CharField(max_length=256, verbose_name='密码')
     
-    sex = models.CharField(max_length=32,choices=gender,default='男')
+    #sex = models.CharField(max_length=32,choices=gender,default='男')
     c_time = models.DateTimeField(auto_now_add=True)
     #salt = models.CharField(max_length=10, verbose_name='盐')
 
@@ -21,14 +18,23 @@ class User(models.Model):
         verbose_name_plural = '用户'
 
 class StudentInformationModel(models.Model):
-
+    gender = (
+        ('male','男'),
+        ('female','女'),
+    )
+    majorchoice = (
+        ('080901',"计算机科学与技术"),
+        ('080902',"软件工程"),
+        ('080903',"网络工程"),
+        ('080904K',"信息安全"),
+    )
     stu_id = models.ForeignKey('User', to_field='name', on_delete=models.CASCADE)
     email = models.EmailField(unique=True, verbose_name='邮箱')
     name = models.CharField(max_length=30, verbose_name='姓名', null=True)
-    sex = models.CharField(max_length=20, verbose_name='性别', null=True)
+    sex = models.CharField(max_length=32,choices=gender,default='男')
     idc = models.CharField(max_length=20, verbose_name='身份证', null=True)
     age = models.CharField(max_length=20, verbose_name='年龄', null=True)
-    major = models.CharField(max_length=30, verbose_name='专业', null=True)
+    major = models.CharField(max_length=30,choices=majorchoice,default='计算机科学与技术')
 
     class Meta():
         ordering = ['stu_id']
