@@ -83,8 +83,6 @@ def logout(request):
 def add(request):
     if request.method == "POST":
         add_form = forms.AddForm(request.POST)
-        print(add_form)
-        print(add_form.is_valid())
         message = "请检查填写的内容！"
         if add_form.is_valid():  # 获取数据
             username = add_form.cleaned_data['username']
@@ -127,29 +125,78 @@ def add(request):
     add_form = forms.AddForm()
     return render(request, 'login/add.html', locals())
 
-'''
+
 # 查询
 def select(request):
+
+    if request.method == "POST":
+        message = "请检查填写的内容！"
+        if request.post.get('submit') == "1":
+            select_form1 = forms.AddForm(request.POST)
+            if select_form1.is_valid():  # 获取数据
+                stu_id = select_form1.cleaned_data['stu_id']
+                same_sid_user = models.StudentInformationModel.objects.filter(stu_id=stu_id)
+                if same_sid_user: 
+                    message = '查询成功！'
+                    return render(request, 'login/select.html', locals())
+        else:
+            select_form2 = forms.AddForm(request.POST)
+            if select_form2.is_valid():  # 获取数据
+                name = select_form1.cleaned_data['name']
+                major = select_form1.cleaned_data['major']
+            
+            same_name_user = models.User.objects.filter(name=username)
+            if same_name_user:  # 学号唯一
+                message = '学号已经存在，请重新输入学号！'
+                return render(request, 'login/add.html', locals())
+            same_email_user = models.StudentInformationModel.objects.filter(email=email)
+            if same_email_user:  # 邮箱地址唯一
+                message = '该邮箱地址已被注册，请使用别的邮箱！'
+                return render(request, 'login/add.html', locals())
+
+            # 当一切都OK的情况下，创建新用户
+
+            new_user = models.User.objects.create()
+            new_user.name = username
+            new_user.password = hash_code(username) # 使用学号当做初始加密密码
+            new_user.save()
+
+            obj = models.User.objects.get(name=username)
+            models.StudentInformationModel.objects.create(stu_id=obj,
+                email=email,
+                name=name,
+                sex=sex,
+                idc=idc,
+                age=age,
+                major=major)
+            message = '增加成功'   
+            return render(request, 'login/add.html', locals())
+        #return render(request, 'login/add.html', locals())
+    add_form = forms.AddForm()
+    return render(request, 'login/add.html', locals())
+
+
     if request.method == "POST":
         id = request.POST.get('stu_id')
-        stu_data = StudentInformationModel.objects.get(stu_id=id)
-        stu_id = stu_data.stu_id.stu_id
-        stu_name = stu_data.stu_name
-        stu_sex = stu_data.stu_sex
-        stu_idc = stu_data.stu_idc
-        stu_age = stu_data.stu_age
-        stu_major = stu_data.stu_major
+        stu_data = models.StudentInformationModel.objects.get(stu_id=id)
+        id = stu_data.stu_id.stu_id
+        email = stu_data.email
+        name = stu_data.name
+        sex = stu_data.sex
+        idc = stu_data.idc
+        age = stu_data.age
+        major = stu_data.major
         #stu_course = CourseModel.objects.filter(cour_id=id)
         dct = {}
         #for stu in stu_course:
         #    dct[stu.course] = stu.grade
         context = {
-            'stu_id': stu_id,
-            'stu_name': stu_name,
-            'stu_sex': stu_sex,
-            'stu_idc': stu_idc,
-            'stu_age': stu_age,
-            'stu_major': stu_major,
+            'stu_id': id,
+            'stu_name': name,
+            'stu_sex': sex,
+            'stu_idc': idc,
+            'stu_age': age,
+            'stu_major': major,
             #'course_data': dct,
             'msg': True
         }
@@ -162,7 +209,7 @@ def select(request):
             'id': id
         }
         return render(request, 'studentManage/select.html', context)
-
+'''
 # 删除
 def delete(request):
     if request.method == "POST":

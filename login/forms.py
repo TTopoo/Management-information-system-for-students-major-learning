@@ -30,3 +30,15 @@ class AddForm(forms.Form):
     idc = forms.CharField(label='身份证', max_length=18, min_length=18, widget=forms.TextInput(attrs={'class': 'form-control'}))
     age = forms.CharField(label='年龄', max_length=10, widget=forms.TextInput(attrs={'class': 'form-control'}))
     major = forms.ChoiceField(label='专业', choices=majorchoice)
+
+class SelectForm1(forms.Form):
+    stu_id = forms.CharField(label="学号", max_length=10, widget=forms.TextInput(attrs={'class': 'form-control'}))
+class SelectForm2(forms.Form):
+    majorchoice = (
+        ('080901',"计算机科学与技术"),
+        ('080902',"软件工程"),
+        ('080903',"网络工程"),
+        ('080904K',"信息安全"),
+    )
+    name = forms.CharField(label="姓名", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    major = forms.ChoiceField(label='专业', choices=majorchoice)
