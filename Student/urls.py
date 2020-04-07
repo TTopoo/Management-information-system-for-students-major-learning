@@ -12,5 +12,6 @@ urlpatterns = [
     path('captcha/', include('captcha.urls')),
     path('add/', views.add),
     path('all/', views.allinone),
+    path('json/',views.sendjson),
     
 ]

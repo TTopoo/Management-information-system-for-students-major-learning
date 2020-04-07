@@ -1,6 +1,10 @@
 from django.shortcuts import render,redirect
 from . import models,forms
-import hashlib
+from .models import User, StudentInformationModel, StudentAwardsRecodeModel
+import hashlib,json
+from django.core import serializers
+from django.http import JsonResponse
+from django.db.models import Q
 
 def hash_code(s, salt='mysite'):# 加点盐
     h = hashlib.md5()
@@ -23,7 +27,7 @@ def login(request):
             username = login_form.cleaned_data['username']
             password = login_form.cleaned_data['password']
             try:
-                user = models.User.objects.get(name=username)
+                user = User.objects.get(name=username)
                 if user.password == hash_code(password):# 哈希值和数据库内的值进行比对
                     request.session['is_login'] = True
                     request.session['user_id'] = user.id
@@ -53,14 +57,14 @@ def register(request):
                 message = "两次输入的密码不同！"
                 return render(request, 'login/register.html', locals())
             else:
-                same_name_user = models.User.objects.filter(name=username)
+                same_name_user = User.objects.filter(name=username)
                 if same_name_user:  # 用户名唯一
                     message = '用户已经存在，请重新选择用户名！'
                     return render(request, 'login/register.html', locals())
                 
                 # 当一切都OK的情况下，创建新用户
 
-                new_user = models.User.objects.create()
+                new_user = User.objects.create()
                 new_user.name = username
                 new_user.password = hash_code(password1) # 使用加密密码
                 new_user.save()
@@ -95,24 +99,24 @@ def add(request):
 
             print(username)
 
-            same_name_user = models.User.objects.filter(name=username)
+            same_name_user = User.objects.filter(name=username)
             if same_name_user:  # 学号唯一
                 message = '学号已经存在，请重新输入学号！'
                 return render(request, 'login/add.html', locals())
-            same_email_user = models.StudentInformationModel.objects.filter(email=email)
+            same_email_user = StudentInformationModel.objects.filter(email=email)
             if same_email_user:  # 邮箱地址唯一
                 message = '该邮箱地址已被注册，请使用别的邮箱！'
                 return render(request, 'login/add.html', locals())
 
             # 当一切都OK的情况下，创建新用户
 
-            new_user = models.User.objects.create()
+            new_user = User.objects.create()
             new_user.name = username
             new_user.password = hash_code(username) # 使用学号当做初始加密密码
             new_user.save()
 
-            obj = models.User.objects.get(name=username)
-            models.StudentInformationModel.objects.create(stu_id=obj,
+            obj = User.objects.get(name=username)
+            StudentInformationModel.objects.create(stu_id=obj,
                 email=email,
                 name=name,
                 sex=sex,
@@ -127,7 +131,49 @@ def add(request):
 
 
 def allinone(request):
-    if request.is_ajax() and request.method == 'POST':
-        print("ids",request.POST.getlist("id"))
-        print("action", request.POST.get("action"))
     return render(request, 'login/formtest.html', locals())
+   
+                
+def sendjson(request):
+    data = {}
+    print("Hello")
+    print(request.method)
+    if request.method == 'GET':
+        
+        search_kw = request.GET.get('search','')
+        print(search_kw)
+        sort_kw = request.GET.get('sort','')
+        print(sort_kw)
+        order_kw = request.GET.get('order','')
+        print(order_kw)
+        offset_kw = request.GET.get('offset',0)
+        print(offset_kw)
+        limit_kw = request.GET.get('limit',0)
+        print(limit_kw)
+        if(search_kw != ''):
+            
+                result_set = StudentInformationModel.objects.filter(
+                    Q(stu_id__name__contains=search_kw) |
+                    Q(email__contains=search_kw) |
+                    Q(name__contains=search_kw) |
+                    Q(sex__contains=search_kw) |
+                    Q(idc__contains=search_kw) |
+                    Q(age__contains=search_kw) |
+                    Q(major__contains=search_kw)
+                    ).values()[int(offset_kw):(int(offset_kw)+int(limit_kw))]
+                data['total'] = StudentInformationModel.objects.filter(
+                    Q(stu_id__name__contains=search_kw) |
+                    Q(email__contains=search_kw) |
+                    Q(name__contains=search_kw) |
+                    Q(sex__contains=search_kw) |
+                    Q(idc__contains=search_kw) |
+                    Q(age__contains=search_kw) |
+                    Q(major__contains=search_kw)
+                    ).count()
+
+        else:
+            result_set = StudentInformationModel.objects.values()[int(offset_kw):(int(offset_kw)+int(limit_kw))]
+            data['total']=StudentInformationModel.objects.all().count()
+        print(1)
+        data['rows'] = list(result_set)
+    return JsonResponse(data)
