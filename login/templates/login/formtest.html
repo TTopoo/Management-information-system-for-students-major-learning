@@ -107,68 +107,23 @@
       height: 550,
       locale: $('#locale').val(),
       columns: [
-        [{
-          field: 'state',
-          checkbox: true,
-          rowspan: 2,
-          align: 'center',
-          valign: 'middle'
-        }, {
-          title: 'Stu_ID',
-          field: 'id',
-          rowspan: 2,
-          align: 'center',
-          valign: 'middle',
-          sortable: true,
-          footerFormatter: totalTextFormatter
-        }, {
-          title: 'Item Detail',
-          colspan: 7,
-          align: 'center'
-        }],
-        [{
-          field: 'name',
-          title: 'Name',
-          sortable: true,
-          footerFormatter: totalNameFormatter,
-          align: 'center'
-        }, {
-          field: 'major',
-          title: 'Major',
-          sortable: true,
-          align: 'center',
-        }, {
-          field: 'sex',
-          title: 'Sex',
-          sortable: true,
-          align: 'center',
-        }, {
-          field: 'age',
-          title: 'Age',
-          sortable: true,
-          align: 'center',
-        }, {
-          field: 'email',
-          title: 'Email',
-          sortable: true,
-          align: 'center',
-        }, {
-          field: 'idc',
-          title: 'IDCard',
-          sortable: true,
-          align: 'center',
-        }, {
-          field: 'operate',
-          title: 'Item Operate',
-          align: 'center',
-          clickToSelect: false,
-          events: window.operateEvents,
-          formatter: operateFormatter
-        }]
+        [
+          {field: 'state',checkbox: true,rowspan: 2,align: 'center',valign: 'middle'},
+          {title: 'Stu_ID',field: 'id',rowspan: 2,align: 'center',valign: 'middle',sortable: true,footerFormatter: totalTextFormatter},
+          {title: 'Item Detail',colspan: 7,align: 'center'}
+        ],
+        [
+          {field: 'name',title: 'Name',sortable: true,footerFormatter: totalNameFormatter,align: 'center'},
+          {field: 'major',title: 'Major',sortable: true,align: 'center'},
+          {field: 'sex',title: 'Sex',sortable: true,align: 'center'},
+          {field: 'age',title: 'Age',sortable: true,align: 'center'},
+          {field: 'email',title: 'Email',sortable: true,align: 'center'},
+          {field: 'idc',title: 'IDCard',sortable: true,align: 'center'},
+          {field: 'operate',title: 'Item Operate',align: 'center',clickToSelect: false,events: window.operateEvents,formatter: operateFormatter}
+        ]
       ]
     })
-    $table.on('check.bs.table uncheck.bs.table ' +
-      'check-all.bs.table uncheck-all.bs.table',
+    $table.on('check.bs.table uncheck.bs.table ' +'check-all.bs.table uncheck-all.bs.table',
     function () {
       $remove.prop('disabled', !$table.bootstrapTable('getSelections').length)
 
