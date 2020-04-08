@@ -151,29 +151,34 @@ def sendjson(request):
         limit_kw = request.GET.get('limit',0)
         print(limit_kw)
         if(search_kw != ''):
-            
-                result_set = StudentInformationModel.objects.filter(
-                    Q(stu_id__name__contains=search_kw) |
-                    Q(email__contains=search_kw) |
-                    Q(name__contains=search_kw) |
-                    Q(sex__contains=search_kw) |
-                    Q(idc__contains=search_kw) |
-                    Q(age__contains=search_kw) |
-                    Q(major__contains=search_kw)
-                    ).values()[int(offset_kw):(int(offset_kw)+int(limit_kw))]
-                data['total'] = StudentInformationModel.objects.filter(
-                    Q(stu_id__name__contains=search_kw) |
-                    Q(email__contains=search_kw) |
-                    Q(name__contains=search_kw) |
-                    Q(sex__contains=search_kw) |
-                    Q(idc__contains=search_kw) |
-                    Q(age__contains=search_kw) |
-                    Q(major__contains=search_kw)
-                    ).count()
-
+            result_set = StudentInformationModel.objects.filter(
+                Q(stu_id__name__contains=search_kw) |
+                Q(email__contains=search_kw) |
+                Q(name__contains=search_kw) |
+                Q(sex__contains=search_kw) |
+                Q(idc__contains=search_kw) |
+                Q(age__contains=search_kw) |
+                Q(major__contains=search_kw)
+                ).all()
+            data['total'] = StudentInformationModel.objects.filter(
+                Q(stu_id__name__contains=search_kw) |
+                Q(email__contains=search_kw) |
+                Q(name__contains=search_kw) |
+                Q(sex__contains=search_kw) |
+                Q(idc__contains=search_kw) |
+                Q(age__contains=search_kw) |
+                Q(major__contains=search_kw)
+                ).count()
         else:
-            result_set = StudentInformationModel.objects.values()[int(offset_kw):(int(offset_kw)+int(limit_kw))]
+            result_set = StudentInformationModel.objects.all()
             data['total']=StudentInformationModel.objects.all().count()
         print(1)
+        if(sort_kw!=''):
+            if(order_kw=='asc'):
+                result_set = result_set.order_by(sort_kw)
+            else:
+                result_set = result_set.order_by(('-'+sort_kw))
+
+        result_set=result_set.values()[int(offset_kw):(int(offset_kw)+int(limit_kw))]
         data['rows'] = list(result_set)
     return JsonResponse(data)
