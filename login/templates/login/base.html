@@ -11,9 +11,14 @@
 
     <!-- Bootstrap -->
     <link href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.css">
+    
+    <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+    <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.js"></script>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
       <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
@@ -63,16 +68,10 @@
 
     {% block content %}{% endblock %}
 
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+    
     <canvas class="fireworks" style="position: fixed; left: 0px; top: 0px; z-index: 99999999; pointer-events: none; width: 1366px; height: 150px;" width="2732" height="300"></canvas>
     <script src="{% static 'js/anime.min.js' %}"></script>
     <script src="{% static 'js/cursor.js' %}"></script>
-    <script type="text/javascript">
-      fireworks.setCanvasSize();
-    </script>
   </body>
 </html>

@@ -1,18 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>BootStrap</title>
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.css">
-	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.js"></script>
+{% extends 'login/base.html' %}
+{% block title %}TABLE{% endblock %}
+{% block content %}
 
-</head>
 <style>
   .like {
     margin-right: 10px;
@@ -47,7 +37,7 @@
   data-url="../json"
   data-response-handler="responseHandler">
 </table>
-
+<form action="." method="post">{% csrf_token %}
 <script>
   var $table = $('#table')
   var $remove = $('#remove')
@@ -87,10 +77,23 @@
       alert('You click like action, row: ' + JSON.stringify(row))
     },
     'click .remove': function (e, value, row, index) {
+
+      $.ajax({
+        url: "../delete/",
+        data: JSON.stringify([row]),
+        contentType: 'application/json',
+        type: "POST",
+        traditional: true,
+        success: function(result) { 
+        },
+        fail: function(result) {
+        }
+      });
       $table.bootstrapTable('remove', {
         field: 'id',
         values: [row.id]
       })
+      
     }
   }
 
@@ -135,7 +138,19 @@
       console.log(name, args)
     })
     $remove.click(function () {
-      var ids = getIdSelections()
+      var ids = getIdSelections();
+      var select_del = $table.bootstrapTable('getSelections')
+      $.ajax({
+        url: "../delete/",
+        data: JSON.stringify(select_del),
+        contentType: 'application/json',
+        type: "POST",
+        traditional: true,
+        success: function(result) { 
+        },
+        fail: function(result) {
+        }
+      });
       $table.bootstrapTable('remove', {
         field: 'id',
         values: ids
@@ -150,5 +165,4 @@
     $('#locale').change(initTable)
   })
 </script>
-
-</html>
+{% endblock %}

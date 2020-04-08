@@ -3,8 +3,9 @@ from . import models,forms
 from .models import User, StudentInformationModel, StudentAwardsRecodeModel
 import hashlib,json
 from django.core import serializers
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt 
 
 def hash_code(s, salt='mysite'):# 加点盐
     h = hashlib.md5()
@@ -132,8 +133,18 @@ def add(request):
 
 def allinone(request):
     return render(request, 'login/formtest.html', locals())
-   
-                
+
+@csrf_exempt
+def delete(request):
+    print("Hello")
+    json_receive = json.loads(request.body)
+    print(json_receive)
+    for i in json_receive:
+        print(i.keys())
+        stu_id = i['stu_id_id']
+        print(stu_id)
+        User.objects.filter(name=stu_id).delete()
+    return HttpResponse()
 def sendjson(request):
     data = {}
     print("Hello")
