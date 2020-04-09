@@ -14,4 +14,5 @@ urlpatterns = [
     path('all/', views.allinone),
     path('json/',views.sendjson),
     path('delete/',views.delete),
+    path('addd/', views.addd),
 ]

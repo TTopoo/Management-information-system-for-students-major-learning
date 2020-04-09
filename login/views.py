@@ -134,6 +134,45 @@ def add(request):
 def allinone(request):
     return render(request, 'login/formtest.html', locals())
 
+def addd(request):
+    if request.method == "POST":
+        print(request.body)
+        username = request.POST.get("username", None)
+        email = request.POST.get("email", None)
+        name = request.POST.get("name", None)
+        sex = request.POST.get("sex", None)
+        idc = request.POST.get("idc", None)
+        age = request.POST.get("age", None)
+        major = request.POST.get("major", None)
+
+        print(username)
+
+        same_name_user = User.objects.filter(name=username)
+        if same_name_user:  # 学号唯一
+            return HttpResponse(json.dumps({'status':'stuidname'}))
+        same_email_user = StudentInformationModel.objects.filter(email=email)
+        if same_email_user:  # 邮箱地址唯一
+            return HttpResponse(json.dumps({'status':'emailaddr'}))
+
+        # 当一切都OK的情况下，创建新用户
+        new_user = User.objects.create()
+        new_user.name = username
+        new_user.password = hash_code(username) # 使用学号当做初始加密密码
+        new_user.save()
+
+        obj = User.objects.get(name=username)
+        StudentInformationModel.objects.create(stu_id=obj,
+            email=email,
+            name=name,
+            sex=sex,
+            idc=idc,
+            age=age,
+            major=major)
+        return HttpResponse(json.dumps({'status':'success'}))
+    add_form = forms.AddForm()
+    return HttpResponse(json.dumps({'status':'success'}))
+
+
 @csrf_exempt
 def delete(request):
     print("Hello")
@@ -145,6 +184,7 @@ def delete(request):
         print(stu_id)
         User.objects.filter(name=stu_id).delete()
     return HttpResponse()
+
 def sendjson(request):
     data = {}
     print("Hello")

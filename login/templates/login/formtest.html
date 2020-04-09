@@ -13,6 +13,80 @@
   <button id="remove" class="btn btn-danger" disabled>
     <i class="glyphicon glyphicon-remove"></i> Delete
   </button>
+  <button id="add" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+    <i class="glyphicon glyphicon-plus"></i> Add
+  </button>
+  
+  <form id="add-info-form" action="#" method="post" class="form-horizontal" role="form">
+    {% csrf_token %}
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">新增记录</h4>
+          </div>
+          <div class="modal-body" style="height: 100%;">
+
+            <div class="form-group">
+              <label for="lastname" class="col-sm-3 control-label">学号</label>
+              <div class="col-sm-7">
+                  <input type="text" class="form-control" name="username" id="username" required="required" placeholder="请输入学号"></input>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lastname" class="col-sm-3 control-label">邮箱</label>
+              <div class="col-sm-7">
+                  <input type="text" class="form-control" name="email" id="email" required="required" placeholder="请输入邮箱"></input>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lastname" class="col-sm-3 control-label">姓名</label>
+              <div class="col-sm-7">
+                  <input type="text" class="form-control" name="name" id="name" required="required" placeholder="请输入姓名"></input>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lastname" class="col-sm-3 control-label">性别</label>
+              <div class="col-sm-7">
+                <select data-placeholder="选择项目..." class="form-control" name="sex" id="sex" required="required">
+                  <option value="male" hassubinfo="true">男</option>
+                  <option value="female" hassubinfo="true">女</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lastname" class="col-sm-3 control-label">身份证号</label>
+              <div class="col-sm-7">
+                  <input type="text" class="form-control" name="idc" id="idc" required="required" placeholder="请输入身份证号"></input>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lastname" class="col-sm-3 control-label">年龄</label>
+              <div class="col-sm-7">
+                  <input type="text" class="form-control" name="age" id="age" required="required" placeholder="请输入年龄"></input>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lastname" class="col-sm-3 control-label">专业</label>
+              <div class="col-sm-7">
+                <select data-placeholder="选择项目..." class="form-control" name="major" id="major" required="required">
+                  <option value="080901" hassubinfo="true">计算机科学与技术</option>
+                  <option value="080902" hassubinfo="true">软件工程</option>
+                  <option value="080903" hassubinfo="true">网络工程</option>
+                  <option value="080904K" hassubinfo="true">信息安全</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <input type="button" data-dissmiss="modal" onclick="add_info()" class="btn btn-primary"value="提交">
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
 </div>
 <table
   id="table"
@@ -28,7 +102,6 @@
   data-click-to-select="true"
   data-detail-formatter="detailFormatter"
   data-minimum-count-columns="2"
-  data-show-pagination-switch="true"
   data-pagination="true"
   data-id-field="id"
   data-page-list="[5, 25, 50, 100, all]"
@@ -37,10 +110,10 @@
   data-url="../json"
   data-response-handler="responseHandler">
 </table>
-<form action="." method="post">{% csrf_token %}
 <script>
   var $table = $('#table')
   var $remove = $('#remove')
+  var $add = $('#add')
   var selections = []
 
   function getIdSelections() {
@@ -73,9 +146,6 @@
   }
 
   window.operateEvents = {
-    'click .like': function (e, value, row, index) {
-      alert('You click like action, row: ' + JSON.stringify(row))
-    },
     'click .remove': function (e, value, row, index) {
 
       $.ajax({
@@ -107,7 +177,7 @@
 
   function initTable() {
     $table.bootstrapTable('destroy').bootstrapTable({
-      height: 550,
+      height: 600,
       locale: $('#locale').val(),
       columns: [
         [
@@ -157,6 +227,9 @@
       })
       $remove.prop('disabled', true)
     })
+    $add.click(function () {
+      $('#identifier').modal(options)
+    })
   }
 
   $(function() {
@@ -165,4 +238,54 @@
     $('#locale').change(initTable)
   })
 </script>
+
+<script type="text/javascript">
+    toastr.options = {
+        closeButton: true,
+        debug: true,
+        progressBar: true,
+        positionClass: "toast-top-center",
+        onclick: null,
+        showDuration: "300",
+        hideDuration: "1000",
+        timeOut: "2000",
+        extendedTimeOut: "1000",
+        showEasing: "swing",
+        hideEasing: "linear",
+        showMethod: "fadeIn",
+        hideMethod: "fadeOut"
+    };
+  function add_info() {
+    $.ajax({
+      cache:false,
+      type: "POST",
+      dataType: "json",
+      url: "../addd/" ,
+      data: $('#add-info-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
+      async:false,  //必须要为false,必须必须
+
+      success: function (data) {
+        console.log(data);//打印服务端返回的数据(调试用)
+        if(data.status == "success"){
+          document.getElementById("add-info-form").reset();
+          $('#myModal').modal('hide');
+          toastr.success('提交数据成功');
+          $("#table").bootstrapTable('refresh');
+        }
+        if(data.status == "stuidname"){
+          
+          toastr.success('学号重复');
+        }
+        if(data.status == "emailaddr"){
+          
+          toastr.success('邮箱重复');
+        }
+      },
+      error : function() {
+        toastr.warning("请输入所有数据");
+      }
+    });
+  }
+  </script>
+
 {% endblock %}
