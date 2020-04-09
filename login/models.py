@@ -29,7 +29,7 @@ class StudentInformationModel(models.Model):
         ('080904K',"信息安全"),
     )
     stu_id = models.ForeignKey('User', to_field='name', on_delete=models.CASCADE)
-    email = models.EmailField(unique=True, verbose_name='邮箱')
+    email = models.EmailField(verbose_name='邮箱')
     name = models.CharField(max_length=30, verbose_name='姓名', null=True)
     sex = models.CharField(max_length=32,choices=gender,default='男')
     idc = models.CharField(max_length=20, verbose_name='身份证', null=True)

@@ -85,58 +85,11 @@ def logout(request):
     # del request.session['user_name']
     return redirect("/index/")
 
-def add(request):
-    if request.method == "POST":
-        add_form = forms.AddForm(request.POST)
-        message = "请检查填写的内容！"
-        if add_form.is_valid():  # 获取数据
-            username = add_form.cleaned_data['username']
-            email = add_form.cleaned_data['email']
-            name = add_form.cleaned_data['name']
-            sex = add_form.cleaned_data['sex']
-            idc = add_form.cleaned_data['idc']
-            age = add_form.cleaned_data['age']
-            major = add_form.cleaned_data['major']
-
-            print(username)
-
-            same_name_user = User.objects.filter(name=username)
-            if same_name_user:  # 学号唯一
-                message = '学号已经存在，请重新输入学号！'
-                return render(request, 'login/add.html', locals())
-            same_email_user = StudentInformationModel.objects.filter(email=email)
-            if same_email_user:  # 邮箱地址唯一
-                message = '该邮箱地址已被注册，请使用别的邮箱！'
-                return render(request, 'login/add.html', locals())
-
-            # 当一切都OK的情况下，创建新用户
-
-            new_user = User.objects.create()
-            new_user.name = username
-            new_user.password = hash_code(username) # 使用学号当做初始加密密码
-            new_user.save()
-
-            obj = User.objects.get(name=username)
-            StudentInformationModel.objects.create(stu_id=obj,
-                email=email,
-                name=name,
-                sex=sex,
-                idc=idc,
-                age=age,
-                major=major)
-            message = '增加成功'   
-            return render(request, 'login/add.html', locals())
-        #return render(request, 'login/add.html', locals())
-    add_form = forms.AddForm()
-    return render(request, 'login/add.html', locals())
-
-
 def allinone(request):
     return render(request, 'login/formtest.html', locals())
 
-def addd(request):
+def add(request):
     if request.method == "POST":
-        print(request.body)
         username = request.POST.get("username", None)
         email = request.POST.get("email", None)
         name = request.POST.get("name", None)
@@ -145,15 +98,11 @@ def addd(request):
         age = request.POST.get("age", None)
         major = request.POST.get("major", None)
 
-        print(username)
-
         same_name_user = User.objects.filter(name=username)
         if same_name_user:  # 学号唯一
             return HttpResponse(json.dumps({'status':'stuidname'}))
         same_email_user = StudentInformationModel.objects.filter(email=email)
-        if same_email_user:  # 邮箱地址唯一
-            return HttpResponse(json.dumps({'status':'emailaddr'}))
-
+        
         # 当一切都OK的情况下，创建新用户
         new_user = User.objects.create()
         new_user.name = username
@@ -169,7 +118,29 @@ def addd(request):
             age=age,
             major=major)
         return HttpResponse(json.dumps({'status':'success'}))
-    add_form = forms.AddForm()
+    return HttpResponse(json.dumps({'status':'success'}))
+
+def update(request):
+    if request.method == "POST":
+        username = request.POST.get("update_username", None)
+        email = request.POST.get("update_email", None)
+        name = request.POST.get("update_name", None)
+        sex = request.POST.get("update_sex", None)
+        idc = request.POST.get("update_idc", None)
+        age = request.POST.get("update_age", None)
+        major = request.POST.get("update_major", None)
+
+        print(username)
+
+        obj = User.objects.get(name=username)
+        StudentInformationModel.objects.filter(stu_id=obj).update(stu_id=obj,
+            email=email,
+            name=name,
+            sex=sex,
+            idc=idc,
+            age=age,
+            major=major)
+        return HttpResponse(json.dumps({'status':'success'}))
     return HttpResponse(json.dumps({'status':'success'}))
 
 

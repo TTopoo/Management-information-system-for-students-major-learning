@@ -10,9 +10,9 @@ urlpatterns = [
     path('register/', views.register),
     path('logout/', views.logout),
     path('captcha/', include('captcha.urls')),
-    path('add/', views.add),
     path('all/', views.allinone),
     path('json/',views.sendjson),
     path('delete/',views.delete),
-    path('addd/', views.addd),
+    path('add/', views.add),
+    path('update/', views.update),
 ]
