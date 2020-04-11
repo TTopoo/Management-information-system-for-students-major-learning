@@ -2,82 +2,118 @@
 
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <title>{% block title %}base{% endblock %}</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
     <!-- Bootstrap -->
-    <link href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'bootstrap-4.4.1-dist/css/bootstrap.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/5.13.0/css/all.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.css">
 
+    <!-- 若无必要 下一行的这个样式可以放到仅用到它的html页面中静态加载 (该行注释待问题解决后删除) -->
+    <link href="{% static 'css/floating-labels.css' %}" rel="stylesheet">
+
     <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
-    <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.js"></script>
+    <script src="{% static 'bootstrap-4.4.1-dist/js/bootstrap.min.js' %}"></script>
+
+    <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+
+    <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/export/bootstrap-table-export.min.js"></script>
 
     <!-- toastr -->
     <link href="https://cdn.bootcss.com/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
     <script src="https://cdn.bootcss.com/toastr.js/2.1.4/toastr.min.js"></script>
 
-    <!--[if lt IE 9]>
-      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
     {% block css %}{% endblock %}
-  </head>
-  <body>
-    <style>
-      .fireworks {
+</head>
+<body>
+<style>
+    .fireworks {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-      }
-    </style>
+    }
+</style>
 
-    {% block navbar %}
+{% block navbar %}
     <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#my-nav" aria-expanded="false">
-            <span class="sr-only">切换导航条</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">学生信息管理系统</a>
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#my-nav"
+                        aria-expanded="false">
+                    <span class="sr-only">切换导航条</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">学生信息管理系统</a>
+            </div>
+
+
+            <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+                <a class="navbar-brand" href="/index/">学生专业管理系统</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03"
+                        aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarsExample03">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/index/">主页 <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">备用</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdown03">
+                                <a class="dropdown-item" href="#">1</a>
+                                <a class="dropdown-item" href="#">2</a>
+                                <a class="dropdown-item" href="#">3</a>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        {% if request.session.is_login %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="/index/">当前在线：{{ request.session.user_name }} </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/logout/">登出 </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="/login/">登录 </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/register/">注册 </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
         </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="my-nav">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="/index/">主页</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-              {% if request.session.is_login %}
-                  <li><a href="#">当前在线：{{ request.session.user_name }}</a></li>
-                  <li><a href="/logout/">登出</a></li>
-              {% else %}
-                  <li><a href="/login/">登录</a></li>
-                  <li><a href="/register/">注册</a></li>
-              {% endif %}
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
     </nav>
-    {% endblock %}
-    {% block content %}{% endblock %}
+{% endblock %}
+{% block content %}{% endblock %}
 
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
+<!-- Include all compiled plugins (below), or include individual files as needed -->
 
-    <canvas class="fireworks" style="position: fixed; left: 0px; top: 0px; z-index: 99999999; pointer-events: none; width: 1366px; height: 150px;" width="2732" height="300"></canvas>
-    <script src="{% static 'js/anime.min.js' %}"></script>
-    <script src="{% static 'js/cursor.js' %}"></script>
-  </body>
+<canvas class="fireworks"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999999; pointer-events: none; width: 1366px; height: 150px;"
+        width="2732"
+        height="300">
+</canvas>
+<script src="{% static 'js/anime.min.js' %}"></script>
+<script src="{% static 'js/cursor.js' %}"></script>
+</body>
 </html>

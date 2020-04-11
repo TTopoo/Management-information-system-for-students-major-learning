@@ -4,6 +4,10 @@
 {% block content %}
 
 <style>
+  .select,
+  #locale {
+    width: 100%;
+  }
   .update {
     margin-right: 10px;
   }
@@ -16,7 +20,7 @@
   <button id="add" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
     <i class="glyphicon glyphicon-plus"></i> Add
   </button>
-  
+</div>
 
   <!--新增-->
   <form id="add-info-form" action="#" method="post" class="form-horizontal" role="form">
@@ -29,59 +33,43 @@
           </div>
           <div class="modal-body" style="height: 100%;">
 
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="username" id="username" placeholder="请输入学号" required autofocus></input>
               <label for="lastname" class="col-sm-3 control-label">学号</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="username" id="username" required="required" placeholder="请输入学号"></input>
-              </div>
             </div>
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="email" id="email" placeholder="请输入邮箱" required></input>
               <label for="lastname" class="col-sm-3 control-label">邮箱</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="email" id="email" required="required" placeholder="请输入邮箱"></input>
-              </div>
             </div>
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="name" id="name" placeholder="请输入姓名" required></input>
               <label for="lastname" class="col-sm-3 control-label">姓名</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="name" id="name" required="required" placeholder="请输入姓名"></input>
-              </div>
             </div>
             <div class="form-group">
-              <label for="lastname" class="col-sm-3 control-label">性别</label>
-              <div class="col-sm-7">
-                <select data-placeholder="选择项目..." class="form-control" name="sex" id="sex" required="required">
-                  <option value="male" hassubinfo="true">男</option>
-                  <option value="female" hassubinfo="true">女</option>
-                </select>
-              </div>
+              <select data-placeholder="选择项目..." class="form-control" name="sex" id="sex" required>
+                <option value="male" hassubinfo="true">男</option>
+                <option value="female" hassubinfo="true">女</option>
+              </select>
             </div>
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="idc" id="idc" placeholder="请输入身份证号" required></input>
               <label for="lastname" class="col-sm-3 control-label">身份证号</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="idc" id="idc" required="required" placeholder="请输入身份证号"></input>
-              </div>
             </div>
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="age" id="age" placeholder="请输入年龄" required></input>
               <label for="lastname" class="col-sm-3 control-label">年龄</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="age" id="age" required="required" placeholder="请输入年龄"></input>
-              </div>
             </div>
             <div class="form-group">
-              <label for="lastname" class="col-sm-3 control-label">专业</label>
-              <div class="col-sm-7">
-                <select data-placeholder="选择项目..." class="form-control" name="major" id="major" required="required">
-                  <option value="080901" hassubinfo="true">计算机科学与技术</option>
-                  <option value="080902" hassubinfo="true">软件工程</option>
-                  <option value="080903" hassubinfo="true">网络工程</option>
-                  <option value="080904K" hassubinfo="true">信息安全</option>
-                </select>
-              </div>
+              <select data-placeholder="选择项目..." class="form-control" name="major" id="major" required>
+                <option value="080901" hassubinfo="true">计算机科学与技术</option>
+                <option value="080902" hassubinfo="true">软件工程</option>
+                <option value="080903" hassubinfo="true">网络工程</option>
+                <option value="080904K" hassubinfo="true">信息安全</option>
+              </select>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
             <input type="button" data-dissmiss="modal" onclick="add_info()" class="btn btn-primary"value="提交">
           </div>
         </div>
@@ -100,57 +88,41 @@
             <h4 class="modal-title" id="updateModalLabel">修改记录</h4>
           </div>
           <div class="modal-body" style="height: 100%;">
-
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="update_username" id="update_username" placeholder="请输入学号" required autofocus></input>
               <label for="lastname" class="col-sm-3 control-label">学号</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="update_username" id="update_username" required="required" readonly="readonly"></input>
-              </div>
             </div>
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="update_email" id="update_email" placeholder="请输入邮箱" required></input>
               <label for="lastname" class="col-sm-3 control-label">邮箱</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="update_email" id="update_email" required="required"></input>
-              </div>
             </div>
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="update_name" id="update_name" placeholder="请输入姓名" required></input>
               <label for="lastname" class="col-sm-3 control-label">姓名</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="update_name" id="update_name" required="required"></input>
-              </div>
             </div>
             <div class="form-group">
-              <label for="lastname" class="col-sm-3 control-label">性别</label>
-              <div class="col-sm-7">
-                <select data-placeholder="选择项目..." class="form-control" name="update_sex" id="update_sex">
-                  <option value="male" hassubinfo="true">男</option>
-                  <option value="female" hassubinfo="true">女</option>
-                </select>
-              </div>
+              <select data-placeholder="选择项目..." class="form-control" name="update_sex" id="update_sex" required>
+                <option value="male" hassubinfo="true">男</option>
+                <option value="female" hassubinfo="true">女</option>
+              </select>
             </div>
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="update_idc" id="update_idc" placeholder="请输入身份证号" required></input>
               <label for="lastname" class="col-sm-3 control-label">身份证号</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="update_idc" id="update_idc" required="required"></input>
-              </div>
             </div>
-            <div class="form-group">
+            <div class="form-label-group">
+              <input type="text" class="form-control" name="update_age" id="update_age" placeholder="请输入年龄" required></input>
               <label for="lastname" class="col-sm-3 control-label">年龄</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="update_age" id="update_age" required="required"></input>
-              </div>
             </div>
             <div class="form-group">
-              <label for="lastname" class="col-sm-3 control-label">专业</label>
-              <div class="col-sm-7">
-                <select data-placeholder="选择项目..." class="form-control" name="update_major" id="update_major" required="required">
-                  <option value="080901" hassubinfo="true">计算机科学与技术</option>
-                  <option value="080902" hassubinfo="true">软件工程</option>
-                  <option value="080903" hassubinfo="true">网络工程</option>
-                  <option value="080904K" hassubinfo="true">信息安全</option>
-                </select>
-              </div>
+              <select data-placeholder="选择项目..." class="form-control" name="update_major" id="update_major" required>
+                <option value="080901" hassubinfo="true">计算机科学与技术</option>
+                <option value="080902" hassubinfo="true">软件工程</option>
+                <option value="080903" hassubinfo="true">网络工程</option>
+                <option value="080904K" hassubinfo="true">信息安全</option>
+              </select>
             </div>
+            
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -161,7 +133,6 @@
     </div>
   </form>
 
-</div>
 <table
   id="table"
   data-toolbar="#toolbar"
@@ -176,9 +147,10 @@
   data-click-to-select="true"
   data-detail-formatter="detailFormatter"
   data-minimum-count-columns="2"
+  data-show-pagination-switch="true"
   data-pagination="true"
   data-id-field="id"
-  data-page-list="[5, 25, 50, 100, all]"
+  data-page-list="[10, 25, 50, 100, all]"
   data-show-footer="true"
   data-side-pagination="server"
   data-url="../json"
