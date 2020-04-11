@@ -13,7 +13,7 @@ urlpatterns = [
     
 
     path('stu/stu_info/', views.stu_info),
-    path('stu/stu_info/json/', views.sendjson),
+    path('stu/stu_info/json/', views.send_stu_info_json),
     path('stu/stu_info/delete/', views.delete),
     path('stu/stu_info/add/', views.add),
     path('stu/stu_info/update/', views.update),

@@ -193,7 +193,7 @@ def delete(request):
 
 
 #
-def sendjson(request):
+def send_stu_info_json(request):
     data = {}
     print("Hello")
     print(request.method)
