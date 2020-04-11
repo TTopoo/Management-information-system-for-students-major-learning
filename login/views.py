@@ -97,8 +97,8 @@ def logout(request):
 
 
 #
-def allinone(request):
-    return render(request, 'login/formtest.html', locals())
+def stu_info(request):
+    return render(request, 'login/stu_info.html', locals())
 
 
 # 添加学生信息
