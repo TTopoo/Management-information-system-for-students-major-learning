@@ -105,17 +105,26 @@ def stu_info(request):
 def add(request):
     if request.method == "POST":
         username = request.POST.get("username", None)
+        if username=='':  # 学号非空
+            return HttpResponse(json.dumps({'status': 'stuidname0'}))
         email = request.POST.get("email", None)
+        if email=='':  # 邮箱非空
+            return HttpResponse(json.dumps({'status': 'email0'}))
         name = request.POST.get("name", None)
+        if name=='':  # 姓名非空
+            return HttpResponse(json.dumps({'status': 'name0'}))
         sex = request.POST.get("sex", None)
         idc = request.POST.get("idc", None)
+        if idc=='':  # 身份证号非空
+            return HttpResponse(json.dumps({'status': 'idc0'}))
         age = request.POST.get("age", None)
+        if age=='':  # 年龄非空
+            return HttpResponse(json.dumps({'status': 'age0'}))
         major = request.POST.get("major", None)
 
         same_name_user = User.objects.filter(name=username)
         if same_name_user:  # 学号唯一
-            return HttpResponse(json.dumps({'status': 'stuidname'}))
-        same_email_user = StudentInformationModel.objects.filter(email=email)
+            return HttpResponse(json.dumps({'status': 'stuidname1'}))
 
         # 当一切都OK的情况下，创建新用户
         new_user = User.objects.create()
@@ -138,15 +147,23 @@ def add(request):
 # 更新
 def update(request):
     if request.method == "POST":
-        username = request.POST.get("update_username", None)
-        email = request.POST.get("update_email", None)
-        name = request.POST.get("update_name", None)
-        sex = request.POST.get("update_sex", None)
-        idc = request.POST.get("update_idc", None)
-        age = request.POST.get("update_age", None)
-        major = request.POST.get("update_major", None)
-
-        print(username)
+        username = request.POST.get("username", None)
+        if username=='':  # 学号非空
+            return HttpResponse(json.dumps({'status': 'stuidname0'}))
+        email = request.POST.get("email", None)
+        if email=='':  # 邮箱非空
+            return HttpResponse(json.dumps({'status': 'email0'}))
+        name = request.POST.get("name", None)
+        if name=='':  # 姓名非空
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        sex = request.POST.get("sex", None)
+        idc = request.POST.get("idc", None)
+        if idc=='':  # 身份证号非空
+            return HttpResponse(json.dumps({'status': 'idc0'}))
+        age = request.POST.get("age", None)
+        if age=='':  # 年龄非空
+            return HttpResponse(json.dumps({'status': 'age0'}))
+        major = request.POST.get("major", None)
 
         obj = User.objects.get(name=username)
         StudentInformationModel.objects.filter(stu_id=obj).update(stu_id=obj,
