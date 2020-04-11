@@ -13,7 +13,7 @@
     <link href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/5.13.0/css/all.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.css">
-    
+
     <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
     <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
@@ -39,6 +39,8 @@
         height: 100%;
       }
     </style>
+
+    {% block navbar %}
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -49,7 +51,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Mysite</a>
+          <a class="navbar-brand" href="#">学生信息管理系统</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -69,11 +71,11 @@
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
-
+    {% endblock %}
     {% block content %}{% endblock %}
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    
+
     <canvas class="fireworks" style="position: fixed; left: 0px; top: 0px; z-index: 99999999; pointer-events: none; width: 1366px; height: 150px;" width="2732" height="300"></canvas>
     <script src="{% static 'js/anime.min.js' %}"></script>
     <script src="{% static 'js/cursor.js' %}"></script>

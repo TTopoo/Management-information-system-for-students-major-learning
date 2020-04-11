@@ -11,8 +11,8 @@ urlpatterns = [
     path('logout/', views.logout),
     path('captcha/', include('captcha.urls')),
     path('all/', views.allinone),
-    path('json/',views.sendjson),
-    path('delete/',views.delete),
+    path('json/', views.sendjson),
+    path('delete/', views.delete),
     path('add/', views.add),
     path('update/', views.update),
 ]
