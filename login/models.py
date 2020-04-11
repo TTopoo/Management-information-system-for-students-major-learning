@@ -51,7 +51,7 @@ class StudentAwardsRecodeModel(models.Model):
     stu_id = models.ForeignKey('User', to_field='name', on_delete=models.CASCADE)
     award_type = models.CharField(max_length=5, verbose_name='奖惩记录类别', null=True)
     award_content = models.CharField(max_length=50, verbose_name='奖惩信息', null=True)
-    award_date = models.DateTimeField(verbose_name='奖惩日期', null=True)
+    award_date = models.DateField(verbose_name='奖惩日期', null=True)
 
     class Meta:
         ordering = ['stu_id']

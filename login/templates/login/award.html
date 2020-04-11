@@ -6,72 +6,43 @@
     <input type="text" class="form-control" name="username" id="username" placeholder="学号" required="required" autofocus></input>
     <label for="lastname" class="col-sm-3 control-label">学号</label>
   </div>
-  <div class="form-label-group">
-    <input type="email" class="form-control" name="email" id="email" placeholder="邮箱" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">邮箱</label>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="name" id="name" placeholder="姓名" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">姓名</label>
-  </div>
   <div class="form-group">
-    <select data-placeholder="选择项目..." class="form-control" name="sex" id="sex" required="required">
-      <option value="male" hassubinfo="true">男</option>
-      <option value="female" hassubinfo="true">女</option>
+    <select data-placeholder="选择项目..." class="form-control" name="type" id="type" required="required">
+      <option value="奖励" hassubinfo="true">奖励</option>
+      <option value="惩罚" hassubinfo="true">惩罚</option>
     </select>
   </div>
   <div class="form-label-group">
-    <input type="text" class="form-control" name="idc" id="idc" placeholder="身份证号" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">身份证号</label>
+    <input type="text" class="form-control" name="content" id="content" placeholder="奖惩详情" required="required"></input>
+    <label for="lastname" class="col-sm-3 control-label">奖惩详情</label>
   </div>
   <div class="form-label-group">
-    <input type="text" class="form-control" name="age" id="age" placeholder="年龄" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">年龄</label>
+    <input type="date" class="form-control" name="date" id="date" placeholder="奖惩日期" required="required"></input>
+    <label for="lastname" class="col-sm-3 control-label">奖惩日期</label>
   </div>
-  <div class="form-group">
-    <select data-placeholder="选择项目..." class="form-control" name="major" id="major" required="required">
-      <option value="080901" hassubinfo="true">计算机科学与技术</option>
-      <option value="080902" hassubinfo="true">软件工程</option>
-      <option value="080903" hassubinfo="true">网络工程</option>
-      <option value="080904K" hassubinfo="true">信息安全</option>
-    </select>
-  </div>
+  
+  
 {% endblock %}
 {% block upd-modal-body %}
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_username" id="update_username" placeholder="学号" required="required" autofocus></input>
-    <label for="lastname" class="col-sm-3 control-label">学号</label>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_email" id="update_email" placeholder="邮箱" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">邮箱</label>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_name" id="update_name" placeholder="姓名" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">姓名</label>
-  </div>
-  <div class="form-group">
-    <select data-placeholder="选择项目..." class="form-control" name="update_sex" id="update_sex" required="required">
-      <option value="male" hassubinfo="true">男</option>
-      <option value="female" hassubinfo="true">女</option>
-    </select>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_idc" id="update_idc" placeholder="身份证号" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">身份证号</label>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_age" id="update_age" placeholder="年龄" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">年龄</label>
-  </div>
-  <div class="form-group">
-    <select data-placeholder="选择项目..." class="form-control" name="update_major" id="update_major" required="required">
-      <option value="080901" hassubinfo="true">计算机科学与技术</option>
-      <option value="080902" hassubinfo="true">软件工程</option>
-      <option value="080903" hassubinfo="true">网络工程</option>
-      <option value="080904K" hassubinfo="true">信息安全</option>
-    </select>
-  </div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="update_username" id="update_username" placeholder="学号" required="required" autofocus></input>
+  <label for="lastname" class="col-sm-3 control-label">学号</label>
+</div>
+<div class="form-group">
+  <select data-placeholder="选择项目..." class="form-control" name="update_type" id="update_type" required="required">
+    <option value="奖励" hassubinfo="true">奖励</option>
+    <option value="惩罚" hassubinfo="true">惩罚</option>
+  </select>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="update_content" id="update_content" placeholder="奖惩详情" required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">奖惩详情</label>
+</div>
+<div class="form-label-group">
+  <input type="date" class="form-control" name="update_date" id="update_date" placeholder="奖惩日期" required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">奖惩日期</label>
+</div>
+  
 {% endblock %}
 {% block tableinfo %}
 <script>
@@ -99,12 +70,9 @@
       console.log(row);
       
       $("#update_username").val(row.stu_id_id);
-      $("#update_email").val(row.email);
-      $("#update_name").val(row.name);
-      $("#update_sex").val(row.sex);
-      $("#update_idc").val(row.idc);
-      $("#update_age").val(row.age);
-      $("#update_major").val(row.major);
+      $("#update_type").val(row.award_type);
+      $("#update_content").val(row.award_content);
+      $("#update_date").val(row.award_date);
 
       //弹出修改模态框，非新增模态框
       $('#updateModal').modal('show')
@@ -119,15 +87,14 @@
         [
           {field: 'state',checkbox: true,rowspan: 2,align: 'center',valign: 'middle'},
           {title: 'Stu_ID',field: 'stu_id_id',rowspan: 2,align: 'center',valign: 'middle',sortable: true,footerFormatter: totalTextFormatter},
-          {title: 'Item Detail',colspan: 7,align: 'center'}
+          {title: 'Item Detail',colspan: 4,align: 'center'}
         ],
         [
-          {field: 'name',title: 'Name',footerFormatter: totalNameFormatter,align: 'center'},
-          {field: 'major',title: 'Major',sortable: true,align: 'center'},
-          {field: 'sex',title: 'Sex',align: 'center'},
-          {field: 'age',title: 'Age',sortable: true,align: 'center'},
-          {field: 'email',title: 'Email',align: 'center'},
-          {field: 'idc',title: 'IDCard',align: 'center'},
+          //{field: 'name',title: 'Name',footerFormatter: totalNameFormatter,align: 'center'},
+          {field: 'award_type',title: 'Type',sortable: true,align: 'center'},
+          {field: 'award_content',title: 'Content',align: 'center'},
+          {field: 'award_date',title: 'Date',sortable: true,align: 'center'},
+          
           {field: 'operate',title: 'Item Operate',align: 'center',clickToSelect: false,events: window.operateEvents,formatter: operateFormatter}
         ]
       ]
@@ -158,12 +125,6 @@
         }
         if(data.status == "name0"){
           toastr.warning('请输入姓名');
-        }
-        if(data.status == "idc0"){
-          toastr.warning('请输入身份证号');
-        }
-        if(data.status == "age0"){
-          toastr.warning('请输入年龄');
         }
         if(data.status == "stuidname1"){
           toastr.warning('学号重复');
