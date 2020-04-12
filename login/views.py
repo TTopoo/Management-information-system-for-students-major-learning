@@ -16,17 +16,20 @@ def hash_code(s, salt='mysite'):  # 加点盐
     return h.hexdigest()
 
 
-# 主页
-def index(request):
+# 学生主页
+def index_student(request):
     pass
-    return render(request, 'login/index.html')
+    return render(request, 'login/index_student.html', locals())
+
+
+# 教室主页
+def index_teacher(request):
+    pass
+    return render(request, 'login/index_teacher.html', locals())
 
 
 # 登录
 def login(request):
-    if request.session.get('is_login', None):
-        return redirect('/index')
-
     if request.method == "POST":
         login_form = forms.UserForm(request.POST)
         message = "请检查填写的内容！"
@@ -39,7 +42,10 @@ def login(request):
                     request.session['is_login'] = True
                     request.session['user_id'] = user.id
                     request.session['user_name'] = user.name
-                    return redirect('/index/')
+                    if username[0] == '0':  # 如果是教师账号
+                        return redirect('/index_teacher/')
+                    else:
+                        return redirect('/index_student')
                 else:
                     message = "密码不正确！"
             except:
@@ -87,13 +93,13 @@ def register(request):
 def logout(request):
     if not request.session.get('is_login', None):
         # 如果本来就未登录，也就没有登出一说
-        return redirect("/index/")
+        return redirect("/login/")
     request.session.flush()
     # 或者使用下面的方法
     # del request.session['is_login']
     # del request.session['user_id']
     # del request.session['user_name']
-    return redirect("/index/")
+    return redirect("/login/")
 
 
 #
@@ -105,20 +111,20 @@ def stu_info(request):
 def add(request):
     if request.method == "POST":
         username = request.POST.get("username", None)
-        if username=='':  # 学号非空
+        if username == '':  # 学号非空
             return HttpResponse(json.dumps({'status': 'stuidname0'}))
         email = request.POST.get("email", None)
-        if email=='':  # 邮箱非空
+        if email == '':  # 邮箱非空
             return HttpResponse(json.dumps({'status': 'email0'}))
         name = request.POST.get("name", None)
-        if name=='':  # 姓名非空
+        if name == '':  # 姓名非空
             return HttpResponse(json.dumps({'status': 'name0'}))
         sex = request.POST.get("sex", None)
         idc = request.POST.get("idc", None)
-        if idc=='':  # 身份证号非空
+        if idc == '':  # 身份证号非空
             return HttpResponse(json.dumps({'status': 'idc0'}))
         age = request.POST.get("age", None)
-        if age=='':  # 年龄非空
+        if age == '':  # 年龄非空
             return HttpResponse(json.dumps({'status': 'age0'}))
         major = request.POST.get("major", None)
 
@@ -148,20 +154,20 @@ def add(request):
 def update(request):
     if request.method == "POST":
         username = request.POST.get("username", None)
-        if username=='':  # 学号非空
+        if username == '':  # 学号非空
             return HttpResponse(json.dumps({'status': 'stuidname0'}))
         email = request.POST.get("email", None)
-        if email=='':  # 邮箱非空
+        if email == '':  # 邮箱非空
             return HttpResponse(json.dumps({'status': 'email0'}))
         name = request.POST.get("name", None)
-        if name=='':  # 姓名非空
+        if name == '':  # 姓名非空
             return HttpResponse(json.dumps({'status': 'name0'}))
         sex = request.POST.get("sex", None)
         idc = request.POST.get("idc", None)
-        if idc=='':  # 身份证号非空
+        if idc == '':  # 身份证号非空
             return HttpResponse(json.dumps({'status': 'idc0'}))
         age = request.POST.get("age", None)
-        if age=='':  # 年龄非空
+        if age == '':  # 年龄非空
             return HttpResponse(json.dumps({'status': 'age0'}))
         major = request.POST.get("major", None)
 
@@ -189,7 +195,6 @@ def delete(request):
         print(stu_id)
         User.objects.filter(name=stu_id).delete()
     return HttpResponse()
-
 
 
 #

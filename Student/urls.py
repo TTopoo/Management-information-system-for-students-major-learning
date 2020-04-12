@@ -5,12 +5,12 @@ from login import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('index/', views.index),
+    path('index_student/', views.index_student),
+    path('index_teacher/', views.index_teacher),
     path('login/', views.login),
     path('register/', views.register),
     path('logout/', views.logout),
     path('captcha/', include('captcha.urls')),
-    
 
     path('stu/stu_info/', views.stu_info),
     path('stu/stu_info/json/', views.send_stu_info_json),
