@@ -12,16 +12,15 @@ urlpatterns = [
     path('captcha/', include('captcha.urls')),
 
     
-    path('teacher/stu_info/', views.stu_info),
-    path('teacher/stu_info/json/', views.stu_info_json),
-    path('teacher/stu_info/delete/', views.stu_info_delete),
-    path('teacher/stu_info/add/', views.stu_info_add),
-    path('teacher/stu_info/update/', views.stu_info_update),
+    path('teacher/stu_info/',           views.Teacher_StuInfo_OP.as_view({'get': 'visit'})),
+    path('teacher/stu_info/json/',      views.Teacher_StuInfo_OP.as_view({'get': 'select'})),
+    path('teacher/stu_info/delete/',    views.Teacher_StuInfo_OP.as_view({'post': 'delete'})),
+    path('teacher/stu_info/add/',       views.Teacher_StuInfo_OP.as_view({'post': 'add'})),
+    path('teacher/stu_info/update/',    views.Teacher_StuInfo_OP.as_view({'post': 'update'})),
 
-
-    path('teacher/award/', views.award),
-    path('teacher/award/json/', views.award_json),
-    path('teacher/award/delete/', views.award_delete),
-    path('teacher/award/add/', views.award_add),
-    path('teacher/award/update/', views.award_update),
+    path('teacher/award/',              views.Teacher_Award_OP.as_view({'get': 'visit'})),
+    path('teacher/award/json/',         views.Teacher_Award_OP.as_view({'get': 'select'})),
+    path('teacher/award/delete/',       views.Teacher_Award_OP.as_view({'post': 'delete'})),
+    path('teacher/award/add/',          views.Teacher_Award_OP.as_view({'post': 'add'})),
+    path('teacher/award/update/',       views.Teacher_Award_OP.as_view({'post': 'update'})),
 ]

@@ -54,12 +54,23 @@
     'click .remove': function (e, value, row, index) {
 
       $.ajax({
+        type: "POST",
+        dataType: "json",
+        async:false,
         url: "./delete/",
         data: JSON.stringify([row]),
         contentType: 'application/json',
         type: "POST",
         traditional: true,
-        success: function(result) { 
+        success: function (data) {
+          console.log(data);
+          if(data.status == "success"){
+            toastr.success('删除数据成功');
+            $("#table").bootstrapTable('refresh');
+          }
+          if(data.status == "authority_check0"){
+            toastr.warning('权限不足');
+          }
         },
         fail: function(result) {
         }
