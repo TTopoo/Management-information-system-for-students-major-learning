@@ -18,7 +18,8 @@ def hash_code(s, salt='mysite'):  # 加点盐
 
 # 学生主页
 def index_student(request):
-    pass
+    all_users = User.objects.all()
+
     return render(request, 'login/index_student.html', locals())
 
 
@@ -55,16 +56,19 @@ def login(request):
     login_form = forms.UserForm()
     return render(request, 'login/login.html', locals())
 
+
 # 登出
 def logout(request):
-    if not request.session.get('is_login', None): # 如果本来就未登录，也就没有登出一说
+    if not request.session.get('is_login', None):  # 如果本来就未登录，也就没有登出一说
         return redirect("/login/")
     request.session.flush()
     return redirect("/login/")
 
+
 #
 def stu_info(request):
     return render(request, 'login/stu_info.html', locals())
+
 
 # 添加学生信息
 def stu_info_add(request):
@@ -156,7 +160,6 @@ def stu_info_delete(request):
     return HttpResponse()
 
 
-
 # 发送学生信息
 def stu_info_json(request):
     data = {}
@@ -212,6 +215,7 @@ def stu_info_json(request):
 def award(request):
     return render(request, 'login/award.html', locals())
 
+
 # 发送奖惩信息
 def award_json(request):
     data = {}
@@ -229,7 +233,7 @@ def award_json(request):
         print(offset_kw)
         limit_kw = request.GET.get('limit', 0)
         print(limit_kw)
-        #TODO:连表，把名字连起来
+        # TODO:连表，把名字连起来
         if (search_kw != ''):
             result_set = StudentAwardsRecodeModel.objects.filter(
                 Q(stu_id__name__contains=search_kw) |
