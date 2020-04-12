@@ -21,4 +21,7 @@ urlpatterns = [
 
     path('teacher/award/', views.award),
     path('teacher/award/json/', views.award_json),
+    path('teacher/award/delete/', views.award_delete),
+    path('teacher/award/add/', views.award_add),
+    path('teacher/award/update/', views.award_update),
 ]

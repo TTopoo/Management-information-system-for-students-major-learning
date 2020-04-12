@@ -39,11 +39,11 @@
 {% endblock %}
 {% block upd-modal-body %}
   <div class="form-label-group">
-    <input type="text" class="form-control" name="update_username" id="update_username" placeholder="学号" required="required" autofocus></input>
+    <input type="text" class="form-control" name="update_username" id="update_username" placeholder="学号" required="required" readonly></input>
     <label for="lastname" class="col-sm-3 control-label">学号</label>
   </div>
   <div class="form-label-group">
-    <input type="text" class="form-control" name="update_email" id="update_email" placeholder="邮箱" required="required"></input>
+    <input type="text" class="form-control" name="update_email" id="update_email" placeholder="邮箱" required="required" autofocus></input>
     <label for="lastname" class="col-sm-3 control-label">邮箱</label>
   </div>
   <div class="form-label-group">
@@ -98,7 +98,7 @@
 
       console.log(row);
       
-      $("#update_username").val(row.stu_id_id);
+      $("#update_username").val(row.stu_id__stuid);
       $("#update_email").val(row.email);
       $("#update_name").val(row.name);
       $("#update_sex").val(row.sex);
@@ -118,7 +118,7 @@
       columns: [
         [
           {field: 'state',checkbox: true,rowspan: 2,align: 'center',valign: 'middle'},
-          {title: 'Stu_ID',field: 'stu_id_id',rowspan: 2,align: 'center',valign: 'middle',sortable: true,footerFormatter: totalTextFormatter},
+          {title: 'Stu_ID',field: 'stu_id__stuid',rowspan: 2,align: 'center',valign: 'middle',sortable: true,footerFormatter: totalTextFormatter},
           {title: 'Item Detail',colspan: 7,align: 'center'}
         ],
         [
@@ -150,7 +150,7 @@
           toastr.success('提交数据成功');
           $("#table").bootstrapTable('refresh');
         }
-        if(data.status == "stuidname0"){
+        if(data.status == "stuid0"){
           toastr.warning('请输入学号');
         }
         if(data.status == "email0"){
@@ -167,9 +167,6 @@
         }
         if(data.status == "stuidname1"){
           toastr.warning('学号重复');
-        }
-        if(data.status == "emailaddr"){
-          toastr.warning('邮箱重复');
         }
       },
       error : function() {
@@ -194,7 +191,7 @@
           toastr.success('提交数据成功');
           $("#table").bootstrapTable('refresh');
         }
-        if(data.status == "stuidname0"){
+        if(data.status == "stuid0"){
           toastr.warning('请输入学号');
         }
         if(data.status == "email0"){
@@ -208,12 +205,6 @@
         }
         if(data.status == "age0"){
           toastr.warning('请输入年龄');
-        }
-        if(data.status == "stuidname1"){
-          toastr.warning('学号重复');
-        }
-        if(data.status == "emailaddr"){
-          toastr.warning('邮箱重复');
         }
       },
       error : function() {

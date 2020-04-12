@@ -3,16 +3,14 @@ from django.db import models
 
 # 用户账号模型
 class User(models.Model):
-    name = models.CharField(max_length=128, unique=True, verbose_name='学生ID')
+    stuid = models.CharField(max_length=128, unique=True, verbose_name='学生ID')
     password = models.CharField(max_length=256, verbose_name='密码')
-
-    # sex = models.CharField(max_length=32,choices=gender,default='男')
+    
     c_time = models.DateTimeField(auto_now_add=True)
-
     # salt = models.CharField(max_length=10, verbose_name='盐')
 
     def __str__(self):
-        return self.name
+        return self.stuid
 
     class Meta:
         ordering = ['c_time']  # 默认排序 c_time
@@ -32,7 +30,7 @@ class StudentInformationModel(models.Model):
         ('080903', "网络工程"),
         ('080904K', "信息安全"),
     )
-    stu_id = models.ForeignKey('User', to_field='name', on_delete=models.CASCADE)
+    stu_id = models.ForeignKey('User', on_delete=models.CASCADE)
     email = models.EmailField(verbose_name='邮箱')
     name = models.CharField(max_length=30, verbose_name='姓名', null=True)
     sex = models.CharField(max_length=32, choices=gender, default='男')
@@ -48,7 +46,7 @@ class StudentInformationModel(models.Model):
 
 # 学生奖惩模型
 class StudentAwardsRecodeModel(models.Model):
-    stu_id = models.ForeignKey('User', to_field='name', on_delete=models.CASCADE)
+    stu_id = models.ForeignKey('StudentInformationModel', on_delete=models.CASCADE)
     award_type = models.CharField(max_length=5, verbose_name='奖惩记录类别', null=True)
     award_content = models.CharField(max_length=50, verbose_name='奖惩信息', null=True)
     award_date = models.DateField(verbose_name='奖惩日期', null=True)
