@@ -57,3 +57,18 @@ class StudentAwardsRecodeModel(models.Model):
         ordering = ['stu_id']
         verbose_name = '奖惩信息'
         verbose_name_plural = '奖惩信息'
+
+
+# 课程模型
+class CourseModel(models.Model):
+    course_id = models.AutoField(primary_key=True, verbose_name='课程ID')
+    course_name = models.CharField(max_length=64, verbose_name='课程名称')
+    create_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.course_name
+
+    class Meta:
+        ordering = ['create_date']
+        verbose_name = '课程'
+        verbose_name_plural = '课程'
