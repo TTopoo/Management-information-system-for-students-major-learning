@@ -8,13 +8,17 @@ urlpatterns = [
     path('index_student/', views.index_student),
     path('index_teacher/', views.index_teacher),
     path('login/', views.login),
-    path('register/', views.register),
     path('logout/', views.logout),
     path('captcha/', include('captcha.urls')),
 
-    path('stu/stu_info/', views.stu_info),
-    path('stu/stu_info/json/', views.send_stu_info_json),
-    path('stu/stu_info/delete/', views.delete),
-    path('stu/stu_info/add/', views.add),
-    path('stu/stu_info/update/', views.update),
+    
+    path('teacher/stu_info/', views.stu_info),
+    path('teacher/stu_info/json/', views.stu_info_json),
+    path('teacher/stu_info/delete/', views.stu_info_delete),
+    path('teacher/stu_info/add/', views.stu_info_add),
+    path('teacher/stu_info/update/', views.stu_info_update),
+
+
+    path('teacher/award/', views.award),
+    path('teacher/award/json/', views.award_json),
 ]

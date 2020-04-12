@@ -55,60 +55,19 @@ def login(request):
     login_form = forms.UserForm()
     return render(request, 'login/login.html', locals())
 
-
-# 注册
-def register(request):
-    if request.session.get('is_login', None):
-        # 登录状态不允许注册。你可以修改这条原则！
-        return redirect("/index/")
-    if request.method == "POST":
-        register_form = forms.RegisterForm(request.POST)
-        message = "请检查填写的内容！"
-        if register_form.is_valid():  # 获取数据
-            username = register_form.cleaned_data['username']
-            password1 = register_form.cleaned_data['password1']
-            password2 = register_form.cleaned_data['password2']
-            if password1 != password2:  # 判断两次密码是否相同
-                message = "两次输入的密码不同！"
-                return render(request, 'login/register.html', locals())
-            else:
-                same_name_user = User.objects.filter(name=username)
-                if same_name_user:  # 用户名唯一
-                    message = '用户已经存在，请重新选择用户名！'
-                    return render(request, 'login/register.html', locals())
-
-                # 当一切都OK的情况下，创建新用户
-
-                new_user = User.objects.create()
-                new_user.name = username
-                new_user.password = hash_code(password1)  # 使用加密密码
-                new_user.save()
-                return redirect('/login/')  # 自动跳转到登录页面
-        return render(request, 'login/register.html', locals())
-    register_form = forms.RegisterForm()
-    return render(request, 'login/register.html', locals())
-
-
 # 登出
 def logout(request):
-    if not request.session.get('is_login', None):
-        # 如果本来就未登录，也就没有登出一说
+    if not request.session.get('is_login', None): # 如果本来就未登录，也就没有登出一说
         return redirect("/login/")
     request.session.flush()
-    # 或者使用下面的方法
-    # del request.session['is_login']
-    # del request.session['user_id']
-    # del request.session['user_name']
     return redirect("/login/")
-
 
 #
 def stu_info(request):
     return render(request, 'login/stu_info.html', locals())
 
-
 # 添加学生信息
-def add(request):
+def stu_info_add(request):
     if request.method == "POST":
         username = request.POST.get("username", None)
         if username == '':  # 学号非空
@@ -150,8 +109,8 @@ def add(request):
     return HttpResponse(json.dumps({'status': 'success'}))
 
 
-# 更新
-def update(request):
+# 更新学生信息
+def stu_info_update(request):
     if request.method == "POST":
         username = request.POST.get("username", None)
         if username == '':  # 学号非空
@@ -183,9 +142,9 @@ def update(request):
     return HttpResponse(json.dumps({'status': 'success'}))
 
 
-# 删除
+# 删除学生信息
 @csrf_exempt
-def delete(request):
+def stu_info_delete(request):
     print("Hello")
     json_receive = json.loads(request.body)
     print(json_receive)
@@ -197,8 +156,9 @@ def delete(request):
     return HttpResponse()
 
 
-#
-def send_stu_info_json(request):
+
+# 发送学生信息
+def stu_info_json(request):
     data = {}
     print("Hello")
     print(request.method)
@@ -236,6 +196,56 @@ def send_stu_info_json(request):
         else:
             result_set = StudentInformationModel.objects.all()
             data['total'] = StudentInformationModel.objects.all().count()
+        print(1)
+        if (sort_kw != ''):
+            if (order_kw == 'asc'):
+                result_set = result_set.order_by(sort_kw)
+            else:
+                result_set = result_set.order_by(('-' + sort_kw))
+
+        result_set = result_set.values()[int(offset_kw):(int(offset_kw) + int(limit_kw))]
+        data['rows'] = list(result_set)
+    return JsonResponse(data)
+
+
+#
+def award(request):
+    return render(request, 'login/award.html', locals())
+
+# 发送奖惩信息
+def award_json(request):
+    data = {}
+    print("Hello")
+    print(request.method)
+    if request.method == 'GET':
+
+        search_kw = request.GET.get('search', '')
+        print(search_kw)
+        sort_kw = request.GET.get('sort', '')
+        print(sort_kw)
+        order_kw = request.GET.get('order', '')
+        print(order_kw)
+        offset_kw = request.GET.get('offset', 0)
+        print(offset_kw)
+        limit_kw = request.GET.get('limit', 0)
+        print(limit_kw)
+        #TODO:连表，把名字连起来
+        if (search_kw != ''):
+            result_set = StudentAwardsRecodeModel.objects.filter(
+                Q(stu_id__name__contains=search_kw) |
+                Q(award_type__contains=search_kw) |
+                Q(award_content__contains=search_kw) |
+                Q(award_date__contains=search_kw)
+            ).all()
+            data['total'] = StudentAwardsRecodeModel.objects.filter(
+                Q(stu_id__name__contains=search_kw) |
+                Q(award_type__contains=search_kw) |
+                Q(award_content__contains=search_kw) |
+                Q(award_date__contains=search_kw)
+            ).count()
+        else:
+            result_set = StudentAwardsRecodeModel.objects.all()
+            data['total'] = StudentAwardsRecodeModel.objects.all().count()
         print(1)
         if (sort_kw != ''):
             if (order_kw == 'asc'):
