@@ -9,7 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
-
+import logging
+from .util import LogType, OpType, Log
 
 # 哈希加密
 def hash_code(s, salt='mysite'):  # 加点盐
@@ -103,13 +104,8 @@ def fill_information(request):
             user.password = hash_code(password1)
             user.save()
             # 报存个人信息
-            new_info = StudentInformationModel.objects.create(stu_id=user,
-                                                              email=email,
-                                                              name=name,
-                                                              sex=sex,
-                                                              idc=idc,
-                                                              age=age,
-                                                              major=major)
+            new_info = StudentInformationModel.objects.create(stu_id=user,email=email,name=name,
+                                                              sex=sex,idc=idc,age=age,major=major)
             new_info.save()
             return redirect('/index_student/')
     fill_info_form = forms.FillInformationForm()
@@ -123,10 +119,10 @@ class Op(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):  # �
     Teacher = True
 
     def __init__(self):
-        print('enter op')
+        logging.info('enter op')
 
     def __del__(self):
-        print('delete op')
+        logging.info('delete op')
 
     @action(methods=['post'], detail=False)
     def visit(self, request): pass
@@ -146,10 +142,10 @@ class Op(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):  # �
 
 class Stu_OP(Op):
     def __init__(self):
-        print('enter stu op')
+        logging.info('enter stu op')
 
     def __del__(self):
-        print('delete stu op')
+        logging.info('delete stu op')
 
     def add(self, request):
         pass
@@ -157,10 +153,10 @@ class Stu_OP(Op):
 
 class Teacher_StuInfo_OP(Op):
     def __init__(self):
-        print('enter teacher op')
+        logging.info('enter teacher op')
 
     def __del__(self):
-        print('delete teacher op')
+        logging.info('delete teacher op')
 
     def AuthorityCheck(self, request):
         if not self.request.session.get('authority', None):
@@ -171,7 +167,13 @@ class Teacher_StuInfo_OP(Op):
     # 访问该功能页
     def visit(self, request):
         self.AuthorityCheck(request)
-        if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
+        if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误
+            lg = Log()
+            lg_data = {
+                "Login_User":request.session['user_id'],
+                "Exceed_Authority":'exceed authority'
+                }
+            lg.record(LogType.WARNING, '',OpType.VISIT,lg_data)
             return HttpResponse(json.dumps({'status': 'authority_check0'}))  # 换成一个页面好一点
         else:
             return render(request, 'login/stu_info.html', locals())
@@ -179,10 +181,10 @@ class Teacher_StuInfo_OP(Op):
     # 添加学生信息
     def add(self, request):
         self.AuthorityCheck(request)
-        if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
+        if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误
             return HttpResponse(json.dumps({'status': 'authority_check0'}))
         else:
-            print("enter stu_info_add")
+            logging.info("enter stu_info_add")
             username = request.POST.get("username", None)
             if username == '':  # 学号非空
                 return HttpResponse(json.dumps({'status': 'stuid0'}))
@@ -212,25 +214,28 @@ class Teacher_StuInfo_OP(Op):
             new_user.save()
 
             obj = User.objects.get(stuid=username)
-            StudentInformationModel.objects.create(stu_id=obj,
-                                                   email=email,
-                                                   name=name,
-                                                   sex=sex,
-                                                   idc=idc,
-                                                   age=age,
-                                                   major=major)
-            print("end stu_info_add")
+            StudentInformationModel.objects.create(stu_id=obj,email=email,name=name,
+                                                   sex=sex,idc=idc,age=age,major=major)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User":request.session['user_id'],
+                "username":username,"email":email,"name":name,
+                "sex":sex,"idc":idc,"age":age,"major":major
+                }
+            lg.record(LogType.INFO,str(StudentInformationModel._meta.model_name)+
+                        ' & '+str(new_user._meta.model_name),OpType.ADD,lg_data)
+            logging.info("end stu_info_add")
             return HttpResponse(json.dumps({'status': 'success'}))
 
     # 发送学生信息
     def select(self, request):
         self.AuthorityCheck(request)
-        print(self.authority)
         if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
             return HttpResponse(json.dumps({'status': 'authority_check0'}))
         else:
             data = {}
-            print("enter stu_info_select")
+            logging.info("enter stu_info_select")
             search_kw = request.GET.get('search', '')
             sort_kw = request.GET.get('sort', '')
             order_kw = request.GET.get('order', '')
@@ -267,7 +272,17 @@ class Teacher_StuInfo_OP(Op):
             result_set = result_set.values('stu_id__stuid', 'email', 'name', 'sex', 'idc', 'age', 'major')[
                          int(offset_kw):(int(offset_kw) + int(limit_kw))]
             data['rows'] = list(result_set)
-            print("end stu_info_select")
+            
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User":request.session['user_id'],
+                "total":data['total'],"search_kw":search_kw,"sort_kw":sort_kw,
+                "order_kw":order_kw,"offset_kw":offset_kw,"limit_kw":limit_kw}
+
+            lg.record(LogType.INFO,StudentInformationModel._meta.model_name,OpType.SELECT,lg_data)
+
+            logging.info("end stu_info_select")
             return JsonResponse(data)
 
     # 更新学生信息
@@ -276,7 +291,7 @@ class Teacher_StuInfo_OP(Op):
         if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
             return HttpResponse(json.dumps({'status': 'authority_check0'}))
         else:
-            print("enter stu_info_update")
+            logging.info("enter stu_info_update")
             username = request.POST.get("update_username", None)
             if username == '':  # 学号非空
                 return HttpResponse(json.dumps({'status': 'stuid0'}))
@@ -296,14 +311,17 @@ class Teacher_StuInfo_OP(Op):
             major = request.POST.get("update_major", None)
 
             obj = User.objects.get(stuid=username)
-            StudentInformationModel.objects.filter(stu_id=obj).update(stu_id=obj,
-                                                                      email=email,
-                                                                      name=name,
-                                                                      sex=sex,
-                                                                      idc=idc,
-                                                                      age=age,
-                                                                      major=major)
-            print("end stu_info_update")
+            StudentInformationModel.objects.filter(stu_id=obj).update(stu_id=obj,email=email,name=name,
+                                                                      sex=sex,idc=idc,age=age,major=major)
+            lg = Log()
+            lg_data = {
+                "Login_User":request.session['user_id'],
+                "username":username,"email":email,"name":name,
+                "sex":sex,"idc":idc,"age":age,"major":major
+                }
+            lg.record(LogType.INFO,str(StudentInformationModel._meta.model_name),OpType.UPDATE,lg_data)
+
+            logging.info("end stu_info_update")
             return HttpResponse(json.dumps({'status': 'success'}))
 
     # 删除学生信息
@@ -313,49 +331,29 @@ class Teacher_StuInfo_OP(Op):
         if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
             return HttpResponse(json.dumps({'status': 'authority_check0'}))
         else:
-            print("enter stu_info_delete")
+            logging.info("enter stu_info_delete")
             json_receive = json.loads(request.body)
-            print(json_receive)
+            logging.debug(json_receive)
             for i in json_receive:
-                print(i.keys())
+                logging.debug(i.keys())
                 stu_id = i['stu_id__stuid']
-                print(stu_id)
+                logging.debug(stu_id)
                 User.objects.filter(stuid=stu_id).delete()
-            print("end stu_info_delete")
+                lg = Log()
+                lg_data = {"Login_User":request.session['user_id'],"stu_id":stu_id}
+                lg.record(LogType.INFO,str(StudentInformationModel._meta.model_name),OpType.DELETE,lg_data)
+                
+            logging.info("end stu_info_delete")
             return HttpResponse(json.dumps({'status': 'success'}))
-
-
-##############################################################################
-
-'''美好的设想
-class Obj: # 所有对象的基类
-    # 每个对象都可以有 主页、个人设置、OP操作等功能
-    authority = False #权限
-    op = Op() #OP操作
-    def __init__(self,objtype='Student'):#obj是操作的对象
-        if(objtype == 'Student'):
-            op = Stu_OP()
-            # AttributeError: This method is available only on the class, not on instances.
-            # 不允许实例调用
-        if(objtype == 'Teacher'):
-            print('dddd')
-            op = Teacher_OP()
-        
-    def index(self):
-        pass
-    def setting(self):
-        pass
-'''
-
 
 ##############################################################################
 
 class Teacher_Award_OP(Op):
     def __init__(self):
-        print('enter teacher op')
+        logging.info('enter teacher op')
 
     def __del__(self):
-        print('delete teacher op')
+        logging.info('delete teacher op')
 
     def AuthorityCheck(self, request):
         if not self.request.session.get('authority', None):
@@ -366,7 +364,13 @@ class Teacher_Award_OP(Op):
     # 访问该功能页
     def visit(self, request):
         self.AuthorityCheck(request)
-        if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
+        if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误
+            lg = Log()
+            lg_data = {
+                "Login_User":request.session['user_id'],
+                "Exceed_Authority":'exceed authority'
+                }
+            lg.record(LogType.WARNING, '',OpType.VISIT,lg_data)
             return HttpResponse(json.dumps({'status': 'authority_check0'}))  # 换成一个页面好一点
         else:
             return render(request, 'login/award.html', locals())
@@ -374,10 +378,10 @@ class Teacher_Award_OP(Op):
     # 添加奖惩信息
     def add(self, request):
         self.AuthorityCheck(request)
-        if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
+        if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误
             return HttpResponse(json.dumps({'status': 'authority_check0'}))
         else:
-            print("enter award_add")
+            logging.info("enter award_add")
             username = request.POST.get("username", None)
             if username == '':  # 学号非空
                 return HttpResponse(json.dumps({'status': 'stuid0'}))
@@ -393,22 +397,25 @@ class Teacher_Award_OP(Op):
             # 当一切都OK的情况下，创建新的奖惩记录
 
             obj = StudentInformationModel.objects.get(stu_id__stuid=username)
-            StudentAwardsRecodeModel.objects.create(stu_id=obj,
-                                                    award_type=type,
-                                                    award_content=content,
-                                                    award_date=date)
-            print("end award_add")
+            StudentAwardsRecodeModel.objects.create(stu_id=obj,award_type=type,
+                                                    award_content=content,award_date=date)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User":request.session['user_id'],
+                "username":username,"type":type,"content":content,"date":date}
+            lg.record(LogType.INFO,str(StudentAwardsRecodeModel._meta.model_name),OpType.ADD,lg_data)
+            logging.info("end award_add")
             return HttpResponse(json.dumps({'status': 'success'}))
 
     # 发送奖惩信息
     def select(self, request):
         self.AuthorityCheck(request)
-        print(self.authority)
         if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
             return HttpResponse(json.dumps({'status': 'authority_check0'}))
         else:
             data = {}
-            print("enter award_select")
+            logging.info("enter award_select")
             search_kw = request.GET.get('search', '')
             sort_kw = request.GET.get('sort', '')
             order_kw = request.GET.get('order', '')
@@ -431,7 +438,7 @@ class Teacher_Award_OP(Op):
                 ).count()
             else:
                 result_set = StudentAwardsRecodeModel.objects.all()
-                print(result_set.values('stu_id__stu_id__stuid', 'stu_id__name', 'award_type', 'award_content',
+                logging.debug(result_set.values('stu_id__stu_id__stuid', 'stu_id__name', 'award_type', 'award_content',
                                         'award_date'))
                 data['total'] = StudentAwardsRecodeModel.objects.all().count()
 
@@ -444,7 +451,16 @@ class Teacher_Award_OP(Op):
             result_set = result_set.values('id', 'stu_id__stu_id__stuid', 'stu_id__name', 'award_type', 'award_content',
                                            'award_date')[int(offset_kw):(int(offset_kw) + int(limit_kw))]
             data['rows'] = list(result_set)
-            print("end award_select")
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User":request.session['user_id'],
+                "total":data['total'],"search_kw":search_kw,"sort_kw":sort_kw,
+                "order_kw":order_kw,"offset_kw":offset_kw,"limit_kw":limit_kw}
+
+            lg.record(LogType.INFO,StudentAwardsRecodeModel._meta.model_name,OpType.SELECT,lg_data)
+
+            logging.info("end award_select")
             return JsonResponse(data)
 
     # 更新奖惩信息
@@ -453,7 +469,7 @@ class Teacher_Award_OP(Op):
         if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
             return HttpResponse(json.dumps({'status': 'authority_check0'}))
         else:
-            print("enter award_update")
+            logging.info("enter award_update")
             id = request.POST.get("update_id", None)
             stu_id = request.POST.get("update_username", None)
             type = request.POST.get("update_type", None)
@@ -465,11 +481,15 @@ class Teacher_Award_OP(Op):
             if date == '':  # 奖惩日期非空
                 return HttpResponse(json.dumps({'status': 'date0'}))
             obj = StudentInformationModel.objects.get(stu_id__stuid=stu_id)
-            StudentAwardsRecodeModel.objects.filter(id=id).update(stu_id=obj,
-                                                                  award_type=type,
-                                                                  award_content=content,
-                                                                  award_date=date)
-            print("end award_update")
+            StudentAwardsRecodeModel.objects.filter(id=id).update(stu_id=obj,award_type=type,
+                                                                  award_content=content,award_date=date)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User":request.session['user_id'],
+                "id":id,"stu_id":stu_id,"type":type,"content":content}
+            lg.record(LogType.INFO,str(StudentAwardsRecodeModel._meta.model_name),OpType.UPDATE,lg_data)
+            logging.info("end award_update")
             return HttpResponse(json.dumps({'status': 'success'}))
 
     # 删除奖惩信息
@@ -479,13 +499,16 @@ class Teacher_Award_OP(Op):
         if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误，TODO:补充异常报告
             return HttpResponse(json.dumps({'status': 'authority_check0'}))
         else:
-            print("enter award_delete")
+            logging.info("enter award_delete")
             json_receive = json.loads(request.body)
             for i in json_receive:
-                print(i.keys())
+                logging.debug(i.keys())
                 award_id = i['id']
                 StudentAwardsRecodeModel.objects.filter(id=award_id).delete()
-            print("end award_delete")
+                lg = Log()
+                lg_data = {"Login_User":request.session['user_id'],"award_id":award_id}
+                lg.record(LogType.INFO,str(StudentAwardsRecodeModel._meta.model_name),OpType.DELETE,lg_data)
+            logging.info("end award_delete")
             return HttpResponse(json.dumps({'status': 'success'}))
 
 ##############################################################################

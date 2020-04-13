@@ -134,3 +134,8 @@ class CourseStudentModel(models.Model):
 class ClassStudentModel(models.Model):
     class_id = models.ForeignKey('ClassModel', on_delete=models.CASCADE)
     student_id = models.ForeignKey('StudentInformationModel', on_delete=models.CASCADE)
+
+# 日志
+class OperationLogs(models.Model):
+    type = models.CharField(default='info', max_length=64, verbose_name="日志类型")
+    content = models.TextField(verbose_name="修改详情", null=True)
