@@ -21,15 +21,24 @@ def hash_code(s, salt='mysite'):  # 加点盐
 
 # 学生主页
 def index_student(request):
-    id = request.session['id']
-    stu_id = request.session['user_id']
-    stu_infos = StudentInformationModel.objects.filter(stu_id=id)
-    print(id)
-    print(stu_id)
-    print(stu_infos)
+    sex_map = {
+        'male': '男',
+        'female': '女',
+    }
+    major_map = {
+        '080901': "计算机科学与技术",
+        '080902': "软件工程",
+        '080903': "网络工程",
+        '080904K': "信息安全",
+    }
+    user_id = request.session['user_id']
+    account = request.session['account']
+    stu_infos = StudentInformationModel.objects.filter(user_id=user_id)
     if not stu_infos:
         return redirect('/fill_information/')
     stu_info = stu_infos[0]
+    stu_info.sex = sex_map[stu_info.sex]
+    stu_info.major = major_map[stu_info.major]
 
     return render(request, 'login/index_student.html', locals())
 
@@ -46,15 +55,16 @@ def login(request):
         login_form = forms.UserForm(request.POST)
         message = "请检查填写的内容！"
         if login_form.is_valid():
-            user_id = login_form.cleaned_data['user_id']
+            account = login_form.cleaned_data['account']
+            # print(hash_code(account))
             password = login_form.cleaned_data['password']
             try:
-                user = User.objects.get(stuid=user_id)
+                user = User.objects.get(account=account)
                 if user.password == hash_code(password):  # 哈希值和数据库内的值进行比对
                     request.session['is_login'] = True
-                    request.session['id'] = user.id
-                    request.session['user_id'] = user.stuid
-                    if user_id[0] == '0':  # 如果是教师账号
+                    request.session['user_id'] = user.id
+                    request.session['account'] = user.account
+                    if account[0] == '0':  # 如果是教师账号
                         request.session['authority'] = True
                         return redirect('/index_teacher/')
                     else:
@@ -80,7 +90,7 @@ def logout(request):
 
 # 完善学生信息
 def fill_information(request):
-    stu_id = request.session['user_id']
+    account = request.session['account']
     if request.method == "POST":
         fill_info_form = forms.FillInformationForm(request.POST)
         message = "信息填写有误"
@@ -91,7 +101,7 @@ def fill_information(request):
                 message = '两次输入的密码不同!'
                 return render(request, 'login/fill_information.html', locals())
             # 获取所有信息
-            stu_id = request.session['user_id']
+            account = request.session['user_id']
             email = fill_info_form.cleaned_data['email']
             name = fill_info_form.cleaned_data['name']
             sex = fill_info_form.cleaned_data['sex']
@@ -99,7 +109,7 @@ def fill_information(request):
             age = fill_info_form.cleaned_data['age']
             major = fill_info_form.cleaned_data['major']
             # 保存账号密码
-            user = User.objects.get(stuid=stu_id)
+            user = User.objects.get(account=account)
             user.password = hash_code(password1)
             user.save()
             # 报存个人信息

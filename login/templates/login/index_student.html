@@ -18,31 +18,15 @@
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
             <!-- 主界面 -->
             <div class="col-md-10 col-md-offset-2 main">
-                <h2 class="sub-header">{{ stu_id }} {{ stu_info.name  }}</h2>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Header</th>
-                            <th>Header</th>
-                            <th>Header</th>
-                            <th>Header</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1,001</td>
-                            <td>Lorem</td>
-                            <td>ipsum</td>
-                            <td>dolor</td>
-                            <td>sit</td>
-                        </tr>
-
-                        </tbody>
-                    </table>
-                </div>
+                <h2 class="sub-header">{{ account }} {{ stu_info.name  }}</h2>
             </div>
+            <div>{{ account }}</div>
+            <div>{{ stu_info.name }}</div>
+            <div>{{ stu_info.sex }}</div>
+            <div>{{ stu_info.age }}</div>
+            <div>{{ stu_info.email }}</div>
+            <div>{{ stu_info.idc }}</div>
+            <div>{{ stu_info.major }}</div>
         </main>
     </div>
 </div>

@@ -3,18 +3,15 @@ from django.db import models
 
 # 用户账号模型
 class User(models.Model):
-    stuid = models.CharField(max_length=128, unique=True, verbose_name='学生ID')
+    account = models.CharField(max_length=128, unique=True, verbose_name='账号')
     password = models.CharField(max_length=256, verbose_name='密码')
-
-    c_time = models.DateTimeField(auto_now_add=True)
-
-    # salt = models.CharField(max_length=10, verbose_name='盐')
+    edit_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.stuid
+        return self.account
 
     class Meta:
-        ordering = ['c_time']  # 默认排序 c_time
+        ordering = ['edit_time']  # 默认排序 c_time
         verbose_name = '用户'  # 模型起名
         verbose_name_plural = '用户'  # 模型名的复数
 
@@ -25,27 +22,53 @@ class StudentInformationModel(models.Model):
         ('male', '男'),
         ('female', '女'),
     )
-    majorchoice = (
+    majorChoice = (
         ('080901', "计算机科学与技术"),
         ('080902', "软件工程"),
         ('080903', "网络工程"),
         ('080904K', "信息安全"),
     )
-    stu_id = models.ForeignKey('User', on_delete=models.CASCADE)
+    user_id = models.ForeignKey('User', on_delete=models.CASCADE)
+    class_id = models.ForeignKey('ClassModel', on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=30, verbose_name='姓名', null=True)
+    sex = models.CharField(max_length=32, choices=gender, default='男')
+    age = models.CharField(max_length=20, verbose_name='年龄', null=True)
+    email = models.EmailField(verbose_name='邮箱')
+    idc = models.CharField(max_length=20, verbose_name='身份证', null=True)
+    major = models.CharField(max_length=30, choices=majorChoice, default='计算机科学与技术')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = '学生信息'
+        verbose_name_plural = '学生信息'
+
+
+# 教师信息模型
+class TeacherInformationModel(models.Model):
+    gender = (
+        ('male', '男'),
+        ('female', '女'),
+    )
+    user_id = models.ForeignKey('User', on_delete=models.CASCADE)
     email = models.EmailField(verbose_name='邮箱')
     name = models.CharField(max_length=30, verbose_name='姓名', null=True)
     sex = models.CharField(max_length=32, choices=gender, default='男')
     idc = models.CharField(max_length=20, verbose_name='身份证', null=True)
     age = models.CharField(max_length=20, verbose_name='年龄', null=True)
-    major = models.CharField(max_length=30, choices=majorchoice, default='计算机科学与技术')
+    graduate_school = models.TextField(verbose_name='毕业学校')
+    education_experience = models.TextField(verbose_name='教育经历')
+
+    def __str__(self):
+        return self.name
 
     class Meta:
-        ordering = ['stu_id']
-        verbose_name = '用户信息'
-        verbose_name_plural = '用户信息'
+        ordering = ['id']
+        verbose_name = '教师信息'
+        verbose_name_plural = '教师信息'
 
-
-# 教师信息模型
 
 # 管理员信息模型
 
@@ -65,7 +88,6 @@ class StudentAwardsRecodeModel(models.Model):
 
 # 学院模型
 class CollegeModel(models.Model):
-    college_id = models.AutoField(primary_key=True, verbose_name='学院ID')
     college_name = models.CharField(max_length=64, verbose_name='学院名称')
 
     def __str__(self):
@@ -77,26 +99,11 @@ class CollegeModel(models.Model):
         verbose_name_plural = '学院'
 
 
-# 专业模型
-class MajorModel(models.Model):
-    major_id = models.AutoField(primary_key=True, verbose_name='专业ID')
-    major_name = models.CharField(max_length=64, verbose_name='专业名称')
-    college_id = models.ForeignKey('CollegeModel', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.major_name
-
-    class Meta:
-        ordering = ['major_name']
-        verbose_name = '专业'
-        verbose_name_plural = '专业'
-
-
 # 课程模型
 class CourseModel(models.Model):
-    course_id = models.AutoField(primary_key=True, verbose_name='课程ID')
     course_name = models.CharField(max_length=64, verbose_name='课程名称')
-    major_id = models.ForeignKey('MajorModel', on_delete=models.CASCADE)
+    teachers = models.ManyToManyField(TeacherInformationModel, null=True, blank=True)
+    students = models.ManyToManyField(StudentInformationModel, null=True, blank=True)
 
     def __str__(self):
         return self.course_name
@@ -107,9 +114,23 @@ class CourseModel(models.Model):
         verbose_name_plural = '课程'
 
 
+# 专业模型
+class MajorModel(models.Model):
+    major_name = models.CharField(max_length=64, verbose_name='专业名称')
+    college_id = models.ForeignKey('CollegeModel', on_delete=models.CASCADE)
+    courses = models.ManyToManyField(CourseModel, null=True, blank=True)
+
+    def __str__(self):
+        return self.major_name
+
+    class Meta:
+        ordering = ['major_name']
+        verbose_name = '专业'
+        verbose_name_plural = '专业'
+
+
 # 班级模型
 class ClassModel(models.Model):
-    class_id = models.AutoField(primary_key=True, verbose_name='班级ID')
     class_name = models.CharField(max_length=64, verbose_name='班级名称')
     major_id = models.ForeignKey('MajorModel', on_delete=models.CASCADE)
 
@@ -121,16 +142,3 @@ class ClassModel(models.Model):
         verbose_name = '班级'
         verbose_name_plural = '班级'
 
-
-# 课程-学生 连接表
-class CourseStudentModel(models.Model):
-    course_id = models.ForeignKey('CourseModel', on_delete=models.CASCADE)
-    student_id = models.ForeignKey('StudentInformationModel', on_delete=models.CASCADE)
-
-
-# 课程-教师 连接表
-
-# 班级-学生 连接表
-class ClassStudentModel(models.Model):
-    class_id = models.ForeignKey('ClassModel', on_delete=models.CASCADE)
-    student_id = models.ForeignKey('StudentInformationModel', on_delete=models.CASCADE)
