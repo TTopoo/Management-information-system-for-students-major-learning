@@ -136,7 +136,7 @@ def fill_information(request):
     return render(request, 'login/fill_information.html', locals())
 
 
-# 修改学生个人信息
+-# 修改学生个人信息
 def alter_information(request):
     user_id = request.session['user_id']
     account = request.session['account']
@@ -258,18 +258,18 @@ class Teacher_StuInfo_OP(Op):
                 return HttpResponse(json.dumps({'status': 'age0'}))
             major = request.POST.get("major", None)
 
-            same_name_user = User.objects.filter(stuid=username)
+            same_name_user = User.objects.filter(account=username)
             if same_name_user:  # 学号唯一
                 return HttpResponse(json.dumps({'status': 'stuid1'}))
 
             # 当一切都OK的情况下，创建新用户
             new_user = User.objects.create()
-            new_user.stuid = username
+            new_user.account = username
             new_user.password = hash_code(username)  # 使用学号当做初始加密密码
             new_user.save()
 
-            obj = User.objects.get(stuid=username)
-            StudentInformationModel.objects.create(stu_id=obj, email=email, name=name,
+            obj = User.objects.get(account=username)
+            StudentInformationModel.objects.create(user_id=obj, email=email, name=name,
                                                    sex=sex, idc=idc, age=age, major=major)
             # 日志系统
             lg = Log()
@@ -298,7 +298,7 @@ class Teacher_StuInfo_OP(Op):
             limit_kw = request.GET.get('limit', 0)
             if (search_kw != ''):
                 result_set = StudentInformationModel.objects.filter(
-                    Q(stu_id__stuid__contains=search_kw) |
+                    Q(user_id__account__contains=search_kw) |
                     Q(email__contains=search_kw) |
                     Q(name__contains=search_kw) |
                     Q(sex__contains=search_kw) |
@@ -307,7 +307,7 @@ class Teacher_StuInfo_OP(Op):
                     Q(major__contains=search_kw)
                 ).all()
                 data['total'] = StudentInformationModel.objects.filter(
-                    Q(stu_id__stuid__contains=search_kw) |
+                    Q(user_id__account__contains=search_kw) |
                     Q(email__contains=search_kw) |
                     Q(name__contains=search_kw) |
                     Q(sex__contains=search_kw) |
@@ -324,7 +324,7 @@ class Teacher_StuInfo_OP(Op):
                 else:
                     result_set = result_set.order_by(('-' + sort_kw))
 
-            result_set = result_set.values('stu_id__stuid', 'email', 'name', 'sex', 'idc', 'age', 'major')[
+            result_set = result_set.values('user_id__account', 'email', 'name', 'sex', 'idc', 'age', 'major')[
                          int(offset_kw):(int(offset_kw) + int(limit_kw))]
             data['rows'] = list(result_set)
 
@@ -365,8 +365,8 @@ class Teacher_StuInfo_OP(Op):
                 return HttpResponse(json.dumps({'status': 'age0'}))
             major = request.POST.get("update_major", None)
 
-            obj = User.objects.get(stuid=username)
-            StudentInformationModel.objects.filter(stu_id=obj).update(stu_id=obj, email=email, name=name,
+            obj = User.objects.get(account=username)
+            StudentInformationModel.objects.filter(user_id=obj).update(user_id=obj, email=email, name=name,
                                                                       sex=sex, idc=idc, age=age, major=major)
             lg = Log()
             lg_data = {
@@ -391,11 +391,11 @@ class Teacher_StuInfo_OP(Op):
             logging.debug(json_receive)
             for i in json_receive:
                 logging.debug(i.keys())
-                stu_id = i['stu_id__stuid']
-                logging.debug(stu_id)
-                User.objects.filter(stuid=stu_id).delete()
+                user_id = i['user_id__account']
+                logging.debug(user_id)
+                User.objects.filter(account=user_id).delete()
                 lg = Log()
-                lg_data = {"Login_User": request.session['user_id'], "stu_id": stu_id}
+                lg_data = {"Login_User": request.session['user_id'], "user_id": user_id}
                 lg.record(LogType.INFO, str(StudentInformationModel._meta.model_name), OpType.DELETE, lg_data)
 
             logging.info("end stu_info_delete")
@@ -452,7 +452,7 @@ class Teacher_Award_OP(Op):
 
             # 当一切都OK的情况下，创建新的奖惩记录
 
-            obj = StudentInformationModel.objects.get(stu_id__stuid=username)
+            obj = StudentInformationModel.objects.get(user_id__account=username)
             StudentAwardsRecodeModel.objects.create(stu_id=obj, award_type=type,
                                                     award_content=content, award_date=date)
             # 日志系统
@@ -479,14 +479,14 @@ class Teacher_Award_OP(Op):
             limit_kw = request.GET.get('limit', 0)
             if (search_kw != ''):
                 result_set = StudentAwardsRecodeModel.objects.filter(
-                    Q(stu_id__stu_id__stuid__contains=search_kw) |
+                    Q(stu_id__user_id__account__contains=search_kw) |
                     Q(stu_id__name__contains=search_kw) |
                     Q(award_type__contains=search_kw) |
                     Q(award_content__contains=search_kw) |
                     Q(award_date__contains=search_kw)
                 ).all()
                 data['total'] = StudentAwardsRecodeModel.objects.filter(
-                    Q(stu_id__stu_id__stuid__contains=search_kw) |
+                    Q(stu_id__user_id__account__contains=search_kw) |
                     Q(stu_id__name__contains=search_kw) |
                     Q(award_type__contains=search_kw) |
                     Q(award_content__contains=search_kw) |
@@ -494,7 +494,7 @@ class Teacher_Award_OP(Op):
                 ).count()
             else:
                 result_set = StudentAwardsRecodeModel.objects.all()
-                logging.debug(result_set.values('stu_id__stu_id__stuid', 'stu_id__name', 'award_type', 'award_content',
+                logging.debug(result_set.values('stu_id__user_id__account', 'stu_id__name', 'award_type', 'award_content',
                                                 'award_date'))
                 data['total'] = StudentAwardsRecodeModel.objects.all().count()
 
@@ -504,7 +504,7 @@ class Teacher_Award_OP(Op):
                 else:
                     result_set = result_set.order_by(('-' + sort_kw))
 
-            result_set = result_set.values('id', 'stu_id__stu_id__stuid', 'stu_id__name', 'award_type', 'award_content',
+            result_set = result_set.values('id', 'stu_id__user_id__account', 'stu_id__name', 'award_type', 'award_content',
                                            'award_date')[int(offset_kw):(int(offset_kw) + int(limit_kw))]
             data['rows'] = list(result_set)
             # 日志系统
@@ -527,7 +527,7 @@ class Teacher_Award_OP(Op):
         else:
             logging.info("enter award_update")
             id = request.POST.get("update_id", None)
-            stu_id = request.POST.get("update_username", None)
+            user_id = request.POST.get("update_username", None)
             type = request.POST.get("update_type", None)
             content = request.POST.get("update_content", None)
             if content == '':  # 奖惩详情非空
@@ -536,14 +536,14 @@ class Teacher_Award_OP(Op):
             date = request.POST.get("update_date", None)
             if date == '':  # 奖惩日期非空
                 return HttpResponse(json.dumps({'status': 'date0'}))
-            obj = StudentInformationModel.objects.get(stu_id__stuid=stu_id)
+            obj = StudentInformationModel.objects.get(user_id__account=user_id)
             StudentAwardsRecodeModel.objects.filter(id=id).update(stu_id=obj, award_type=type,
                                                                   award_content=content, award_date=date)
             # 日志系统
             lg = Log()
             lg_data = {
                 "Login_User": request.session['user_id'],
-                "id": id, "stu_id": stu_id, "type": type, "content": content}
+                "id": id, "stu_id": user_id, "type": type, "content": content}
             lg.record(LogType.INFO, str(StudentAwardsRecodeModel._meta.model_name), OpType.UPDATE, lg_data)
             logging.info("end award_update")
             return HttpResponse(json.dumps({'status': 'success'}))
