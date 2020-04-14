@@ -109,7 +109,7 @@
 
       console.log(row);
       
-      $("#update_username").val(row.stu_id__stuid);
+      $("#update_username").val(row.user_id__account);
       $("#update_email").val(row.email);
       $("#update_name").val(row.name);
       $("#update_sex").val(row.sex);
@@ -129,7 +129,7 @@
       columns: [
         [
           {field: 'state',checkbox: true,rowspan: 2,align: 'center',valign: 'middle'},
-          {title: 'Stu_ID',field: 'stu_id__stuid',rowspan: 2,align: 'center',valign: 'middle',sortable: true,footerFormatter: totalTextFormatter},
+          {title: 'Stu_ID',field: 'user_id__account',rowspan: 2,align: 'center',valign: 'middle',sortable: true,footerFormatter: totalTextFormatter},
           {title: 'Item Detail',colspan: 7,align: 'center'}
         ],
         [

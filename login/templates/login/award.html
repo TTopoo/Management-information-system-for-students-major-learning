@@ -85,7 +85,7 @@
       console.log(row);
       
       $("#update_id").val(row.id);
-      $("#update_username").val(row.stu_id__stu_id__stuid);
+      $("#update_username").val(row.stu_id__user_id__account);
       $("#update_type").val(row.award_type);
       $("#update_content").val(row.award_content);
       $("#update_date").val(row.award_date);
@@ -106,7 +106,7 @@
           {title: 'Item Detail',colspan: 6,align: 'center'}
         ],
         [
-          {field: 'stu_id__stu_id__stuid',title: 'Stu_ID',footerFormatter: totalNameFormatter,align: 'center'},
+          {field: 'stu_id__user_id__account',title: 'Stu_ID',footerFormatter: totalNameFormatter,align: 'center'},
           {field: 'stu_id__name',title: 'Name',footerFormatter: totalNameFormatter,align: 'center'},
           {field: 'award_type',title: 'Type',sortable: true,align: 'center'},
           {field: 'award_content',title: 'Content',align: 'center'},
