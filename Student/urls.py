@@ -2,10 +2,6 @@ from django.contrib import admin
 from django.conf.urls import include
 from django.urls import path
 from login import views
-import logging
-from login.util import LogType, Log
-
-logging.basicConfig(level=logging.DEBUG)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

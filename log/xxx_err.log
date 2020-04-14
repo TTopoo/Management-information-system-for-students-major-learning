@@ -1,0 +1,99 @@
+[2020-04-14 12:58:41,164][Thread-1:6784][task_id:django.request][log.py:228][ERROR][Internal Server Error: /teacher/stu_info/json/]
+Traceback (most recent call last):
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\JingruShi\Documents\GitHub\Student\login\views.py", line 296, in select
+    result_set = result_set.values('stu_id__stuid', 'email', 'name', 'sex', 'idc', 'age', 'major')[
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\query.py", line 809, in values
+    clone = self._values(*fields, **expressions)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\query.py", line 804, in _values
+    clone.query.set_values(fields)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\sql\query.py", line 2132, in set_values
+    self.add_fields(field_names, True)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\sql\query.py", line 1865, in add_fields
+    join_info = self.setup_joins(name.split(LOOKUP_SEP), opts, alias, allow_many=allow_m2m)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\sql\query.py", line 1567, in setup_joins
+    names[:pivot], opts, allow_many, fail_on_missing=True,
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\sql\query.py", line 1483, in names_to_path
+    "Choices are: %s" % (name, ", ".join(available)))
+django.core.exceptions.FieldError: Cannot resolve keyword 'stu_id' into field. Choices are: age, class_id, class_id_id, classmodel, coursemodel, email, id, idc, major, name, sex, studentawardsrecodemodel, user_id, user_id_id
+[2020-04-14 12:59:11,862][Thread-1:6784][task_id:django.request][log.py:228][ERROR][Internal Server Error: /teacher/stu_info/json/]
+Traceback (most recent call last):
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\JingruShi\Documents\GitHub\Student\login\views.py", line 296, in select
+    result_set = result_set.values('stu_id__stuid', 'email', 'name', 'sex', 'idc', 'age', 'major')[
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\query.py", line 809, in values
+    clone = self._values(*fields, **expressions)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\query.py", line 804, in _values
+    clone.query.set_values(fields)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\sql\query.py", line 2132, in set_values
+    self.add_fields(field_names, True)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\sql\query.py", line 1865, in add_fields
+    join_info = self.setup_joins(name.split(LOOKUP_SEP), opts, alias, allow_many=allow_m2m)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\sql\query.py", line 1567, in setup_joins
+    names[:pivot], opts, allow_many, fail_on_missing=True,
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\sql\query.py", line 1483, in names_to_path
+    "Choices are: %s" % (name, ", ".join(available)))
+django.core.exceptions.FieldError: Cannot resolve keyword 'stu_id' into field. Choices are: age, class_id, class_id_id, classmodel, coursemodel, email, id, idc, major, name, sex, studentawardsrecodemodel, user_id, user_id_id
+[2020-04-14 13:30:19,370][Thread-38:10984][task_id:django.request][log.py:228][ERROR][Internal Server Error: /teacher/award/add/]
+Traceback (most recent call last):
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\JingruShi\Documents\GitHub\Student\login\views.py", line 426, in add
+    award_content=content, award_date=date)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\query.py", line 431, in create
+    obj = self.model(**kwargs)
+  File "C:\Users\JingruShi\AppData\Local\Programs\Python\Python37\lib\site-packages\django\db\models\base.py", line 500, in __init__
+    raise TypeError("%s() got an unexpected keyword argument '%s'" % (cls.__name__, kwarg))
+TypeError: StudentAwardsRecodeModel() got an unexpected keyword argument 'user_id'
