@@ -133,6 +133,7 @@ class MajorModel(models.Model):
 class ClassModel(models.Model):
     class_name = models.CharField(max_length=64, verbose_name='班级名称')
     major_id = models.ForeignKey('MajorModel', on_delete=models.CASCADE)
+    students = models.ManyToManyField(StudentInformationModel, null=True, blank=True)
 
     def __str__(self):
         return self.class_name
@@ -142,8 +143,8 @@ class ClassModel(models.Model):
         verbose_name = '班级'
         verbose_name_plural = '班级'
 
+
 # 日志
 class OperationLogs(models.Model):
     type = models.CharField(default='info', max_length=64, verbose_name="日志类型")
     content = models.TextField(verbose_name="修改详情", null=True)
-

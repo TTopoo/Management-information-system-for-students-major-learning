@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from . import models, forms
-from .models import User, StudentInformationModel, StudentAwardsRecodeModel
+from .models import User, StudentInformationModel, StudentAwardsRecodeModel, MajorModel
 import hashlib, json
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
@@ -12,6 +12,7 @@ from rest_framework.decorators import action
 import logging
 from .util import LogType, OpType, Log
 
+
 # 哈希加密
 def hash_code(s, salt='mysite'):  # 加点盐
     h = hashlib.md5()
@@ -22,6 +23,8 @@ def hash_code(s, salt='mysite'):  # 加点盐
 
 # 学生主页
 def index_student(request):
+    if request.session['authority'] == True:
+        return redirect('/index_teacher/')
     sex_map = {
         'male': '男',
         'female': '女',
@@ -41,6 +44,17 @@ def index_student(request):
     stu_info.sex = sex_map[stu_info.sex]
     stu_info.major = major_map[stu_info.major]
 
+    # 学生所在班级
+    classes = stu_info.classmodel_set.all()
+    if classes is None:
+        classname = '无'
+    else:
+        unify_class = classes[0]
+        # 班级所在专业
+        major = unify_class.major_id
+        # 专业所在学院
+        college = major.college_id
+
     return render(request, 'login/index_student.html', locals())
 
 
@@ -57,7 +71,7 @@ def login(request):
         message = "请检查填写的内容！"
         if login_form.is_valid():
             account = login_form.cleaned_data['account']
-            # print(hash_code(account))
+            print(hash_code(account))
             password = login_form.cleaned_data['password']
             try:
                 user = User.objects.get(account=account)
@@ -102,7 +116,7 @@ def fill_information(request):
                 message = '两次输入的密码不同!'
                 return render(request, 'login/fill_information.html', locals())
             # 获取所有信息
-            account = request.session['user_id']
+            account = request.session['account']
             email = fill_info_form.cleaned_data['email']
             name = fill_info_form.cleaned_data['name']
             sex = fill_info_form.cleaned_data['sex']
@@ -114,8 +128,8 @@ def fill_information(request):
             user.password = hash_code(password1)
             user.save()
             # 报存个人信息
-            new_info = StudentInformationModel.objects.create(stu_id=user,email=email,name=name,
-                                                              sex=sex,idc=idc,age=age,major=major)
+            new_info = StudentInformationModel.objects.create(user_id=user, email=email, name=name,
+                                                              sex=sex, idc=idc, age=age, major=major)
             new_info.save()
             return redirect('/index_student/')
     fill_info_form = forms.FillInformationForm()
@@ -180,10 +194,10 @@ class Teacher_StuInfo_OP(Op):
         if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误
             lg = Log()
             lg_data = {
-                "Login_User":request.session['user_id'],
-                "Exceed_Authority":'exceed authority'
-                }
-            lg.record(LogType.WARNING, '',OpType.VISIT,lg_data)
+                "Login_User": request.session['user_id'],
+                "Exceed_Authority": 'exceed authority'
+            }
+            lg.record(LogType.WARNING, '', OpType.VISIT, lg_data)
             return HttpResponse(json.dumps({'status': 'authority_check0'}))  # 换成一个页面好一点
         else:
             return render(request, 'login/stu_info.html', locals())
@@ -224,17 +238,17 @@ class Teacher_StuInfo_OP(Op):
             new_user.save()
 
             obj = User.objects.get(stuid=username)
-            StudentInformationModel.objects.create(stu_id=obj,email=email,name=name,
-                                                   sex=sex,idc=idc,age=age,major=major)
+            StudentInformationModel.objects.create(stu_id=obj, email=email, name=name,
+                                                   sex=sex, idc=idc, age=age, major=major)
             # 日志系统
             lg = Log()
             lg_data = {
-                "Login_User":request.session['user_id'],
-                "username":username,"email":email,"name":name,
-                "sex":sex,"idc":idc,"age":age,"major":major
-                }
-            lg.record(LogType.INFO,str(StudentInformationModel._meta.model_name)+
-                        ' & '+str(new_user._meta.model_name),OpType.ADD,lg_data)
+                "Login_User": request.session['user_id'],
+                "username": username, "email": email, "name": name,
+                "sex": sex, "idc": idc, "age": age, "major": major
+            }
+            lg.record(LogType.INFO, str(StudentInformationModel._meta.model_name) +
+                      ' & ' + str(new_user._meta.model_name), OpType.ADD, lg_data)
             logging.info("end stu_info_add")
             return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -282,15 +296,15 @@ class Teacher_StuInfo_OP(Op):
             result_set = result_set.values('stu_id__stuid', 'email', 'name', 'sex', 'idc', 'age', 'major')[
                          int(offset_kw):(int(offset_kw) + int(limit_kw))]
             data['rows'] = list(result_set)
-            
+
             # 日志系统
             lg = Log()
             lg_data = {
-                "Login_User":request.session['user_id'],
-                "total":data['total'],"search_kw":search_kw,"sort_kw":sort_kw,
-                "order_kw":order_kw,"offset_kw":offset_kw,"limit_kw":limit_kw}
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
 
-            lg.record(LogType.INFO,StudentInformationModel._meta.model_name,OpType.SELECT,lg_data)
+            lg.record(LogType.INFO, StudentInformationModel._meta.model_name, OpType.SELECT, lg_data)
 
             logging.info("end stu_info_select")
             return JsonResponse(data)
@@ -321,15 +335,15 @@ class Teacher_StuInfo_OP(Op):
             major = request.POST.get("update_major", None)
 
             obj = User.objects.get(stuid=username)
-            StudentInformationModel.objects.filter(stu_id=obj).update(stu_id=obj,email=email,name=name,
-                                                                      sex=sex,idc=idc,age=age,major=major)
+            StudentInformationModel.objects.filter(stu_id=obj).update(stu_id=obj, email=email, name=name,
+                                                                      sex=sex, idc=idc, age=age, major=major)
             lg = Log()
             lg_data = {
-                "Login_User":request.session['user_id'],
-                "username":username,"email":email,"name":name,
-                "sex":sex,"idc":idc,"age":age,"major":major
-                }
-            lg.record(LogType.INFO,str(StudentInformationModel._meta.model_name),OpType.UPDATE,lg_data)
+                "Login_User": request.session['user_id'],
+                "username": username, "email": email, "name": name,
+                "sex": sex, "idc": idc, "age": age, "major": major
+            }
+            lg.record(LogType.INFO, str(StudentInformationModel._meta.model_name), OpType.UPDATE, lg_data)
 
             logging.info("end stu_info_update")
             return HttpResponse(json.dumps({'status': 'success'}))
@@ -350,11 +364,12 @@ class Teacher_StuInfo_OP(Op):
                 logging.debug(stu_id)
                 User.objects.filter(stuid=stu_id).delete()
                 lg = Log()
-                lg_data = {"Login_User":request.session['user_id'],"stu_id":stu_id}
-                lg.record(LogType.INFO,str(StudentInformationModel._meta.model_name),OpType.DELETE,lg_data)
-                
+                lg_data = {"Login_User": request.session['user_id'], "stu_id": stu_id}
+                lg.record(LogType.INFO, str(StudentInformationModel._meta.model_name), OpType.DELETE, lg_data)
+
             logging.info("end stu_info_delete")
             return HttpResponse(json.dumps({'status': 'success'}))
+
 
 ##############################################################################
 
@@ -377,10 +392,10 @@ class Teacher_Award_OP(Op):
         if (self.authority == self.Student):  # 教师权限，学生的任何请求都返回权限错误
             lg = Log()
             lg_data = {
-                "Login_User":request.session['user_id'],
-                "Exceed_Authority":'exceed authority'
-                }
-            lg.record(LogType.WARNING, '',OpType.VISIT,lg_data)
+                "Login_User": request.session['user_id'],
+                "Exceed_Authority": 'exceed authority'
+            }
+            lg.record(LogType.WARNING, '', OpType.VISIT, lg_data)
             return HttpResponse(json.dumps({'status': 'authority_check0'}))  # 换成一个页面好一点
         else:
             return render(request, 'login/award.html', locals())
@@ -407,14 +422,14 @@ class Teacher_Award_OP(Op):
             # 当一切都OK的情况下，创建新的奖惩记录
 
             obj = StudentInformationModel.objects.get(stu_id__stuid=username)
-            StudentAwardsRecodeModel.objects.create(stu_id=obj,award_type=type,
-                                                    award_content=content,award_date=date)
+            StudentAwardsRecodeModel.objects.create(stu_id=obj, award_type=type,
+                                                    award_content=content, award_date=date)
             # 日志系统
             lg = Log()
             lg_data = {
-                "Login_User":request.session['user_id'],
-                "username":username,"type":type,"content":content,"date":date}
-            lg.record(LogType.INFO,str(StudentAwardsRecodeModel._meta.model_name),OpType.ADD,lg_data)
+                "Login_User": request.session['user_id'],
+                "username": username, "type": type, "content": content, "date": date}
+            lg.record(LogType.INFO, str(StudentAwardsRecodeModel._meta.model_name), OpType.ADD, lg_data)
             logging.info("end award_add")
             return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -449,7 +464,7 @@ class Teacher_Award_OP(Op):
             else:
                 result_set = StudentAwardsRecodeModel.objects.all()
                 logging.debug(result_set.values('stu_id__stu_id__stuid', 'stu_id__name', 'award_type', 'award_content',
-                                        'award_date'))
+                                                'award_date'))
                 data['total'] = StudentAwardsRecodeModel.objects.all().count()
 
             if (sort_kw != ''):
@@ -464,11 +479,11 @@ class Teacher_Award_OP(Op):
             # 日志系统
             lg = Log()
             lg_data = {
-                "Login_User":request.session['user_id'],
-                "total":data['total'],"search_kw":search_kw,"sort_kw":sort_kw,
-                "order_kw":order_kw,"offset_kw":offset_kw,"limit_kw":limit_kw}
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
 
-            lg.record(LogType.INFO,StudentAwardsRecodeModel._meta.model_name,OpType.SELECT,lg_data)
+            lg.record(LogType.INFO, StudentAwardsRecodeModel._meta.model_name, OpType.SELECT, lg_data)
 
             logging.info("end award_select")
             return JsonResponse(data)
@@ -491,14 +506,14 @@ class Teacher_Award_OP(Op):
             if date == '':  # 奖惩日期非空
                 return HttpResponse(json.dumps({'status': 'date0'}))
             obj = StudentInformationModel.objects.get(stu_id__stuid=stu_id)
-            StudentAwardsRecodeModel.objects.filter(id=id).update(stu_id=obj,award_type=type,
-                                                                  award_content=content,award_date=date)
+            StudentAwardsRecodeModel.objects.filter(id=id).update(stu_id=obj, award_type=type,
+                                                                  award_content=content, award_date=date)
             # 日志系统
             lg = Log()
             lg_data = {
-                "Login_User":request.session['user_id'],
-                "id":id,"stu_id":stu_id,"type":type,"content":content}
-            lg.record(LogType.INFO,str(StudentAwardsRecodeModel._meta.model_name),OpType.UPDATE,lg_data)
+                "Login_User": request.session['user_id'],
+                "id": id, "stu_id": stu_id, "type": type, "content": content}
+            lg.record(LogType.INFO, str(StudentAwardsRecodeModel._meta.model_name), OpType.UPDATE, lg_data)
             logging.info("end award_update")
             return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -516,8 +531,8 @@ class Teacher_Award_OP(Op):
                 award_id = i['id']
                 StudentAwardsRecodeModel.objects.filter(id=award_id).delete()
                 lg = Log()
-                lg_data = {"Login_User":request.session['user_id'],"award_id":award_id}
-                lg.record(LogType.INFO,str(StudentAwardsRecodeModel._meta.model_name),OpType.DELETE,lg_data)
+                lg_data = {"Login_User": request.session['user_id'], "award_id": award_id}
+                lg.record(LogType.INFO, str(StudentAwardsRecodeModel._meta.model_name), OpType.DELETE, lg_data)
             logging.info("end award_delete")
             return HttpResponse(json.dumps({'status': 'success'}))
 

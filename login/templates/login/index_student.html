@@ -1,5 +1,4 @@
 {% extends 'login/base.html' %}
-{% load static %}
 {% block title %}主页{% endblock %}
 
 {% block content %}
@@ -9,9 +8,10 @@
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a class="nav-link" href="#">个人信息</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">奖惩情况</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">选课情况</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">修改个人信息</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">查看奖惩情况</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">查看选课情况</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">进入选课系统</a></li>
                 </ul>
             </div>
         </nav>
@@ -27,6 +27,9 @@
             <div>{{ stu_info.email }}</div>
             <div>{{ stu_info.idc }}</div>
             <div>{{ stu_info.major }}</div>
+            <div>{{ unify_class.class_name }}</div>
+            <div>{{ major.major_name }}</div>
+            <div>{{ college.college_name }}</div>
         </main>
     </div>
 </div>
