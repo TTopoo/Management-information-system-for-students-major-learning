@@ -12,7 +12,8 @@ urlpatterns = [
     path('login/', views.login),
     path('logout/', views.logout),
     path('fill_information/', views.fill_information),
-    
+    path('alter_information/', views.alter_information),
+
     path('teacher/stu_info/',           views.Teacher_StuInfo_OP.as_view({'get': 'visit'})),
     path('teacher/stu_info/json/',      views.Teacher_StuInfo_OP.as_view({'get': 'select'})),
     path('teacher/stu_info/delete/',    views.Teacher_StuInfo_OP.as_view({'post': 'delete'})),
