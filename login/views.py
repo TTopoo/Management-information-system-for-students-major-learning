@@ -102,6 +102,9 @@ def logout(request):
     request.session.flush()
     return redirect("/login/")
 
+#test
+def fill_information_test(request):
+    return render(request, 'login/fill_information copy.html', locals())
 
 # 填写基本信息
 def fill_information(request):
