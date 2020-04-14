@@ -486,3 +486,71 @@ TypeError: StudentAwardsRecodeModel() got an unexpected keyword argument 'user_i
 [2020-04-14 13:33:58,805][Thread-6:12168][task_id:root][util.py:26][INFO][delete log]
 [2020-04-14 13:33:59,292][MainThread:12648][task_id:root][views.py:183][INFO][delete teacher op]
 [2020-04-14 13:34:02,711][MainThread:12648][task_id:root][views.py:183][INFO][delete teacher op]
+[2020-04-14 13:43:24,838][MainThread:584][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 13:48:59,345][MainThread:9484][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:31:29,152][MainThread:1212][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:31:36,414][Thread-6:11564][task_id:django.request][log.py:228][WARNING][Not Found: /favicon.ico]
+[2020-04-14 14:32:41,263][MainThread:1212][task_id:django.utils.autoreload][autoreload.py:222][INFO][D:\Project\GitHubProject\Student\login\views.py changed, reloading.]
+[2020-04-14 14:32:42,888][MainThread:12904][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:34:45,841][MainThread:12904][task_id:django.utils.autoreload][autoreload.py:222][INFO][D:\Project\GitHubProject\Student\login\views.py changed, reloading.]
+[2020-04-14 14:34:47,394][MainThread:14388][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:35:41,251][MainThread:7444][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:37:18,285][MainThread:7444][task_id:django.utils.autoreload][autoreload.py:222][INFO][D:\Project\GitHubProject\Student\login\views.py changed, reloading.]
+[2020-04-14 14:37:19,720][MainThread:9000][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:42:05,124][Thread-3:3252][task_id:django.security.csrf][log.py:228][WARNING][Forbidden (CSRF token missing or incorrect.): /login/]
+[2020-04-14 14:42:33,905][Thread-6:5516][task_id:django.security.csrf][log.py:228][WARNING][Forbidden (CSRF token missing or incorrect.): /admin/login/]
+[2020-04-14 14:42:56,240][MainThread:13608][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:44:44,850][MainThread:13608][task_id:django.utils.autoreload][autoreload.py:222][INFO][D:\Project\GitHubProject\Student\login\views.py changed, reloading.]
+[2020-04-14 14:44:47,329][MainThread:10976][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:46:32,828][Thread-2:3528][task_id:django.request][log.py:228][ERROR][Internal Server Error: /index_student/]
+Traceback (most recent call last):
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Project\GitHubProject\Student\login\views.py", line 43, in index_student
+    stu_info = stu_infos[0]
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\db\models\query.py", line 314, in __getitem__
+    return qs._result_cache[0]
+IndexError: list index out of range
+[2020-04-14 14:47:35,660][MainThread:10976][task_id:django.utils.autoreload][autoreload.py:222][INFO][D:\Project\GitHubProject\Student\login\views.py changed, reloading.]
+[2020-04-14 14:47:36,988][MainThread:2620][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:47:38,899][Thread-1:13588][task_id:django.request][log.py:228][ERROR][Internal Server Error: /index_student/]
+Traceback (most recent call last):
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Project\GitHubProject\Student\login\views.py", line 44, in index_student
+    stu_info = stu_infos[0]
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\db\models\query.py", line 314, in __getitem__
+    return qs._result_cache[0]
+IndexError: list index out of range
+[2020-04-14 14:47:52,329][MainThread:3736][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 14:48:06,262][Thread-1:2172][task_id:django.request][log.py:228][ERROR][Internal Server Error: /index_student/]
+Traceback (most recent call last):
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Project\GitHubProject\Student\login\views.py", line 44, in index_student
+    stu_info = stu_infos[0]
+  File "D:\EnvironmentVariables\Python37\lib\site-packages\django\db\models\query.py", line 314, in __getitem__
+    return qs._result_cache[0]
+IndexError: list index out of range
+[2020-04-14 14:48:52,635][MainThread:3736][task_id:django.utils.autoreload][autoreload.py:222][INFO][D:\Project\GitHubProject\Student\login\views.py changed, reloading.]
+[2020-04-14 14:48:54,027][MainThread:1724][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 15:07:16,611][MainThread:1724][task_id:django.utils.autoreload][autoreload.py:222][INFO][D:\Project\GitHubProject\Student\login\views.py changed, reloading.]
+[2020-04-14 15:07:18,044][MainThread:4084][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 15:08:32,525][MainThread:4084][task_id:django.utils.autoreload][autoreload.py:222][INFO][D:\Project\GitHubProject\Student\login\views.py changed, reloading.]
+[2020-04-14 15:08:33,868][MainThread:13284][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 15:17:19,285][MainThread:13284][task_id:django.utils.autoreload][autoreload.py:222][INFO][D:\Project\GitHubProject\Student\login\views.py changed, reloading.]
+[2020-04-14 15:17:20,628][MainThread:6628][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 15:20:27,322][MainThread:14052][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
+[2020-04-14 15:41:54,750][MainThread:9608][task_id:django.utils.autoreload][autoreload.py:598][INFO][Watching for file changes with StatReloader]
