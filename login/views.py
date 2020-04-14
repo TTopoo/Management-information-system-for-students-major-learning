@@ -136,7 +136,7 @@ def fill_information(request):
     return render(request, 'login/fill_information.html', locals())
 
 
--# 修改学生个人信息
+# 修改学生个人信息
 def alter_information(request):
     user_id = request.session['user_id']
     account = request.session['account']
