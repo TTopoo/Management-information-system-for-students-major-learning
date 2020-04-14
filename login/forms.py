@@ -1,5 +1,6 @@
 from django import forms
 from captcha.fields import CaptchaField
+from django.forms import widgets
 
 
 # 登录表单
@@ -42,6 +43,16 @@ class FillInformationForm(forms.Form):
     idc = forms.CharField(label='身份证', max_length=18, min_length=18,
                           widget=forms.TextInput(attrs={'class': 'form-control'}))
     major = forms.ChoiceField(label='专业', choices=majorChoice)
+
+
+# 信息修改表单
+class AlterInformationForm(forms.Form):
+    password1 = forms.CharField(label="密码", max_length=256,
+                                widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password2 = forms.CharField(label="确认密码", max_length=256,
+                                widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    name = forms.CharField(label="姓名", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(label="邮箱", widget=forms.EmailInput(attrs={'class': 'form-control'}))
 
 
 # 用户添加表单

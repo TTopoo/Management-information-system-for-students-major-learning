@@ -1,6 +1,32 @@
 {% extends 'login/base.html' %}
+{% block title %}主页{% endblock %}
 
-{% block title %}填写信息{% endblock %}
 {% block content %}
+{% if request.session.is_login %}
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item"><a class="nav-link" href="/alter_information/">修改个人信息</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">查看奖惩情况</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">查看选课情况</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">进入选课系统</a></li>
+                </ul>
+            </div>
+        </nav>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <!-- 主界面 -->
+            <div class="col-md-10 col-md-offset-2 main">
+                <h2 class="sub-header">{{ account }} {{ stu_info.name  }}</h2>
+            </div>
+            {% block main %}
+            {% endblock %}
+        </main>
+    </div>
+</div>
+{% else %}
+<h1>你尚未登录，只能访问公开内容！</h1>
 
+{% endif %}
 {% endblock %}

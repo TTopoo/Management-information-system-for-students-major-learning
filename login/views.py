@@ -38,7 +38,7 @@ def index_student(request):
     user_id = request.session['user_id']
     account = request.session['account']
     stu_infos = StudentInformationModel.objects.filter(user_id=user_id)
-    if not stu_infos:
+    if stu_infos is None:
         return redirect('/fill_information/')
     stu_info = stu_infos[0]
     stu_info.sex = sex_map[stu_info.sex]
@@ -103,7 +103,7 @@ def logout(request):
     return redirect("/login/")
 
 
-# 完善学生信息
+# 填写基本信息
 def fill_information(request):
     account = request.session['account']
     if request.method == "POST":
@@ -127,13 +127,50 @@ def fill_information(request):
             user = User.objects.get(account=account)
             user.password = hash_code(password1)
             user.save()
-            # 报存个人信息
+            # 保存个人信息
             new_info = StudentInformationModel.objects.create(user_id=user, email=email, name=name,
                                                               sex=sex, idc=idc, age=age, major=major)
             new_info.save()
             return redirect('/index_student/')
     fill_info_form = forms.FillInformationForm()
     return render(request, 'login/fill_information.html', locals())
+
+
+# 修改学生个人信息
+def alter_information(request):
+    alter_info_form = forms.AlterInformationForm()
+    if request.method == "POST":
+        message = "信息填写有误"
+        if alter_info_form.is_valid():
+            password1 = alter_info_form.cleaned_data['password1']
+            password2 = alter_info_form.cleaned_data['password2']
+            if password1 != password2:
+                message = '两次输入的密码不同!'
+                return render(request, 'login/fill_information.html', locals())
+            # 获取所有信息
+            account = request.session['account']
+            email = alter_info_form.cleaned_data['email']
+            name = alter_info_form.cleaned_data['name']
+            # 保存账号密码
+            user = User.objects.get(account=account)
+            user.password = hash_code(password1)
+            user.save()
+            # 保存个人信息
+            new_info = StudentInformationModel.objects.create(user_id=user, email=email, name=name,)
+            new_info.save()
+            return redirect('/index_student/')
+    user_id = request.session['user_id']
+    account = request.session['account']
+    stu_infos = StudentInformationModel.objects.filter(user_id=user_id)
+    if stu_infos is None:
+        return render(request, 'login/alter_information.html', locals())
+    stu_info = stu_infos[0]
+    init_data = {
+        'name': stu_info.name,
+        'email': stu_info.email
+    }
+    alter_info_form = forms.AlterInformationForm(initial=init_data)
+    return render(request, 'login/alter_information.html', locals())
 
 
 ##############################################################################
