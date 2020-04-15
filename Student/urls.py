@@ -14,19 +14,8 @@ urlpatterns = [
     path('fill_information/', views.fill_information),
     path('alter_information/', views.alter_information),
 
-    path('teacher/stu_info/',           views.Teacher_StuInfo_OP.as_view({'get': 'visit'})),
-    path('teacher/stu_info/json/',      views.Teacher_StuInfo_OP.as_view({'get': 'select'})),
-    path('teacher/stu_info/delete/',    views.Teacher_StuInfo_OP.as_view({'post': 'delete'})),
-    path('teacher/stu_info/add/',       views.Teacher_StuInfo_OP.as_view({'post': 'add'})),
-    path('teacher/stu_info/update/',    views.Teacher_StuInfo_OP.as_view({'post': 'update'})),
+    path('<obj>/',                      views.deal.as_view()),
+    path('<obj>/<function>/',           views.deal.as_view()),
+    path('<obj>/<function>/<subfun>/',  views.deal.as_view()),
 
-    path('teacher/award/',              views.Teacher_Award_OP.as_view({'get': 'visit'})),
-    path('teacher/award/json/',         views.Teacher_Award_OP.as_view({'get': 'select'})),
-    path('teacher/award/delete/',       views.Teacher_Award_OP.as_view({'post': 'delete'})),
-    path('teacher/award/add/',          views.Teacher_Award_OP.as_view({'post': 'add'})),
-    path('teacher/award/update/',       views.Teacher_Award_OP.as_view({'post': 'update'})),
-
-    path('student/choose_course/'),     views.Choose_Course_OP.as_view({'post': 'visit'}),
-    path('student/choose_course/add_course'),     views.Choose_Course_OP.as_view({'post': 'add_course'}),
-    path('student/choose_course/remove_course'),     views.Choose_Course_OP.as_view({'post': 'remove_course'}),
 ]

@@ -1,5 +1,6 @@
 {% extends 'login/base.html' %}
-{% block title %}选课{% endblock %}
+{% block title %}TABLE{% endblock %}
+{% block content %}
 
 <style>
     .select,
@@ -137,15 +138,14 @@
 
     function operateFormatter(value, row, index) {
         return [
-            '<a class="remove" href="javascript:void(0)" title="Remove">',
+            '<a class="remove_course" href="javascript:void(0)" title="Remove_course">',
             '<i class="far fa-trash-alt"></i>',
             '</a>  ',
-            '<a class="update" href="javascript:void(0)" title="Edit">',
+            '<a class="add_course" href="javascript:void(0)" title="Add_course">',
             '<i class="far fa-edit"></i>',
             '</a>  ',
         ].join('')
     }
-
     function totalTextFormatter(data) {
         return 'Total'
     }
@@ -166,11 +166,10 @@
             $('#removeCourseModal').modal('show')
         }
     }
-
     function initTable() {
-        $table.bootstrapTable('destory').bootstrapTable({
+        $table.bootstrapTable('destroy').bootstrapTable({
             height: 600,
-            locale: $('#loacle').val(),
+            locale: $('#locale').val(),
             columns: [
                 {field: 'course_name', title: 'Course Name', align: 'center'},
                 {field: 'course_state', title: 'Course State', align: 'center'},
@@ -178,7 +177,6 @@
             ]
         })
     }
-
     function addCourse() {
         $.ajax({
             cache: false,
@@ -209,7 +207,7 @@
             cache: false,
             type: "POST",
             dataType: "json",
-            url: "./removeCourse/",
+            url: "./delete/",
             data: $('#remove-course-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
             async: false,
 
@@ -228,4 +226,48 @@
             }
         })
     }
+  </script>
+
+<script>
+  $(function() {
+    initTable()
+    $table.on('check.bs.table uncheck.bs.table ' +'check-all.bs.table uncheck-all.bs.table',
+        function () {
+        $remove.prop('disabled', !$table.bootstrapTable('getSelections').length)
+
+        // save your data, here just save the current page
+        selections = getIdSelections()
+        // push or splice the selections if you want to save all data selections
+        }
+    )
+    $table.on('all.bs.table', function (e, name, args) {
+      console.log(name, args)
+    })
+    $remove.click(function () {
+      var ids = getIdSelections();
+      var select_del = $table.bootstrapTable('getSelections')
+      $.ajax({
+        url: "./delete/",
+        data: JSON.stringify(select_del),
+        contentType: 'application/json',
+        type: "POST",
+        traditional: true,
+        success: function(result) { 
+        },
+        fail: function(result) {
+        }
+      });
+      $table.bootstrapTable('remove', {
+        field: 'id',
+        values: ids
+      })
+      $remove.prop('disabled', true)
+    })
+    $add.click(function () {
+      $('#identifier').modal(options)
+    })
+    $('#locale').change(initTable)
+  })
 </script>
+
+{% endblock %}
