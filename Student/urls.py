@@ -25,4 +25,8 @@ urlpatterns = [
     path('teacher/award/delete/',       views.Teacher_Award_OP.as_view({'post': 'delete'})),
     path('teacher/award/add/',          views.Teacher_Award_OP.as_view({'post': 'add'})),
     path('teacher/award/update/',       views.Teacher_Award_OP.as_view({'post': 'update'})),
+
+    path('student/choose_course/'),     views.Choose_Course_OP.as_view({'post': 'visit'}),
+    path('student/choose_course/add_course'),     views.Choose_Course_OP.as_view({'post': 'add_course'}),
+    path('student/choose_course/remove_course'),     views.Choose_Course_OP.as_view({'post': 'remove_course'}),
 ]

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from . import models, forms
-from .models import User, StudentInformationModel, StudentAwardsRecodeModel, MajorModel
+from .models import User, StudentInformationModel, StudentAwardsRecodeModel, MajorModel, CourseModel
 import hashlib, json
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
@@ -367,7 +367,7 @@ class Teacher_StuInfo_OP(Op):
 
             obj = User.objects.get(account=username)
             StudentInformationModel.objects.filter(user_id=obj).update(user_id=obj, email=email, name=name,
-                                                                      sex=sex, idc=idc, age=age, major=major)
+                                                                       sex=sex, idc=idc, age=age, major=major)
             lg = Log()
             lg_data = {
                 "Login_User": request.session['user_id'],
@@ -494,8 +494,9 @@ class Teacher_Award_OP(Op):
                 ).count()
             else:
                 result_set = StudentAwardsRecodeModel.objects.all()
-                logging.debug(result_set.values('stu_id__user_id__account', 'stu_id__name', 'award_type', 'award_content',
-                                                'award_date'))
+                logging.debug(
+                    result_set.values('stu_id__user_id__account', 'stu_id__name', 'award_type', 'award_content',
+                                      'award_date'))
                 data['total'] = StudentAwardsRecodeModel.objects.all().count()
 
             if (sort_kw != ''):
@@ -504,7 +505,8 @@ class Teacher_Award_OP(Op):
                 else:
                     result_set = result_set.order_by(('-' + sort_kw))
 
-            result_set = result_set.values('id', 'stu_id__user_id__account', 'stu_id__name', 'award_type', 'award_content',
+            result_set = result_set.values('id', 'stu_id__user_id__account', 'stu_id__name', 'award_type',
+                                           'award_content',
                                            'award_date')[int(offset_kw):(int(offset_kw) + int(limit_kw))]
             data['rows'] = list(result_set)
             # 日志系统
@@ -567,4 +569,87 @@ class Teacher_Award_OP(Op):
             logging.info("end award_delete")
             return HttpResponse(json.dumps({'status': 'success'}))
 
+
 ##############################################################################
+
+class Choose_Course_OP(Op):
+    def __init__(self):
+        logging.info('enter choose_course op')
+
+    def __del__(self):
+        logging.info('delete choose_course op')
+
+    # 访问该功能页
+    def visit(self, request):
+        return render(request, 'login/choose_course.html', locals())
+
+    # 添加课程
+    def add_course(self, request):
+        logging.info('enter choose_course add_course')
+        course_id = request.POST.get('course_id', None)
+        course_name = request.POST.get('course_name', None)
+        if course_name == '':
+            return HttpResponse(json.dumps({'status': 'course_name0'}))
+
+        # 添加这门课程
+        user_id = request.session['user_id']
+        stu_info = StudentInformationModel.objects.get(id=user_id)
+        course = CourseModel.objects.get(id=course_id)
+        course.students.add(stu_info)
+
+        # 日志
+
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def remove_course(self, request):
+        logging.info('enter choose_course remove_course')
+        course_id = request.POST.get('course_id', None)
+        course_name = request.POST.get('course_name', None)
+        if course_name == '':
+            return HttpResponse(json.dumps({'status': 'course_name0'}))
+
+        # 课程移除该学生
+        user_id = request.session['user_id']
+        stu_info = StudentInformationModel.objects.get(id=user_id)
+        course = CourseModel.objects.get(id=course_id)
+        course.students.remove(stu_info)
+
+        # 日志
+
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    '''
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        '''

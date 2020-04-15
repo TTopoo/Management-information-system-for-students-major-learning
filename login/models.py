@@ -144,6 +144,13 @@ class ClassModel(models.Model):
         verbose_name_plural = '班级'
 
 
+# 课程分数模型
+class CourseScoreModel(models.Model):
+    course_id = models.ForeignKey('CourseModel', on_delete=models.CASCADE)
+    student_id = models.ForeignKey('StudentInformationModel', on_delete=models.CASCADE)
+    score = models.CharField(max_length=16, verbose_name='课程得分')
+
+
 # 日志
 class OperationLogs(models.Model):
     type = models.CharField(default='info', max_length=64, verbose_name="日志类型")
