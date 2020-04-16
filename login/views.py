@@ -281,22 +281,27 @@ class Student_ChooseCourse_OP(Student, Op):
 
     # 添加课程
     def add(self, request):
-
         logging.info('enter choose_course add_course')
-        course_id = request.POST.get('course_id', None)
-        course_name = request.POST.get('course_name', None)
-        if course_name == '':
-            return HttpResponse(json.dumps({'status': 'course_name0'}))
-
+        json_receive = json.loads(request.body)
+        print('进入添加课程')
+        print(json_receive)
+        '''
         # 添加这门课程
         user_id = request.session['user_id']
         stu_info = StudentInformationModel.objects.get(id=user_id)
         course = CourseModel.objects.get(id=course_id)
         course.students.add(stu_info)
-
+        '''
         # 日志
 
         return HttpResponse(json.dumps({'status': 'success'}))
+
+    def remove_duplicates(self, list01):
+        list02 = list()
+        for i in list01:
+            if i not in list02:
+                list02.append(i)
+        return list02
 
     # 发送课程
     def select(self, request):
@@ -309,21 +314,36 @@ class Student_ChooseCourse_OP(Student, Op):
         offset_kw = request.GET.get('offset', 0)
         limit_kw = request.GET.get('limit', 0)
 
+        # 获取学生专业
         user_id = request.session['user_id']
         stu_info = StudentInformationModel.objects.get(user_id=user_id)
         unify_class = stu_info.classmodel_set.all()[0]
         major = unify_class.major_id
+        # 该专业可选的课程
         course_set = major.courses
         data['total'] = course_set.count()
-
-        print(course_set)
+        # 课程中该学生的成绩和状态
         #                            a = course_set[0].studentsScore.filter(student=stu_info).score
-        course_set = course_set.values('course_name', 'studentsScore__score', 'studentsScore__state')
-        print(course_set)
+        course_set = course_set.values('id', 'course_name', 'courseClass__teacher__name', 'courseClass__maxNum',
+                                       'courseClass__studentsScore__student_id', 'courseClass__studentsScore__score',
+                                       'courseClass__studentsScore__state')
+        # print(course_set)
         data['rows'] = list(course_set)
-        print(data['rows'])
-        # 日志系统
-
+        # print(data['rows'])
+        for i in data['rows']:
+            if i['courseClass__studentsScore__student_id'] is not None and \
+                    i['courseClass__studentsScore__student_id'] != stu_info.id:
+                i['courseClass__studentsScore__student_id'] = None
+                i['courseClass__studentsScore__score'] = None
+                i['courseClass__studentsScore__state'] = None
+        data['rows'] = self.remove_duplicates(data['rows'])  # 去重
+        for i in data['rows']:
+            if i['courseClass__studentsScore__student_id'] == stu_info.id:
+                for j in data['rows']:
+                    if j['courseClass__teacher__name'] == i['courseClass__teacher__name'] and \
+                            j['courseClass__studentsScore__student_id'] is None:
+                        data['rows'].remove(j)
+        # print(data['rows'])
         return JsonResponse(data)
 
     # 删除课程
@@ -331,19 +351,20 @@ class Student_ChooseCourse_OP(Student, Op):
     def delete(self, request):
 
         logging.info('enter choose_course remove_course')
-        course_id = request.POST.get('course_id', None)
-        course_name = request.POST.get('course_name', None)
-        if course_name == '':
-            return HttpResponse(json.dumps({'status': 'course_name0'}))
+        json_receive = json.loads(request.body)
+        logging.debug(json_receive)
 
-        # 课程移除该学生
+        print('到达删除函数')
+        print(json_receive)
+
+        '''        # 课程移除该学生
         user_id = request.session['user_id']
         stu_info = StudentInformationModel.objects.get(id=user_id)
         course = CourseModel.objects.get(id=course_id)
         course.students.remove(stu_info)
-
+        '''
         # 日志
-
+        logging.info("end choose_course remove_course")
         return HttpResponse(json.dumps({'status': 'success'}))
 
 

@@ -2,273 +2,365 @@
 {% block title %}TABLE{% endblock %}
 {% block content %}
 
-<style>
-    .select,
-    #locale {
-        width: 100%;
-    }
+    <style>
+        .select,
+        #locale {
+            width: 100%;
+        }
 
-    .update {
-        margin-right: 10px;
-    }
-</style>
+        .update {
+            margin-right: 10px;
+        }
+    </style>
 
-<!-- 添加课程表单 -->
-<form id="add-course-form" action="#" method="post" class="form-horizontal" role="form">
-    {% csrf_token %}
-    <div class="modal fade" id="addCourseModal" tabindex="-1" role="dialog" aria-labelledby="addCourseModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="addCourseModalLabel">添加课程</h4>
-                </div>
-                <div class="modal-body" style="height: 100%;">
-                    <div class="form-group">
-                        <select data-placeholder="选择课程..." class="form-control" name="选择课程" required="required">
-                            <option value="ClassID1" hassubinfo="true">课程1</option>
-                            <option value="ClassID2" hassubinfo="true">课程2</option>
-                        </select>
+    <!-- 添加课程表单 -->
+    <form id="add-course-form" action="#" method="post" class="form-horizontal" role="form">
+        {% csrf_token %}
+        <div class="modal fade" id="addCourseModal" tabindex="-1" role="dialog" aria-labelledby="addCourseModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="addCourseModalLabel">添加课程</h4>
                     </div>
-                    <div class="form-group">
-                        <select data-placeholder="选择教师..." class="form-control" name="选择教师" required="required">
-                            <option value="TeacherID1" hassubinfo="true">教师1</option>
-                            <option value="TeacherID2" hassubinfo="true">教师2</option>
-                        </select>
+                    <div class="modal-body" style="height: 100%;">
+
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                    <input type="button" data-dissmiss="modal" onclick="addCourse()" class="btn btn-primary" value="添加">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <input type="button" data-dissmiss="modal" onclick="addCourse()" class="btn btn-primary"
+                               value="添加">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</form>
+    </form>
 
-<!-- 移除课程表单 -->
-<form id="remove-course-form" action="#" method="post" class="form-horizontal" role="form">
-    {% csrf_token %}
-    <div class="modal fade" id="removeCourseModal" tabindex="-1" role="dialog" aria-labelledby="removeCourseModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="removeCourseModalLabel">移除课程</h4>
-                </div>
-                <div class="modal-body" style="height: 100%;">
-                    <div class="form-label-group">
-                        <label for="lastname" class="col-sm-3 control-label">确定要移除此课程?</label>
+    <!-- 移除课程表单 -->
+    <form id="remove-course-form" action="#" method="post" class="form-horizontal" role="form">
+        {% csrf_token %}
+        <div class="modal fade" id="removeCourseModal" tabindex="-1" role="dialog"
+             aria-labelledby="removeCourseModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="removeCourseModalLabel">移除课程</h4>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                    <input type="button" data-dissmiss="modal" onclick="removeCourse()" class="btn btn-primary"
-                           value="移除">
+                    <div class="modal-body" style="height: 100%;">
+                        <div class="form-label-group">
+                            <label for="lastname" class="col-sm-3 control-label">确定要移除此课程?</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <input type="button" data-dissmiss="modal" onclick="removeCourse()" class="btn btn-primary"
+                               value="移除">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</form>
+    </form>
 
-<table
-        id="table"
-        data-toolbar="#toolbar"
-        data-search="true"
-        data-show-refresh="true"
-        data-show-toggle="true"
-        data-show-fullscreen="true"
-        data-show-columns="true"
-        data-show-columns-toggle-all="true"
-        data-detail-view="true"
-        data-show-export="true"
-        data-click-to-select="true"
-        data-detail-formatter="detailFormatter"
-        data-minimum-count-columns="2"
-        data-show-pagination-switch="true"
-        data-pagination="true"
-        data-id-field="id"
-        data-page-list="[10, 25, 50, 100, all]"
-        data-show-footer="true"
-        data-side-pagination="server"
-        data-url="./json"
-        data-response-handler="responseHandler">
-</table>
-<script>
-    toastr.options = {
-        closeButton: true,
-        debug: true,
-        progressBar: true,
-        positionClass: "toast-top-center",
-        onclick: null,
-        showDuration: "300",
-        hideDuration: "1000",
-        timeOut: "2000",
-        extendedTimeOut: "1000",
-        showEasing: "swing",
-        hideEasing: "linear",
-        showMethod: "fadeIn",
-        hideMethod: "fadeOut"
-    };
-    var $table = $('#table')
-    var $remove = $('#remove')
-    var $add = $('#add')
-    var selections = []
+    <table
+            id="table"
+            data-toolbar="#toolbar"
+            data-search="true"
+            data-show-refresh="true"
+            data-show-toggle="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-detail-view="true"
+            data-show-export="true"
+            data-click-to-select="true"
+            data-detail-formatter="detailFormatter"
+            data-minimum-count-columns="2"
+            data-show-pagination-switch="true"
+            data-pagination="true"
+            data-id-field="id"
+            data-page-list="[10, 25, 50, 100, all]"
+            data-show-footer="true"
+            data-side-pagination="server"
+            data-url="./json"
+            data-response-handler="responseHandler">
+    </table>
+    <script>
+        toastr.options = {
+            closeButton: true,
+            debug: true,
+            progressBar: true,
+            positionClass: "toast-top-center",
+            onclick: null,
+            showDuration: "300",
+            hideDuration: "1000",
+            timeOut: "2000",
+            extendedTimeOut: "1000",
+            showEasing: "swing",
+            hideEasing: "linear",
+            showMethod: "fadeIn",
+            hideMethod: "fadeOut"
+        };
+        var $table = $('#table')
+        var $remove = $('#remove')
+        var $add = $('#add')
+        var selections = []
 
-    function getIdSelections() {
-        return $.map($table.bootstrapTable('getSelections'), function (row) {
-            return row.id
-        })
-    }
-
-    function responseHandler(res) {
-        $.each(res.rows, function (i, row) {
-            row.state = $.inArray(row.id, selections) !== -1
-        })
-        return res
-    }
-
-    function detailFormatter(index, row) {
-        var html = []
-        $.each(row, function (key, value) {
-            html.push('<p><b>' + key + ':</b> ' + value + '</p>')
-        })
-        return html.join('')
-    }
-
-    function operateFormatter(value, row, index) {
-        return [
-            '<a class="remove_course" href="javascript:void(0)" title="Remove_course">',
-            '<i class="far fa-trash-alt"></i>',
-            '</a>  ',
-            '<a class="add_course" href="javascript:void(0)" title="Add_course">',
-            '<i class="far fa-edit"></i>',
-            '</a>  ',
-        ].join('')
-    }
-    function totalTextFormatter(data) {
-        return 'Total'
-    }
-
-    function totalNameFormatter(data) {
-        return data.length
-    }
-</script>
-<script>
-    window.operateEvents = {
-        'click .add_course': function (e, value, row, index) {
-            console.log(row);
-            $("#course_name").val(row.course_name);
-            $('#addCourseModal').modal('show')
-        },
-        'click .remove_course': function (e, value, row, index) {
-            console.log(row);
-            $('#removeCourseModal').modal('show')
+        function getIdSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.id
+            })
         }
-    }
-    function initTable() {
-        $table.bootstrapTable('destroy').bootstrapTable({
-            height: 600,
-            locale: $('#locale').val(),
-            columns: [
-                {field: 'course_name', title: 'Name', align: 'center'},
-                {field: 'studentsScore__score', title: 'Score', align: 'center'},
-                {field: 'studentsScore__state', title: 'State', align: 'center'},
-                {field: 'operate', title: 'Operate', align: 'center', clickToSelect: false,events: window.operateEvents,formatter: operateFormatter}
-            ]
-        })
-    }
-    function addCourse() {
-        $.ajax({
-            cache: false,
-            type: "POST",
-            dataType: "json",
-            url: "./addCourse/",
-            data: $('#add-course-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
-            async: false,
 
-            success: function (data) {
-                console.log(data);//打印服务端返回的数据(调试用)
-                if (data.status == "success") {
-                    document.getElementById("add-info-form").reset();
-                    $('#addCourseModal').modal('hide');
-                    toastr.success('提交数据成功');
-                    $("#table").bootstrapTable('refresh');
-                }
-                toastr.warning('失败');
+        function responseHandler(res) {
+            $.each(res.rows, function (i, row) {
+                row.state = $.inArray(row.id, selections) !== -1
+            })
+            return res
+        }
+
+        function detailFormatter(index, row) {
+            var html = []
+            $.each(row, function (key, value) {
+                html.push('<p><b>' + key + ':</b> ' + value + '</p>')
+            })
+            return html.join('')
+        }
+
+        function operateFormatter(value, row, index) {
+            return [
+                '<a class="remove_course" href="javascript:void(0)" title="Remove_course">',
+                '<i class="far fa-trash-alt"></i>',
+                '</a>  ',
+                '<a class="add_course" href="javascript:void(0)" title="Add_course">',
+                '<i class="far fa-edit"></i>',
+                '</a>  ',
+            ].join('')
+        }
+
+        function totalTextFormatter(data) {
+            return 'Total'
+        }
+
+        function totalNameFormatter(data) {
+            return data.length
+        }
+    </script>
+    <script>
+        window.operateEvents = {
+            'click .add_course': function (e, value, row, index) {
+                console.log(row);
+                bootbox.confirm({
+                    title: "添加课程",
+                    size: "small",
+                    message: "您确定要添加课程 " + row.course_name + " 吗？",
+                    buttons: {
+                        confirm: {
+                            label: '是',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '否',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                type: "POST",
+                                dataType: "json",
+                                async: false,
+                                url: "./add/",
+                                data: JSON.stringify([row]),
+                                contentType: 'application/json',
+                                type: "POST",
+                                traditional: true,
+                                success: function (data) {
+                                    console.log(data);
+                                    if (data.status == "success") {
+                                        toastr.success('删除数据成功');
+                                        $("#table").bootstrapTable('refresh');
+                                    }
+                                    if (data.status == "authority_check0") {
+                                        toastr.warning('权限不足');
+                                    }
+                                },
+                                fail: function (result) {
+                                    toastr.warning('添加失败');
+                                }
+                            });
+                            $table.bootstrapTable('add', {
+                                field: 'id',
+                                values: [row.id]
+                            })
+                        }
+                    }
+                });
             },
-            error: function () {
-                toastr.warning('错误');
+            'click .remove_course': function (e, value, row, index) {
+                console.log(row);
+                bootbox.confirm({
+                    title: "删除信息！",
+                    size: "small",
+                    message: "您确定删除课程 " + row.course_name + " 吗？",
+                    buttons: {
+                        confirm: {
+                            label: '是',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '否',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                type: "POST",
+                                dataType: "json",
+                                async: false,
+                                url: "./delete/",
+                                data: JSON.stringify([row]),
+                                contentType: 'application/json',
+                                type: "POST",
+                                traditional: true,
+                                success: function (data) {
+                                    console.log(data);
+                                    if (data.status == "success") {
+                                        toastr.success('删除数据成功');
+                                        $("#table").bootstrapTable('refresh');
+                                    }
+                                    if (data.status == "authority_check0") {
+                                        toastr.warning('权限不足');
+                                    }
+                                },
+                                fail: function (result) {
+                                    toastr.warning('删除失败');
+                                }
+                            });
+                            $table.bootstrapTable('remove', {
+                                field: 'id',
+                                values: [row.id]
+                            })
+                        }
+                    }
+                });
             }
-        })
-    }
+        }
 
-    function removeCourse() {
-        $.ajax({
-            cache: false,
-            type: "POST",
-            dataType: "json",
-            url: "./delete/",
-            data: $('#remove-course-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
-            async: false,
+        function initTable() {
+            $table.bootstrapTable('destroy').bootstrapTable({
+                height: 600,
+                locale: $('#locale').val(),
+                columns: [
+                    {field: 'course_name', title: 'Name', align: 'center'},
+                    {field: 'courseClass__teacher__name', title: 'Teacher', align: 'center'},
+                    {field: 'courseClass__maxNum', title: 'MaxNum', align: 'center'},
+                    {field: 'courseClass__studentsScore__score', title: 'Score', align: 'center'},
+                    {field: 'courseClass__studentsScore__state', title: 'State', align: 'center'},
+                    {
+                        field: 'operate',
+                        title: 'Operate',
+                        align: 'center',
+                        clickToSelect: false,
+                        events: window.operateEvents,
+                        formatter: operateFormatter
+                    }
+                ]
+            })
+        }
 
-            success: function (data) {
-                console.log(data);//打印服务端返回的数据(调试用)
-                if (data.status == "success") {
-                    document.getElementById("add-info-form").reset();
-                    $('#removeCourseModal').modal('hide');
-                    toastr.success('取消选课成功');
-                    $("#table").bootstrapTable('refresh');
+        function addCourse() {
+            $.ajax({
+                cache: false,
+                type: "POST",
+                dataType: "json",
+                url: "./addCourse/",
+                data: $('#add-course-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
+                async: false,
+
+                success: function (data) {
+                    console.log(data);//打印服务端返回的数据(调试用)
+                    if (data.status == "success") {
+                        document.getElementById("add-info-form").reset();
+                        $('#addCourseModal').modal('hide');
+                        toastr.success('提交数据成功');
+                        $("#table").bootstrapTable('refresh');
+                    }
+                    toastr.warning('失败');
+                },
+                error: function () {
+                    toastr.warning('错误');
                 }
-                toastr.warning('失败');
-            },
-            error: function () {
-                toastr.warning('错误');
-            }
+            })
+        }
+
+        function removeCourse() {
+            $.ajax({
+                cache: false,
+                type: "POST",
+                dataType: "json",
+                url: "./delete/",
+                data: JSON.stringify(1), //提交到后台的数据
+                async: false,
+
+                success: function (data) {
+                    console.log(data);//打印服务端返回的数据(调试用)
+                    if (data.status == "success") {
+                        document.getElementById("add-info-form").reset();
+                        $('#removeCourseModal').modal('hide');
+                        toastr.success('取消选课成功');
+                        $("#table").bootstrapTable('refresh');
+                    }
+                    toastr.warning('失败');
+                },
+                error: function () {
+                    toastr.warning('错误');
+                }
+            })
+        }
+    </script>
+
+    <script>
+        $(function () {
+            initTable()
+            $table.on('check.bs.table uncheck.bs.table ' + 'check-all.bs.table uncheck-all.bs.table',
+                function () {
+                    $remove.prop('disabled', !$table.bootstrapTable('getSelections').length)
+
+                    // save your data, here just save the current page
+                    selections = getIdSelections()
+                    // push or splice the selections if you want to save all data selections
+                }
+            )
+            $table.on('all.bs.table', function (e, name, args) {
+                console.log(name, args)
+            })
+            $remove.click(function () {
+                var ids = getIdSelections();
+                var select_del = $table.bootstrapTable('getSelections')
+                $.ajax({
+                    url: "./delete/",
+                    data: JSON.stringify(select_del),
+                    contentType: 'application/json',
+                    type: "POST",
+                    traditional: true,
+                    success: function (result) {
+                    },
+                    fail: function (result) {
+                    }
+                });
+                $table.bootstrapTable('remove', {
+                    field: 'id',
+                    values: ids
+                })
+                $remove.prop('disabled', true)
+            })
+            $add.click(function () {
+                $('#identifier').modal(options)
+            })
+            $('#locale').change(initTable)
         })
-    }
-  </script>
-
-<script>
-  $(function() {
-    initTable()
-    $table.on('check.bs.table uncheck.bs.table ' +'check-all.bs.table uncheck-all.bs.table',
-        function () {
-        $remove.prop('disabled', !$table.bootstrapTable('getSelections').length)
-
-        // save your data, here just save the current page
-        selections = getIdSelections()
-        // push or splice the selections if you want to save all data selections
-        }
-    )
-    $table.on('all.bs.table', function (e, name, args) {
-      console.log(name, args)
-    })
-    $remove.click(function () {
-      var ids = getIdSelections();
-      var select_del = $table.bootstrapTable('getSelections')
-      $.ajax({
-        url: "./delete/",
-        data: JSON.stringify(select_del),
-        contentType: 'application/json',
-        type: "POST",
-        traditional: true,
-        success: function(result) { 
-        },
-        fail: function(result) {
-        }
-      });
-      $table.bootstrapTable('remove', {
-        field: 'id',
-        values: ids
-      })
-      $remove.prop('disabled', true)
-    })
-    $add.click(function () {
-      $('#identifier').modal(options)
-    })
-    $('#locale').change(initTable)
-  })
-</script>
+    </script>
 
 {% endblock %}

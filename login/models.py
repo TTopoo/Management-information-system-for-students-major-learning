@@ -117,6 +117,7 @@ class StudentScoreModel(models.Model):
 class CourseClassModel(models.Model):
     teacher = models.ForeignKey('TeacherInformationModel', on_delete=models.CASCADE)
     maxNum = models.CharField(max_length=16, verbose_name='最大人数')
+    studentsScore = models.ManyToManyField(StudentScoreModel, null=True, blank=True)
 
     def __str__(self):
         return self.teacher.name+' '+self.maxNum
@@ -131,7 +132,6 @@ class CourseClassModel(models.Model):
 class CourseModel(models.Model):
     course_name = models.CharField(max_length=64, verbose_name='课程名称')
     courseClass = models.ManyToManyField(CourseClassModel, null=True, blank=True)
-    studentsScore = models.ManyToManyField(StudentScoreModel, null=True, blank=True)
 
     def __str__(self):
         return self.course_name
