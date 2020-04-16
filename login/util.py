@@ -1,4 +1,6 @@
-import logging, json, hashlib
+import logging
+import json
+import hashlib
 from .models import OperationLogs
 
 
@@ -9,6 +11,7 @@ def hash_code(s, salt='mysite'):  # 加点盐
     h.update(s.encode())  # update方法只接收bytes类型
     return h.hexdigest()
 
+
 class LogType():
     DEBUG = 'DEBUG'
     INFO = 'INFO'
@@ -16,12 +19,14 @@ class LogType():
     ERROR = 'ERROR'
     CRITICAL = 'CRITICAL'
 
+
 class OpType():
     VISIT = 'VISIT'
     SELECT = 'SELECT'
     ADD = 'ADD'
     DELETE = 'DELETE'
     UPDATE = 'UPDATE'
+
 
 class Log():
 
@@ -34,7 +39,8 @@ class Log():
 
     def record(self, log_type, model_name, op_type, data):
         try:
-            content = op_type + ':' + model_name + ':' + json.dumps(data, ensure_ascii=False, indent=2)
+            content = op_type + ':' + model_name + ':' + \
+                json.dumps(data, ensure_ascii=False, indent=2)
             logging.info(content)
             obj_operationlogs = OperationLogs()
             obj_operationlogs.content = content
@@ -42,7 +48,7 @@ class Log():
             obj_operationlogs.save()
         except:
             logging.error('unknown')
-            
+
     def logs(self, request, id, type=LogType.INFO, optype=OpType.VISIT, visit_url='/index'):
         # id = 0 权限错误
         # id = 1 obj错误
@@ -67,5 +73,3 @@ class Log():
                 "Login_User": 'None'
             }
         self.record(type, '', optype, lg_data)
-        
-

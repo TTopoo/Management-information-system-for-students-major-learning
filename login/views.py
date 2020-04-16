@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from . import models, forms
 from .models import *
-import hashlib, json
+import hashlib
+import json
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
@@ -26,6 +27,7 @@ def index_student(request):
         '080903': "网络工程",
         '080904K': "信息安全",
     }
+    message = ''
     user_id = request.session['user_id']
     account = request.session['account']
     stu_infos = StudentInformationModel.objects.filter(user_id=user_id)
@@ -166,7 +168,8 @@ def alter_information(request):
             user.password = hash_code(password1)
             user.save()
             # 保存个人信息
-            new_info = StudentInformationModel.objects.create(user_id=user, email=email, name=name)
+            new_info = StudentInformationModel.objects.create(
+                user_id=user, email=email, name=name)
             new_info.save()
             return redirect('/index_student/')
         else:
@@ -217,7 +220,8 @@ class Op():  # 所有操作的基类
         if (self.visit_status < 10):  # 没登陆
             l.logs(request, 1, LogType.WARNING, OpType.VISIT)
         if (self.visit_status % 10 == 0):  # 链接错误
-            l.logs(request, 1, LogType.WARNING, OpType.VISIT, '/' + str(obj) + '/' + str(function) + '/' + str(subfun))
+            l.logs(request, 1, LogType.WARNING, OpType.VISIT, '/' +
+                   str(obj) + '/' + str(function) + '/' + str(subfun))
 
         return self.visit_status
 
@@ -227,7 +231,8 @@ class Op():  # 所有操作的基类
         return 0
 
     def dictoffun(self, fun, request):
-        operator = {"add": self.add, "json": self.select, "delete": self.delete, "update": self.update}
+        operator = {"add": self.add, "json": self.select,
+                    "delete": self.delete, "update": self.update}
         return operator[fun](request)
 
     def visit(self, request):
@@ -238,7 +243,7 @@ class Op():  # 所有操作的基类
 
     def select(self, request):
         pass
-    
+
     def delete(self, request):
         pass
 
@@ -313,13 +318,13 @@ class Student_ChooseCourse_OP(Student, Op):
         order_kw = request.GET.get('order', '')
         offset_kw = request.GET.get('offset', 0)
         limit_kw = request.GET.get('limit', 0)
-        print(search_kw,sort_kw,order_kw,offset_kw,limit_kw)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
         # 获取学生专业
         user_id = request.session['user_id']
         stu_info = StudentInformationModel.objects.get(user_id=user_id)
         unify_class = stu_info.classmodel_set.all()[0]
         major = unify_class.major_id
-        print(user_id,stu_info,unify_class,major)
+        print(user_id, stu_info, unify_class, major)
         # 该专业可选的课程
         course_set = major.courses
         data['total'] = course_set.count()
@@ -488,7 +493,7 @@ class Teacher_StuInfo_OP(Teacher, Op):
                 result_set = result_set.order_by(('-' + sort_kw))
 
         result_set = result_set.values('user_id__account', 'email', 'name', 'sex', 'idc', 'age', 'major')[
-                     int(offset_kw):(int(offset_kw) + int(limit_kw))]
+            int(offset_kw):(int(offset_kw) + int(limit_kw))]
         print(result_set)
         data['rows'] = list(result_set)
         print(data['rows'])
@@ -499,7 +504,8 @@ class Teacher_StuInfo_OP(Teacher, Op):
             "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
             "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
 
-        lg.record(LogType.INFO, StudentInformationModel._meta.model_name, OpType.SELECT, lg_data)
+        lg.record(LogType.INFO, StudentInformationModel._meta.model_name,
+                  OpType.SELECT, lg_data)
 
         logging.info("end stu_info_select")
         return JsonResponse(data)
@@ -535,7 +541,8 @@ class Teacher_StuInfo_OP(Teacher, Op):
             "username": username, "email": email, "name": name,
             "sex": sex, "idc": idc, "age": age, "major": major
         }
-        lg.record(LogType.INFO, str(StudentInformationModel._meta.model_name), OpType.UPDATE, lg_data)
+        lg.record(LogType.INFO, str(
+            StudentInformationModel._meta.model_name), OpType.UPDATE, lg_data)
 
         logging.info("end stu_info_update")
         return HttpResponse(json.dumps({'status': 'success'}))
@@ -551,8 +558,10 @@ class Teacher_StuInfo_OP(Teacher, Op):
             logging.debug(user_id)
             User.objects.filter(account=user_id).delete()
             lg = Log()
-            lg_data = {"Login_User": request.session['user_id'], "user_id": user_id}
-            lg.record(LogType.INFO, str(StudentInformationModel._meta.model_name), OpType.DELETE, lg_data)
+            lg_data = {
+                "Login_User": request.session['user_id'], "user_id": user_id}
+            lg.record(LogType.INFO, str(
+                StudentInformationModel._meta.model_name), OpType.DELETE, lg_data)
 
         logging.info("end stu_info_delete")
         return HttpResponse(json.dumps({'status': 'success'}))
@@ -600,7 +609,8 @@ class Teacher_Award_OP(Teacher, Op):
         lg_data = {
             "Login_User": request.session['user_id'],
             "username": username, "type": type, "content": content, "date": date}
-        lg.record(LogType.INFO, str(StudentAwardsRecodeModel._meta.model_name), OpType.ADD, lg_data)
+        lg.record(LogType.INFO, str(
+            StudentAwardsRecodeModel._meta.model_name), OpType.ADD, lg_data)
         logging.info("end award_add")
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -651,7 +661,8 @@ class Teacher_Award_OP(Teacher, Op):
             "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
             "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
 
-        lg.record(LogType.INFO, StudentAwardsRecodeModel._meta.model_name, OpType.SELECT, lg_data)
+        lg.record(LogType.INFO, StudentAwardsRecodeModel._meta.model_name,
+                  OpType.SELECT, lg_data)
 
         logging.info("end award_select")
         return JsonResponse(data)
@@ -678,7 +689,8 @@ class Teacher_Award_OP(Teacher, Op):
         lg_data = {
             "Login_User": request.session['user_id'],
             "id": id, "stu_id": user_id, "type": type, "content": content}
-        lg.record(LogType.INFO, str(StudentAwardsRecodeModel._meta.model_name), OpType.UPDATE, lg_data)
+        lg.record(LogType.INFO, str(
+            StudentAwardsRecodeModel._meta.model_name), OpType.UPDATE, lg_data)
         logging.info("end award_update")
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -691,8 +703,10 @@ class Teacher_Award_OP(Teacher, Op):
             award_id = i['id']
             StudentAwardsRecodeModel.objects.filter(id=award_id).delete()
             lg = Log()
-            lg_data = {"Login_User": request.session['user_id'], "award_id": award_id}
-            lg.record(LogType.INFO, str(StudentAwardsRecodeModel._meta.model_name), OpType.DELETE, lg_data)
+            lg_data = {
+                "Login_User": request.session['user_id'], "award_id": award_id}
+            lg.record(LogType.INFO, str(
+                StudentAwardsRecodeModel._meta.model_name), OpType.DELETE, lg_data)
         logging.info("end award_delete")
         return HttpResponse(json.dumps({'status': 'success'}))
 

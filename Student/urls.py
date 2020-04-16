@@ -19,5 +19,5 @@ urlpatterns = [
     path('<obj>/<function>/',           views.deal.as_view()),
     path('<obj>/<function>/<subfun>/',  views.deal.as_view()),
 
-    path('generatedata/',dataviews.info)
+    path('generatedata/', dataviews.info)
 ]

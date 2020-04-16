@@ -1,145 +1,150 @@
-
 {% extends 'login/base_add_del_upd_sel.html' %}
 
 {% block tableOptions %}
 <table id="table" data-toolbar="#toolbar" data-search="true" data-show-refresh="true" data-show-toggle="true"
   data-show-fullscreen="true" data-show-columns="true" data-show-columns-toggle-all="true" data-detail-view="true"
   data-show-export="true" data-click-to-select="true" data-detail-formatter="detailFormatter"
-  data-minimum-count-columns="2" data-show-pagination-switch="true" data-pagination="true" data-id-field="user_id__account"
-  data-page-list="[10, 25, 50, 100, all]" data-show-footer="true" data-side-pagination="server" data-url="./json"
-  data-response-handler="responseHandler">
+  data-minimum-count-columns="2" data-show-pagination-switch="true" data-pagination="true"
+  data-id-field="user_id__account" data-page-list="[10, 25, 50, 100, all]" data-show-footer="true"
+  data-side-pagination="server" data-url="./json" data-response-handler="responseHandler">
 </table>
 {% endblock %}
 
 {% block add-modal-body %}
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="username" id="username" placeholder="学号" required="required" autofocus></input>
-    <label for="lastname" class="col-sm-3 control-label">学号</label>
-  </div>
-  <div class="form-label-group">
-    <input type="email" class="form-control" name="email" id="email" placeholder="邮箱" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">邮箱</label>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="name" id="name" placeholder="姓名" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">姓名</label>
-  </div>
-  <div class="form-group">
-    <select data-placeholder="选择项目..." class="form-control" name="sex" id="sex" required="required">
-      <option value="male" hassubinfo="true">男</option>
-      <option value="female" hassubinfo="true">女</option>
-    </select>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="idc" id="idc" placeholder="身份证号" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">身份证号</label>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="age" id="age" placeholder="年龄" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">年龄</label>
-  </div>
-  <div class="form-group">
-    <select data-placeholder="选择项目..." class="form-control" name="major" id="major" required="required">
-      <option value="080901" hassubinfo="true">计算机科学与技术</option>
-      <option value="080902" hassubinfo="true">软件工程</option>
-      <option value="080903" hassubinfo="true">网络工程</option>
-      <option value="080904K" hassubinfo="true">信息安全</option>
-    </select>
-  </div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="username" id="username" placeholder="学号" required="required"
+    autofocus></input>
+  <label for="lastname" class="col-sm-3 control-label">学号</label>
+</div>
+<div class="form-label-group">
+  <input type="email" class="form-control" name="email" id="email" placeholder="邮箱" required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">邮箱</label>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="name" id="name" placeholder="姓名" required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">姓名</label>
+</div>
+<div class="form-group">
+  <select data-placeholder="选择项目..." class="form-control" name="sex" id="sex" required="required">
+    <option value="male" hassubinfo="true">男</option>
+    <option value="female" hassubinfo="true">女</option>
+  </select>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="idc" id="idc" placeholder="身份证号" required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">身份证号</label>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="age" id="age" placeholder="年龄" required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">年龄</label>
+</div>
+<div class="form-group">
+  <select data-placeholder="选择项目..." class="form-control" name="major" id="major" required="required">
+    <option value="080901" hassubinfo="true">计算机科学与技术</option>
+    <option value="080902" hassubinfo="true">软件工程</option>
+    <option value="080903" hassubinfo="true">网络工程</option>
+    <option value="080904K" hassubinfo="true">信息安全</option>
+  </select>
+</div>
 {% endblock %}
 {% block upd-modal-body %}
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_username" id="update_username" placeholder="学号" required="required" readonly></input>
-    <label for="lastname" class="col-sm-3 control-label">学号</label>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_email" id="update_email" placeholder="邮箱" required="required" autofocus></input>
-    <label for="lastname" class="col-sm-3 control-label">邮箱</label>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_name" id="update_name" placeholder="姓名" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">姓名</label>
-  </div>
-  <div class="form-group">
-    <select data-placeholder="选择项目..." class="form-control" name="update_sex" id="update_sex" required="required">
-      <option value="male" hassubinfo="true">男</option>
-      <option value="female" hassubinfo="true">女</option>
-    </select>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_idc" id="update_idc" placeholder="身份证号" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">身份证号</label>
-  </div>
-  <div class="form-label-group">
-    <input type="text" class="form-control" name="update_age" id="update_age" placeholder="年龄" required="required"></input>
-    <label for="lastname" class="col-sm-3 control-label">年龄</label>
-  </div>
-  <div class="form-group">
-    <select data-placeholder="选择项目..." class="form-control" name="update_major" id="update_major" required="required">
-      <option value="080901" hassubinfo="true">计算机科学与技术</option>
-      <option value="080902" hassubinfo="true">软件工程</option>
-      <option value="080903" hassubinfo="true">网络工程</option>
-      <option value="080904K" hassubinfo="true">信息安全</option>
-    </select>
-  </div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="update_username" id="update_username" placeholder="学号"
+    required="required" readonly></input>
+  <label for="lastname" class="col-sm-3 control-label">学号</label>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="update_email" id="update_email" placeholder="邮箱" required="required"
+    autofocus></input>
+  <label for="lastname" class="col-sm-3 control-label">邮箱</label>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="update_name" id="update_name" placeholder="姓名"
+    required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">姓名</label>
+</div>
+<div class="form-group">
+  <select data-placeholder="选择项目..." class="form-control" name="update_sex" id="update_sex" required="required">
+    <option value="male" hassubinfo="true">男</option>
+    <option value="female" hassubinfo="true">女</option>
+  </select>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="update_idc" id="update_idc" placeholder="身份证号"
+    required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">身份证号</label>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="update_age" id="update_age" placeholder="年龄"
+    required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">年龄</label>
+</div>
+<div class="form-group">
+  <select data-placeholder="选择项目..." class="form-control" name="update_major" id="update_major" required="required">
+    <option value="080901" hassubinfo="true">计算机科学与技术</option>
+    <option value="080902" hassubinfo="true">软件工程</option>
+    <option value="080903" hassubinfo="true">网络工程</option>
+    <option value="080904K" hassubinfo="true">信息安全</option>
+  </select>
+</div>
 {% endblock %}
 {% block tableinfo %}
 <script>
   window.operateEvents = {
     'click .remove': function (e, value, row, index) {
       console.log([row.user_id__account]),
-      bootbox.confirm({
-        title: "删除信息！",
-        size: "small",
-        message: "您确定删除"+row.user_id__account+"的个人信息以及账号吗？",
-        buttons: {
-          confirm: {
-            label: '是',
-            className: 'btn-success'
+        bootbox.confirm({
+          title: "删除信息！",
+          size: "small",
+          message: "您确定删除" + row.user_id__account + "的个人信息以及账号吗？",
+          buttons: {
+            confirm: {
+              label: '是',
+              className: 'btn-success'
+            },
+            cancel: {
+              label: '否',
+              className: 'btn-danger'
+            }
           },
-          cancel: {
-            label: '否',
-            className: 'btn-danger'
-          }
-        },
-        callback: function(result) {
-          if(result) {
-            $.ajax({
-              type: "POST",
-              dataType: "json",
-              async:false,
-              url: "./delete/",
-              data: JSON.stringify([row]),
-              contentType: 'application/json',
-              type: "POST",
-              traditional: true,
-              headers: {"X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val()},
-              success: function (data) {
-                console.log(data);
-                if(data.status == "success"){
-                  toastr.success('删除数据成功');
-                  $("#table").bootstrapTable('refresh');
+          callback: function (result) {
+            if (result) {
+              $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                url: "./delete/",
+                data: JSON.stringify([row]),
+                contentType: 'application/json',
+                type: "POST",
+                traditional: true,
+                headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+                success: function (data) {
+                  console.log(data);
+                  if (data.status == "success") {
+                    toastr.success('删除数据成功');
+                    $("#table").bootstrapTable('refresh');
+                  }
+                  if (data.status == "authority_check0") {
+                    toastr.warning('权限不足');
+                  }
+                },
+                fail: function (result) {
                 }
-                if(data.status == "authority_check0"){
-                  toastr.warning('权限不足');
-                }
-              },
-              fail: function(result) {
-              }
-            });
-            
-            $table.bootstrapTable('remove', {
-              field: 'user_id__account',
-              values: [row.id]
-            }) 
+              });
+
+              $table.bootstrapTable('remove', {
+                field: 'user_id__account',
+                values: [row.id]
+              })
+            }
           }
-        }
-      });
+        });
     },
     'click .update': function (e, value, row, index) {
 
       console.log(row);
-      
+
       $("#update_username").val(row.user_id__account);
       $("#update_email").val(row.email);
       $("#update_name").val(row.name);
@@ -150,7 +155,7 @@
 
       //弹出修改模态框，非新增模态框
       $('#updateModal').modal('show')
-      
+
     }
   }
   function getIdSelections() {
@@ -171,22 +176,22 @@
       locale: $('#locale').val(),
       columns: [
         [
-          {field: 'state',checkbox: true,rowspan: 2,align: 'center',valign: 'middle'},
-          {title: 'Stu_ID',field: 'user_id__account',rowspan: 2,align: 'center',valign: 'middle',sortable: true,footerFormatter: totalTextFormatter},
-          {title: 'Item Detail',colspan: 7,align: 'center'}
+          { field: 'state', checkbox: true, rowspan: 2, align: 'center', valign: 'middle' },
+          { title: 'Stu_ID', field: 'user_id__account', rowspan: 2, align: 'center', valign: 'middle', sortable: true, footerFormatter: totalTextFormatter },
+          { title: 'Item Detail', colspan: 7, align: 'center' }
         ],
         [
-          {field: 'name',title: 'Name',footerFormatter: totalNameFormatter,align: 'center'},
-          {field: 'major',title: 'Major',sortable: true,align: 'center'},
-          {field: 'sex',title: 'Sex',align: 'center'},
-          {field: 'age',title: 'Age',sortable: true,align: 'center'},
-          {field: 'email',title: 'Email',align: 'center'},
-          {field: 'idc',title: 'IDCard',align: 'center'},
-          {field: 'operate',title: 'Item Operate',align: 'center',clickToSelect: false,events: window.operateEvents,formatter: operateFormatter}
+          { field: 'name', title: 'Name', footerFormatter: totalNameFormatter, align: 'center' },
+          { field: 'major', title: 'Major', sortable: true, align: 'center' },
+          { field: 'sex', title: 'Sex', align: 'center' },
+          { field: 'age', title: 'Age', sortable: true, align: 'center' },
+          { field: 'email', title: 'Email', align: 'center' },
+          { field: 'idc', title: 'IDCard', align: 'center' },
+          { field: 'operate', title: 'Item Operate', align: 'center', clickToSelect: false, events: window.operateEvents, formatter: operateFormatter }
         ]
       ]
     })
-    
+
     $remove.click(function () {
       var ids = getIdSelections();
       console.log(ids)
@@ -232,82 +237,82 @@
   }
   function add_info() {
     $.ajax({
-      cache:false,
+      cache: false,
       type: "POST",
       dataType: "json",
-      url: "./add/" ,
+      url: "./add/",
       data: $('#add-info-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
-      async:false,  //必须要为false,必须必须
+      async: false,  //必须要为false,必须必须
 
       success: function (data) {
         console.log(data);//打印服务端返回的数据(调试用)
-        if(data.status == "success"){
+        if (data.status == "success") {
           document.getElementById("add-info-form").reset();
           $('#myModal').modal('hide');
           toastr.success('提交数据成功');
           $("#table").bootstrapTable('refresh');
         }
-        if(data.status == "authority_check0"){
+        if (data.status == "authority_check0") {
           toastr.warning('权限不足');
         }
-        if(data.status == "stuid0"){
+        if (data.status == "stuid0") {
           toastr.warning('请输入学号');
         }
-        if(data.status == "email0"){
+        if (data.status == "email0") {
           toastr.warning('请输入邮箱');
         }
-        if(data.status == "name0"){
+        if (data.status == "name0") {
           toastr.warning('请输入姓名');
         }
-        if(data.status == "idc0"){
+        if (data.status == "idc0") {
           toastr.warning('请输入身份证号');
         }
-        if(data.status == "age0"){
+        if (data.status == "age0") {
           toastr.warning('请输入年龄');
         }
-        if(data.status == "stuidname1"){
+        if (data.status == "stuidname1") {
           toastr.warning('学号重复');
         }
       },
-      error : function() {
+      error: function () {
         toastr.warning("请输入所有数据");
       }
     });
   }
   function update_info() {
     $.ajax({
-      cache:false,
+      cache: false,
       type: "POST",
       dataType: "json",
-      url: "./update/" ,
+      url: "./update/",
       data: $('#update-info-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
-      async:false,  //必须要为false,必须必须
+      async: false,  //必须要为false,必须必须
 
       success: function (data) {
         console.log(data);//打印服务端返回的数据(调试用)
-        if(data.status == "success"){
+        if (data.status == "success") {
           document.getElementById("update-info-form").reset();
           $('#updateModal').modal('hide');
           toastr.success('提交数据成功');
           $("#table").bootstrapTable('refresh');
         }
-        if(data.status == "stuid0"){
+        if (data.status == "stuid0") {
           toastr.warning('请输入学号');
         }
-        if(data.status == "email0"){
+        if (data.status == "email0") {
           toastr.warning('请输入邮箱');
         }
-        if(data.status == "name0"){
+        if (data.status == "name0") {
           toastr.warning('请输入姓名');
         }
-        if(data.status == "idc0"){
+        if (data.status == "idc0") {
           toastr.warning('请输入身份证号');
         }
-        if(data.status == "age0"){
+        if (data.status == "age0") {
           toastr.warning('请输入年龄');
         }
       },
-      error : function() {
+      error: function () {
         toastr.warning("请输入所有数据");
       }
     });

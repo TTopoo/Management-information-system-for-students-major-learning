@@ -2,24 +2,23 @@
 {% load static %}
 {% block title %}登录{% endblock %}
 {% block css %}
-  <link href="{% static 'css/floating-labels.css' %}" rel="stylesheet">
+<link href="{% static 'css/floating-labels.css' %}" rel="stylesheet">
 {% endblock %}
 
 
 {% block content %}
 <style type="text/css">
-  form
-  {
-  max-width: 300px;
-  width: 100%;
-  padding: 15px;
-  margin: auto;
+  form {
+    max-width: 300px;
+    width: 100%;
+    padding: 15px;
+    margin: auto;
   }
 </style>
 <div class="container">
   <form class='' action="/login/" method="post">
     {% if message %}
-      <div class="alert alert-warning">{{ message }}</div>
+    <div class="alert alert-warning">{{ message }}</div>
     {% endif %}
     {% csrf_token %}
     <h2 class="text-center">欢迎登录</h2>
@@ -32,11 +31,11 @@
       {{ login_form.password }}
       {{ login_form.password.label_tag }}
     </div>
-    <div class="form-label-group">
-      {{ login_form.captcha.errors }}
-      {{ login_form.captcha.label_tag }}
-      {{ login_form.captcha }}
-    </div>
+    <!--   <div class="form-label-group">
+      { { login_form.captcha.errors }}
+      { { login_form.captcha.label_tag }}
+      { { login_form.captcha }}
+    </div>-->
 
     <button type="reset" class="btn btn-danger pull-left">重置</button>
     <button type="submit" class="btn btn-primary pull-right">登录</button>

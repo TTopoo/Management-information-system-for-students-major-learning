@@ -34,7 +34,8 @@ class StudentInformationModel(models.Model):
     age = models.CharField(max_length=20, verbose_name='年龄', null=True)
     email = models.EmailField(verbose_name='邮箱')
     idc = models.CharField(max_length=20, verbose_name='身份证', null=True)
-    major = models.CharField(max_length=30, choices=majorChoice, default='计算机科学与技术')
+    major = models.CharField(
+        max_length=30, choices=majorChoice, default='计算机科学与技术')
 
     def __str__(self):
         return self.name
@@ -74,9 +75,12 @@ class TeacherInformationModel(models.Model):
 
 # 学生奖惩模型
 class StudentAwardsRecodeModel(models.Model):
-    stu_id = models.ForeignKey('StudentInformationModel', on_delete=models.CASCADE)
-    award_type = models.CharField(max_length=5, verbose_name='奖惩记录类别', null=True)
-    award_content = models.CharField(max_length=50, verbose_name='奖惩信息', null=True)
+    stu_id = models.ForeignKey(
+        'StudentInformationModel', on_delete=models.CASCADE)
+    award_type = models.CharField(
+        max_length=5, verbose_name='奖惩记录类别', null=True)
+    award_content = models.CharField(
+        max_length=50, verbose_name='奖惩信息', null=True)
     award_date = models.DateField(verbose_name='奖惩日期', null=True)
 
     class Meta:
@@ -100,7 +104,8 @@ class CollegeModel(models.Model):
 
 # 学生成绩模型
 class StudentScoreModel(models.Model):
-    student = models.ForeignKey('StudentInformationModel', on_delete=models.CASCADE)
+    student = models.ForeignKey(
+        'StudentInformationModel', on_delete=models.CASCADE)
     score = models.CharField(max_length=16, verbose_name='分数', null=True)
     state = models.CharField(max_length=16, verbose_name='状态', null=True)
 
@@ -115,9 +120,11 @@ class StudentScoreModel(models.Model):
 
 # 课程班级模型
 class CourseClassModel(models.Model):
-    teacher = models.ForeignKey('TeacherInformationModel', on_delete=models.CASCADE)
+    teacher = models.ForeignKey(
+        'TeacherInformationModel', on_delete=models.CASCADE)
     maxNum = models.CharField(max_length=16, verbose_name='最大人数')
-    studentsScore = models.ManyToManyField(StudentScoreModel, null=True, blank=True)
+    studentsScore = models.ManyToManyField(
+        StudentScoreModel, null=True, blank=True)
 
     def __str__(self):
         return self.teacher.name+' '+self.maxNum
@@ -131,7 +138,8 @@ class CourseClassModel(models.Model):
 # 课程模型
 class CourseModel(models.Model):
     course_name = models.CharField(max_length=64, verbose_name='课程名称')
-    courseClass = models.ManyToManyField(CourseClassModel, null=True, blank=True)
+    courseClass = models.ManyToManyField(
+        CourseClassModel, null=True, blank=True)
 
     def __str__(self):
         return self.course_name
@@ -161,7 +169,8 @@ class MajorModel(models.Model):
 class ClassModel(models.Model):
     class_name = models.CharField(max_length=64, verbose_name='班级名称')
     major_id = models.ForeignKey('MajorModel', on_delete=models.CASCADE)
-    students = models.ManyToManyField(StudentInformationModel, null=True, blank=True)
+    students = models.ManyToManyField(
+        StudentInformationModel, null=True, blank=True)
 
     def __str__(self):
         return self.class_name
