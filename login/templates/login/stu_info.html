@@ -77,33 +77,53 @@
 <script>
   window.operateEvents = {
     'click .remove': function (e, value, row, index) {
-
-      $.ajax({
-        type: "POST",
-        dataType: "json",
-        async:false,
-        url: "./delete/",
-        data: JSON.stringify([row]),
-        contentType: 'application/json',
-        type: "POST",
-        traditional: true,
-        success: function (data) {
-          console.log(data);
-          if(data.status == "success"){
-            toastr.success('删除数据成功');
-            $("#table").bootstrapTable('refresh');
-          }
-          if(data.status == "authority_check0"){
-            toastr.warning('权限不足');
+      console.log(row)
+      bootbox.confirm({
+        title: "删除信息！",
+        size: "small",
+        message: "您确定删除"+row.user_id__account+"的个人信息以及账号吗？",
+        buttons: {
+          confirm: {
+            label: '是',
+            className: 'btn-success'
+          },
+          cancel: {
+            label: '否',
+            className: 'btn-danger'
           }
         },
-        fail: function(result) {
+        callback: function(result) {
+          if(result) {
+            $.ajax({
+              type: "POST",
+              dataType: "json",
+              async:false,
+              url: "./delete/",
+              data: JSON.stringify([row]),
+              contentType: 'application/json',
+              type: "POST",
+              traditional: true,
+              success: function (data) {
+                console.log(data);
+                if(data.status == "success"){
+                  toastr.success('删除数据成功');
+                  $("#table").bootstrapTable('refresh');
+                }
+                if(data.status == "authority_check0"){
+                  toastr.warning('权限不足');
+                }
+              },
+              fail: function(result) {
+              }
+            });
+            $table.bootstrapTable('remove', {
+              field: 'id',
+              values: [row.id]
+            }) 
+          }
         }
       });
-      $table.bootstrapTable('remove', {
-        field: 'id',
-        values: [row.id]
-      })
+      
     },
     'click .update': function (e, value, row, index) {
 

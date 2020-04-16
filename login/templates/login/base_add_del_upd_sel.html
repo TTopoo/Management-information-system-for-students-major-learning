@@ -169,7 +169,7 @@
     })
     $remove.click(function () {
       var ids = getIdSelections();
-      var select_del = $table.bootstrapTable('getSelections')
+      var select_del = $table.bootstrapTable('getSelections')//待完善删除确认弹出框
       $.ajax({
         url: "./delete/",
         data: JSON.stringify(select_del),
