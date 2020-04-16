@@ -171,8 +171,9 @@
             height: 600,
             locale: $('#locale').val(),
             columns: [
-                {field: 'course_name', title: 'Course Name', align: 'center'},
-                {field: 'course_state', title: 'Course State', align: 'center'},
+                {field: 'course_name', title: 'Name', align: 'center'},
+                {field: 'studentsScore__score', title: 'Score', align: 'center'},
+                {field: 'studentsScore__state', title: 'State', align: 'center'},
                 {field: 'operate', title: 'Operate', align: 'center', clickToSelect: false,events: window.operateEvents,formatter: operateFormatter}
             ]
         })

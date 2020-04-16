@@ -29,7 +29,6 @@ class StudentInformationModel(models.Model):
         ('080904K', "信息安全"),
     )
     user_id = models.ForeignKey('User', on_delete=models.CASCADE)
-    class_id = models.ForeignKey('ClassModel', on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=30, verbose_name='姓名', null=True)
     sex = models.CharField(max_length=32, choices=gender, default='男')
     age = models.CharField(max_length=20, verbose_name='年龄', null=True)
@@ -99,11 +98,40 @@ class CollegeModel(models.Model):
         verbose_name_plural = '学院'
 
 
+# 学生成绩模型
+class StudentScoreModel(models.Model):
+    student = models.ForeignKey('StudentInformationModel', on_delete=models.CASCADE)
+    score = models.CharField(max_length=16, verbose_name='分数', null=True)
+    state = models.CharField(max_length=16, verbose_name='状态', null=True)
+
+    def __str__(self):
+        return self.student.name+' '+self.score+' '+self.state
+
+    class Meta:
+        ordering = ['score']
+        verbose_name = '成绩'
+        verbose_name_plural = '成绩'
+
+
+# 课程班级模型
+class CourseClassModel(models.Model):
+    teacher = models.ForeignKey('TeacherInformationModel', on_delete=models.CASCADE)
+    maxNum = models.CharField(max_length=16, verbose_name='最大人数')
+
+    def __str__(self):
+        return self.teacher.name+' '+self.maxNum
+
+    class Meta:
+        ordering = ['maxNum']
+        verbose_name = '课程班级'
+        verbose_name_plural = '课程班级'
+
+
 # 课程模型
 class CourseModel(models.Model):
     course_name = models.CharField(max_length=64, verbose_name='课程名称')
-    teachers = models.ManyToManyField(TeacherInformationModel, null=True, blank=True)
-    students = models.ManyToManyField(StudentInformationModel, null=True, blank=True)
+    courseClass = models.ManyToManyField(CourseClassModel, null=True, blank=True)
+    studentsScore = models.ManyToManyField(StudentScoreModel, null=True, blank=True)
 
     def __str__(self):
         return self.course_name
@@ -142,13 +170,6 @@ class ClassModel(models.Model):
         ordering = ['class_name']
         verbose_name = '班级'
         verbose_name_plural = '班级'
-
-
-# 课程分数模型
-class CourseScoreModel(models.Model):
-    course_id = models.ForeignKey('CourseModel', on_delete=models.CASCADE)
-    student_id = models.ForeignKey('StudentInformationModel', on_delete=models.CASCADE)
-    score = models.CharField(max_length=16, verbose_name='课程得分')
 
 
 # 日志
