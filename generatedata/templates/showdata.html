@@ -1,0 +1,59 @@
+<!--新增-->
+<form id="add-info-form" action="#" method="post" class="form-horizontal" role="form">
+    {% csrf_token %}
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">新增记录</h4>
+                </div>
+                <div class="modal-body" style="height: 100%;">
+                    <div class="form-label-group">
+                        <input type="text" class="form-control" name="username" id="username" placeholder="学号"
+                            required="required" autofocus></input>
+                        <label for="lastname" class="col-sm-3 control-label">学号</label>
+                    </div>
+                    <div class="form-label-group">
+                        <input type="email" class="form-control" name="email" id="email" placeholder="邮箱"
+                            required="required"></input>
+                        <label for="lastname" class="col-sm-3 control-label">邮箱</label>
+                    </div>
+                    <div class="form-label-group">
+                        <input type="text" class="form-control" name="name" id="name" placeholder="姓名"
+                            required="required"></input>
+                        <label for="lastname" class="col-sm-3 control-label">姓名</label>
+                    </div>
+                    <div class="form-group">
+                        <select data-placeholder="选择项目..." class="form-control" name="sex" id="sex" required="required">
+                            <option value="male" hassubinfo="true">男</option>
+                            <option value="female" hassubinfo="true">女</option>
+                        </select>
+                    </div>
+                    <div class="form-label-group">
+                        <input type="text" class="form-control" name="idc" id="idc" placeholder="身份证号"
+                            required="required"></input>
+                        <label for="lastname" class="col-sm-3 control-label">身份证号</label>
+                    </div>
+                    <div class="form-label-group">
+                        <input type="text" class="form-control" name="age" id="age" placeholder="年龄"
+                            required="required"></input>
+                        <label for="lastname" class="col-sm-3 control-label">年龄</label>
+                    </div>
+                    <div class="form-group">
+                        <select data-placeholder="选择项目..." class="form-control" name="major" id="major"
+                            required="required">
+                            <option value="080901" hassubinfo="true">计算机科学与技术</option>
+                            <option value="080902" hassubinfo="true">软件工程</option>
+                            <option value="080903" hassubinfo="true">网络工程</option>
+                            <option value="080904K" hassubinfo="true">信息安全</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <input type="button" data-dissmiss="modal" onclick="add_info()" class="btn btn-primary" value="提交">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

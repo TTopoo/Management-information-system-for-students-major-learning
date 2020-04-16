@@ -1,6 +1,16 @@
 
 {% extends 'login/base_add_del_upd_sel.html' %}
 
+{% block tableOptions %}
+<table id="table" data-toolbar="#toolbar" data-search="true" data-show-refresh="true" data-show-toggle="true"
+  data-show-fullscreen="true" data-show-columns="true" data-show-columns-toggle-all="true" data-detail-view="true"
+  data-show-export="true" data-click-to-select="true" data-detail-formatter="detailFormatter"
+  data-minimum-count-columns="2" data-show-pagination-switch="true" data-pagination="true" data-id-field="user_id__account"
+  data-page-list="[10, 25, 50, 100, all]" data-show-footer="true" data-side-pagination="server" data-url="./json"
+  data-response-handler="responseHandler">
+</table>
+{% endblock %}
+
 {% block add-modal-body %}
   <div class="form-label-group">
     <input type="text" class="form-control" name="username" id="username" placeholder="学号" required="required" autofocus></input>
@@ -77,7 +87,7 @@
 <script>
   window.operateEvents = {
     'click .remove': function (e, value, row, index) {
-      console.log(row)
+      console.log([row.user_id__account]),
       bootbox.confirm({
         title: "删除信息！",
         size: "small",
@@ -103,6 +113,7 @@
               contentType: 'application/json',
               type: "POST",
               traditional: true,
+              headers: {"X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val()},
               success: function (data) {
                 console.log(data);
                 if(data.status == "success"){
@@ -116,14 +127,14 @@
               fail: function(result) {
               }
             });
+            
             $table.bootstrapTable('remove', {
-              field: 'id',
+              field: 'user_id__account',
               values: [row.id]
             }) 
           }
         }
       });
-      
     },
     'click .update': function (e, value, row, index) {
 
@@ -141,6 +152,18 @@
       $('#updateModal').modal('show')
       
     }
+  }
+  function getIdSelections() {
+    return $.map($table.bootstrapTable('getSelections'), function (row) {
+      return row.user_id__account
+    })
+  }
+
+  function responseHandler(res) {
+    $.each(res.rows, function (i, row) {
+      row.state = $.inArray(row.user_id__account, selections) !== -1
+    })
+    return res
   }
   function initTable() {
     $table.bootstrapTable('destroy').bootstrapTable({
@@ -162,6 +185,49 @@
           {field: 'operate',title: 'Item Operate',align: 'center',clickToSelect: false,events: window.operateEvents,formatter: operateFormatter}
         ]
       ]
+    })
+    
+    $remove.click(function () {
+      var ids = getIdSelections();
+      console.log(ids)
+      var select_del = $table.bootstrapTable('getSelections')//待完善删除确认弹出框
+      bootbox.confirm({
+        title: "删除信息！",
+        size: "small",
+        message: "您确定删除选中账号的个人信息以及账号吗？",
+        buttons: {
+          confirm: {
+            label: '是',
+            className: 'btn-success'
+          },
+          cancel: {
+            label: '否',
+            className: 'btn-danger'
+          }
+        },
+        callback: function (result) {
+          if (result) {
+            $.ajax({
+              url: "./delete/",
+              data: JSON.stringify(select_del),
+              contentType: 'application/json',
+              type: "POST",
+              traditional: true,
+              headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+              success: function (result) {
+              },
+              fail: function (result) {
+              }
+            });
+
+            $table.bootstrapTable('remove', {
+              field: 'user_id__account',
+              values: ids
+            })
+            $remove.prop('disabled', true)
+          }
+        }
+      });
     })
   }
   function add_info() {

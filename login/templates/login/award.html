@@ -1,6 +1,16 @@
 
 {% extends 'login/base_add_del_upd_sel.html' %}
 
+{% block tableOptions %}
+<table id="table" data-toolbar="#toolbar" data-search="true" data-show-refresh="true" data-show-toggle="true"
+  data-show-fullscreen="true" data-show-columns="true" data-show-columns-toggle-all="true" data-detail-view="true"
+  data-show-export="true" data-click-to-select="true" data-detail-formatter="detailFormatter"
+  data-minimum-count-columns="2" data-show-pagination-switch="true" data-pagination="true" data-id-field="id"
+  data-page-list="[10, 25, 50, 100, all]" data-show-footer="true" data-side-pagination="server" data-url="./json"
+  data-response-handler="responseHandler">
+</table>
+{% endblock %}
+
 {% block add-modal-body %}
   <div class="form-label-group">
     <input type="text" class="form-control" name="username" id="username" placeholder="学号" required="required" autofocus></input>
@@ -51,34 +61,55 @@
 {% block tableinfo %}
 <script>
   window.operateEvents = {
-    'click .remove': function (e, value, row, index) {
-
-      $.ajax({
-        type: "POST",
-        dataType: "json",
-        async:false,
-        url: "./delete/",
-        data: JSON.stringify([row]),
-        contentType: 'application/json',
-        type: "POST",
-        traditional: true,
-        success: function (data) {
-          console.log(data);
-          if(data.status == "success"){
-            toastr.success('删除数据成功');
-            $("#table").bootstrapTable('refresh');
-          }
-          if(data.status == "authority_check0"){
-            toastr.warning('权限不足');
+    'click .remove': function (e, valueid, row, index) {
+      console.log([row.id]),
+      bootbox.confirm({
+        title: "删除信息！",
+        size: "small",
+        message: "您确定删除"+row.id+"的奖惩信息吗？",
+        buttons: {
+          confirm: {
+            label: '是',
+            className: 'btn-success'
+          },
+          cancel: {
+            label: '否',
+            className: 'btn-danger'
           }
         },
-        fail: function(result) {
+        callback: function(result) {
+          if(result) {
+            $.ajax({
+              type: "POST",
+              dataType: "json",
+              async:false,
+              url: "./delete/",
+              data: JSON.stringify([row]),
+              contentType: 'application/json',
+              type: "POST",
+              traditional: true,
+              headers: {"X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val()},
+              success: function (data) {
+                console.log(data);
+                if(data.status == "success"){
+                  toastr.success('删除数据成功');
+                  $("#table").bootstrapTable('refresh');
+                }
+                if(data.status == "authority_check0"){
+                  toastr.warning('权限不足');
+                }
+              },
+              fail: function(result) {
+              }
+            });
+            
+            $table.bootstrapTable('remove', {
+              field: 'id',
+              values: [row.id]
+            }) 
+          }
         }
       });
-      $table.bootstrapTable('remove', {
-        field: 'id',
-        values: [row.id]
-      })
     },
     'click .update': function (e, value, row, index) {
 
@@ -94,6 +125,18 @@
       $('#updateModal').modal('show')
       
     }
+  }
+  function getIdSelections() {
+    return $.map($table.bootstrapTable('getSelections'), function (row) {
+      return row.id
+    })
+  }
+
+  function responseHandler(res) {
+    $.each(res.rows, function (i, row) {
+      row.state = $.inArray(row.id, selections) !== -1
+    })
+    return res
   }
   function initTable() {
     $table.bootstrapTable('destroy').bootstrapTable({
@@ -115,6 +158,48 @@
           {field: 'operate',title: 'Item Operate',align: 'center',clickToSelect: false,events: window.operateEvents,formatter: operateFormatter}
         ]
       ]
+    })
+    $remove.click(function () {
+      var ids = getIdSelections();
+      console.log(ids)
+      var select_del = $table.bootstrapTable('getSelections')//待完善删除确认弹出框
+      bootbox.confirm({
+        title: "删除信息！",
+        size: "small",
+        message: "您确定删除选中id的奖惩信息吗？",
+        buttons: {
+          confirm: {
+            label: '是',
+            className: 'btn-success'
+          },
+          cancel: {
+            label: '否',
+            className: 'btn-danger'
+          }
+        },
+        callback: function (result) {
+          if (result) {
+            $.ajax({
+              url: "./delete/",
+              data: JSON.stringify(select_del),
+              contentType: 'application/json',
+              type: "POST",
+              traditional: true,
+              headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+              success: function (result) {
+              },
+              fail: function (result) {
+              }
+            });
+
+            $table.bootstrapTable('remove', {
+              field: 'id',
+              values: ids
+            })
+            $remove.prop('disabled', true)
+          }
+        }
+      });
     })
   }
   function add_info() {

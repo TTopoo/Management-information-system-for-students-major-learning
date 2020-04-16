@@ -238,7 +238,7 @@ class Op():  # 所有操作的基类
 
     def select(self, request):
         pass
-
+    
     def delete(self, request):
         pass
 
@@ -313,12 +313,13 @@ class Student_ChooseCourse_OP(Student, Op):
         order_kw = request.GET.get('order', '')
         offset_kw = request.GET.get('offset', 0)
         limit_kw = request.GET.get('limit', 0)
-
+        print(search_kw,sort_kw,order_kw,offset_kw,limit_kw)
         # 获取学生专业
         user_id = request.session['user_id']
         stu_info = StudentInformationModel.objects.get(user_id=user_id)
         unify_class = stu_info.classmodel_set.all()[0]
         major = unify_class.major_id
+        print(user_id,stu_info,unify_class,major)
         # 该专业可选的课程
         course_set = major.courses
         data['total'] = course_set.count()
@@ -540,7 +541,6 @@ class Teacher_StuInfo_OP(Teacher, Op):
         return HttpResponse(json.dumps({'status': 'success'}))
 
     # 删除学生信息
-    @csrf_exempt
     def delete(self, request):
         logging.info("enter stu_info_delete")
         json_receive = json.loads(request.body)
@@ -683,7 +683,6 @@ class Teacher_Award_OP(Teacher, Op):
         return HttpResponse(json.dumps({'status': 'success'}))
 
     # 删除学生信息
-    @csrf_exempt
     def delete(self, request):
         logging.info("enter award_delete")
         json_receive = json.loads(request.body)

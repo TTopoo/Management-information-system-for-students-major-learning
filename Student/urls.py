@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.conf.urls import include
 from django.urls import path
+from generatedata import views as dataviews
 from login import views
 
 urlpatterns = [
@@ -18,4 +19,5 @@ urlpatterns = [
     path('<obj>/<function>/',           views.deal.as_view()),
     path('<obj>/<function>/<subfun>/',  views.deal.as_view()),
 
+    path('generatedata/',dataviews.info)
 ]
