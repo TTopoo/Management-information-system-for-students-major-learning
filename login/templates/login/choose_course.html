@@ -165,10 +165,11 @@
                             contentType: 'application/json',
                             type: "POST",
                             traditional: true,
+                            headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
                             success: function (data) {
                                 console.log(data);
                                 if (data.status == "success") {
-                                    toastr.success('删除数据成功');
+                                    toastr.success('添加课程成功');
                                     $("#table").bootstrapTable('refresh');
                                 }
                                 if (data.status == "authority_check0") {
@@ -214,6 +215,7 @@
                             contentType: 'application/json',
                             type: "POST",
                             traditional: true,
+                            headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
                             success: function (data) {
                                 console.log(data);
                                 if (data.status == "success") {
@@ -238,6 +240,18 @@
         }
     }
 
+    function getIdSelections() {
+        return $.map($table.bootstrapTable('getSelections'), function (row) {
+            return row.id
+        })
+    }
+    function responseHandler(res) {
+        $.each(res.rows, function (i, row) {
+            row.state = $.inArray(row.id, selections) !== -1
+        })
+        return res
+    }
+
     function initTable() {
         $table.bootstrapTable('destroy').bootstrapTable({
             height: 600,
@@ -259,6 +273,50 @@
             ]
         })
     }
+    $remove.click(function () {
+        var ids = getIdSelections();
+        console.log(ids)
+        var select_del = $table.bootstrapTable('getSelections')//待完善删除确认弹出框
+        bootbox.confirm({
+            title: "删除信息！",
+            size: "small",
+            message: "您确定删除该课程吗？",
+            buttons: {
+                confirm: {
+                    label: '是',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: '否',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.ajax({
+                        url: "./delete/",
+                        data: JSON.stringify(select_del),
+                        contentType: 'application/json',
+                        type: "POST",
+                        traditional: true,
+                        headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+                        success: function (result) {
+                            toastr.warning('new_delete success');
+                        },
+                        fail: function (result) {
+                            toastr.warning('new_delete fail');
+                        }
+                    });
+
+                    $table.bootstrapTable('remove', {
+                        field: 'id',
+                        values: ids
+                    })
+                    $remove.prop('disabled', true)
+                }
+            }
+        });
+    })
 
     function addCourse() {
         $.ajax({
@@ -317,10 +375,7 @@
         $table.on('check.bs.table uncheck.bs.table ' + 'check-all.bs.table uncheck-all.bs.table',
             function () {
                 $remove.prop('disabled', !$table.bootstrapTable('getSelections').length)
-
-                // save your data, here just save the current page
                 selections = getIdSelections()
-                // push or splice the selections if you want to save all data selections
             }
         )
         $table.on('all.bs.table', function (e, name, args) {
@@ -336,8 +391,10 @@
                 type: "POST",
                 traditional: true,
                 success: function (result) {
+                    toastr.warning('last_remove_click success')
                 },
                 fail: function (result) {
+                    toastr.warning('last_remove_click fail')
                 }
             });
             $table.bootstrapTable('remove', {
