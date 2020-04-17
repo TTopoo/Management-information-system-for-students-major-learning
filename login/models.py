@@ -29,7 +29,7 @@ class StudentInformationModel(models.Model):
         ('080904', "信息安全"),
         ('000001', "纺织化学工程系"),
         ('000002', "应用化学系"),
-        ('000003', "生物工程系及基础化学部"),        
+        ('000003', "生物工程系及基础化学部"),
     )
     user_id = models.ForeignKey('User', on_delete=models.CASCADE)
     name = models.CharField(max_length=30, verbose_name='姓名', null=True)

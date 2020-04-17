@@ -16,7 +16,7 @@ from django.views.generic import View
 # 学生主页
 def index_student(request):
     if request.session['authority'] == True:
-        return redirect('/index_teacher/')
+        return redirect('/teacher/')
     sex_map = {
         'male': '男',
         'female': '女',
@@ -26,6 +26,9 @@ def index_student(request):
         '080902': "软件工程",
         '080903': "网络工程",
         '080904K': "信息安全",
+        '000001': "纺织化学工程系",
+        '000002': "应用化学系",
+        '000003': "生物工程系及基础化学部",
     }
     message = ''
     user_id = request.session['user_id']
@@ -68,7 +71,7 @@ def login(request):
                     request.session['account'] = user.account
                     if account[0] == '0':  # 如果是教师账号
                         request.session['authority'] = True
-                        return redirect('/index_teacher/')
+                        return redirect('/teacher/')
                     else:
                         request.session['authority'] = False
                         return redirect('/index_student/')
@@ -806,7 +809,7 @@ class deal(Op, View):  # 核心! 处理url
                             return taop.dictoffun(subfun, request)
         else:  # 此处包含了20和10、12和21，代表链接不对
             if (self.visit_status // 10 == 2):  # 登录的账号是教师
-                return redirect("/index_teacher/")
+                return redirect("/teacher/")
             elif (self.visit_status // 10 == 1):  # 登录的账号是学生
                 return redirect("/index_student/")
             else:
@@ -870,7 +873,7 @@ class deal(Op, View):  # 核心! 处理url
                             return taop.dictoffun(subfun, request)
         else:  # 此处包含了20和10、12和21，代表链接不对
             if (self.visit_status // 10 == 2):  # 登录的账号是教师
-                return redirect("/index_teacher/")
+                return redirect("/teacher/")
             elif (self.visit_status // 10 == 1):  # 登录的账号是学生
                 return redirect("/index_student/")
             else:
