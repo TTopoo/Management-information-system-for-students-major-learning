@@ -1,36 +1,71 @@
-{% extends 'login/idx_stu_base.html' %}
+{% extends 'login/base.html' %}
 {% block title %}修改个人信息{% endblock %}
 
-{% block main %}
-<form class='form-login' action="/alter_information/" method="post">
-    {% if message %}
-    <div class="alert alert-warning">{{ message }}</div>
-    {% endif %}
-
-    {% csrf_token %}
-
-    <h2 class="text-center">修改个人信息</h2>
-    <div class="form-group">
-        <label>学号: {{ account }}</label>
+{% block content %}
+<!-- 修改信息表单 -->
+<form id="alter-info-form" action="#" method="post" class="form-horizontal" role="form">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="alterInfoModalLabel">修改信息</h4>
+            </div>
+            <div class="modal-body" style="height: 100%;">
+                {% csrf_token %}
+                <div class="form-label-group">
+                    <input type="text" class="form-control" name="name" id="name" placeholder="姓名"
+                        required="required"></input>
+                    <label for="lastname" class="col-sm-3 control-label">姓名</label>
+                </div>
+                <div class="form-label-group">
+                    <input type="email" class="form-control" name="email" id="email" placeholder="邮箱"
+                        required="required"></input>
+                    <label for="lastname" class="col-sm-3 control-label">邮箱</label>
+                </div>
+                <div>其他诸如性别年龄等信息可以从身份证号中取得</div>
+                <div>而身份证号比较重要, 属于系统自动提前绑定的信息</div>
+                <div>如有必要, 请准备证明, 并联系管理员修改!</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <input type="button" data-dissmiss="modal" onclick="alterInfo()" class="btn btn-primary" value="修改">
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-        {{ alter_info_form.password1.label_tag }}
-        {{ alter_info_form.password1 }}
-    </div>
-    <div class="form-group">
-        {{ alter_info_form.password2.label_tag }}
-        {{ alter_info_form.password2 }}
-    </div>
-    <div class="form-group">
-        {{ alter_info_form.name.label_tag }}
-        {{ alter_info_form.name }}
-    </div>
-    <div class="form-group">
-        {{ alter_info_form.email.label_tag }}
-        {{ alter_info_form.email }}
-    </div>
-
-    <button type="reset" class="btn btn-default pull-left">重置</button>
-    <button type="submit" class="btn btn-primary pull-right">提交</button>
 </form>
+
+<script>
+    function alterInfo() {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            dataType: "json",
+            url: "./alterInfo/",
+            data: $('#alter-info-form').serialize(),
+            async: false,
+
+            success: function (data) {
+                console.log(data);
+                if (data.msg == 'exist') {
+                    window.location = '/manage/student/'
+                }
+                if (data.status == "success") {
+                    toastr.success('修改信息成功');
+                }
+                if (data.status == "name0") {
+                    toastr.warning('请输入姓名');
+                }
+                if (data.status == "email0") {
+                    toastr.warning('请输入邮箱');
+                }
+            },
+            error: function () {
+                console.log('ajax 数据:');
+                console.log(data);
+                toastr.warning("错误");
+            }
+        });
+    }
+</script>
+
+
 {% endblock %}

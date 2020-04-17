@@ -8,12 +8,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('captcha/', include('captcha.urls')),
 
-    path('index_student/', views.index_student),
-
     path('login/', views.login),
     path('logout/', views.logout),
-    path('fill_information/', views.fill_information),
-    path('alter_information/', views.alter_information),
 
     path('test/', dataviews.dealdeal.as_view()),
     path('test/<obj>/', dataviews.dealdeal.as_view()),

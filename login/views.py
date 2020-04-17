@@ -12,48 +12,6 @@ import logging
 from .util import LogType, OpType, Log, hash_code
 from django.views.generic import View
 
-
-# 学生主页
-def index_student(request):
-    if request.session['authority'] == True:
-        return redirect('/teacher/')
-    sex_map = {
-        'male': '男',
-        'female': '女',
-    }
-    major_map = {
-        '080901': "计算机科学与技术",
-        '080902': "软件工程",
-        '080903': "网络工程",
-        '080904K': "信息安全",
-        '000001': "纺织化学工程系",
-        '000002': "应用化学系",
-        '000003': "生物工程系及基础化学部",
-    }
-    message = ''
-    user_id = request.session['user_id']
-    account = request.session['account']
-    stu_infos = StudentInformationModel.objects.filter(user_id=user_id)
-    if not stu_infos:
-        return redirect('/fill_information/')
-    stu_info = stu_infos[0]
-    stu_info.sex = sex_map[stu_info.sex]
-    stu_info.major = major_map[stu_info.major]
-
-    # 学生所在班级
-    classes = stu_info.classmodel_set.all()
-    if not classes.exists():
-        classname = '无'
-    else:
-        unify_class = classes[0]
-        # 班级所在专业
-        major = unify_class.major_id
-        # 专业所在学院
-        college = major.college_id
-
-    return render(request, 'login/index_student.html', locals())
-
-
 # 登录
 def login(request):
     if request.method == "POST":
@@ -71,10 +29,10 @@ def login(request):
                     request.session['account'] = user.account
                     if account[0] == '0':  # 如果是教师账号
                         request.session['authority'] = True
-                        return redirect('/teacher/')
+                        return redirect('/manage/teacher/')
                     else:
                         request.session['authority'] = False
-                        return redirect('/index_student/')
+                        return redirect('/manage/student/')
                 else:
                     message = "密码不正确！"
             except:
@@ -84,96 +42,12 @@ def login(request):
     login_form = forms.UserForm()
     return render(request, 'login/login.html', locals())
 
-
 # 登出
 def logout(request):
     if not request.session.get('is_login', None):  # 如果本来就未登录，也就没有登出一说
         return redirect("/login/")
     request.session.flush()
     return redirect("/login/")
-
-
-# 填写基本信息
-def fill_information(request):
-    account = request.session['account']
-    if request.method == "POST":
-        fill_info_form = forms.FillInformationForm(request.POST)
-        message = "信息填写有误"
-        if fill_info_form.is_valid():
-            password1 = fill_info_form.cleaned_data['password1']
-            password2 = fill_info_form.cleaned_data['password2']
-            if password1 != password2:
-                message = '两次输入的密码不同!'
-                return render(request, 'login/fill_information.html', locals())
-            # 获取所有信息
-            account = request.session['account']
-            # email = fill_info_form.cleaned_data['email']
-            name = fill_info_form.cleaned_data['name']
-            sex = fill_info_form.cleaned_data['sex']
-            idc = fill_info_form.cleaned_data['idc']
-            age = fill_info_form.cleaned_data['age']
-            major = fill_info_form.cleaned_data['major']
-            # 保存账号密码
-            user = User.objects.get(account=account)
-            user.password = hash_code(password1)
-            user.save()
-            # 保存个人信息
-            new_info = StudentInformationModel.objects.create(user_id=user, name=name,
-                                                              sex=sex, idc=idc, age=age, major=major)
-            new_info.save()
-            return redirect('/index_student/')
-        else:
-            password1 = fill_info_form.cleaned_data['password1']
-            password2 = fill_info_form.cleaned_data['password2']
-            # email = fill_info_form.cleaned_data['email']
-            name = fill_info_form.cleaned_data['name']
-            sex = fill_info_form.cleaned_data['sex']
-            idc = fill_info_form.cleaned_data['idc']
-            age = fill_info_form.cleaned_data['age']
-            major = fill_info_form.cleaned_data['major']
-            print(password1)
-            print(password2)
-            # print(email)
-            print(name)
-            print(sex)
-            print(idc)
-            print(age)
-            print(major)
-    fill_info_form = forms.FillInformationForm()
-    return render(request, 'login/fill_information.html', locals())
-
-
-# 修改学生个人信息
-def alter_information(request):
-    user_id = request.session['user_id']
-    account = request.session['account']
-    alter_info_form = forms.AlterInformationForm()
-    if request.method == "POST":
-        message = "信息填写有误"
-        if alter_info_form.is_valid():
-            print('合格了')
-            password1 = alter_info_form.cleaned_data['password1']
-            password2 = alter_info_form.cleaned_data['password2']
-            if password1 != password2:
-                message = '两次输入的密码不同!'
-                return render(request, 'login/fill_information.html', locals())
-            # 获取所有信息
-            name = alter_info_form.cleaned_data['name']
-            email = alter_info_form.cleaned_data['email']
-            # 保存账号密码
-            user = User.objects.get(account=account)
-            user.password = hash_code(password1)
-            user.save()
-            # 保存个人信息
-            new_info = StudentInformationModel.objects.create(
-                user_id=user, email=email, name=name)
-            new_info.save()
-            return redirect('/index_student/')
-        else:
-            print('检查不合格')
-
-    return render(request, 'login/alter_information.html', locals())
-
 
 ##############################################################################
 
@@ -249,7 +123,7 @@ class Op():  # 所有操作的基类
 
 
 class Student():
-    funlist = ['choose_course', '123']  # 功能列表
+    funlist = ['choose_course', 'info']  # 功能列表
 
     def __init__(self):
         logging.info('enter student op')
@@ -258,12 +132,93 @@ class Student():
         logging.info('delete student op')
 
     def visit(self, request):
-        return redirect("/index_student/")
+        sex_map = {
+            'male': '男',
+            'female': '女',
+        }
+        major_map = {
+            '080901': "计算机科学与技术",
+            '080902': "软件工程",
+            '080903': "网络工程",
+            '080904K': "信息安全",
+            '000001': "纺织化学工程系",
+            '000002': "应用化学系",
+            '000003': "生物工程系及基础化学部",
+        }
+        message = ''
+        user_id = request.session['user_id']
+        account = request.session['account']
+        stu_info = StudentInformationModel.objects.get(user_id=user_id)
+        request.session['stu_info_id']=stu_info.id
+        stu_info.sex = sex_map[stu_info.sex]
+        stu_info.major = major_map[stu_info.major]
+        # 学生所在班级
+        classes = stu_info.classmodel_set.all()
+        if not classes.exists():
+            classname = '无'
+        else:
+            unify_class = classes[0]
+            # 班级所在专业
+            major = unify_class.major_id
+            # 专业所在学院
+            college = major.college_id
+
+        return render(request, 'login/index_student.html', locals())
 
     def listoffunction(self, fun):
         if (fun in self.funlist):
             return 1
         return 0
+
+
+class Student_Info_OP(Student, Op):
+
+    oplist = ['award', 'alterInfo', 'alterPassword', ]
+
+    def dictoffun(self, fun, request):
+        operator = {
+            "award": self.award,
+            "alterInfo": self.alterInfo,
+            "alterPassword": self.alterPassword,
+        }
+        return operator[fun](request)
+
+    def __init__(self):
+        logging.info('enter stu_alter_info op')
+
+    def __del__(self):
+        logging.info('enter stu_alter_info op')
+
+    def visit(self, request):
+        print('到visit')
+        return render(request, 'login/alter_information.html', locals())
+
+    def award(self,request):
+        pass
+
+    def alterInfo(self, request):
+        logging.info('enter stu_alter_info alterInfo')
+        name = request.POST.get("name", None)
+        if name == '':  # 姓名非空
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        email = request.POST.get("email", None)
+        if email == '':  # 邮箱非空
+            return HttpResponse(json.dumps({'status': 'email0'}))
+        stu_info_id=request.session['stu_info_id']
+        stu_info=StudentInformationModel.objects.get(id=stu_info_id)
+        stu_info.name=name
+        stu_info.email=email
+        stu_info.save()
+        return JsonResponse({'msg':'exist'})
+
+    def alterPassword(self, request):
+        logging.info('enter stu_alter_info alterPassword')
+        json_receive = json.loads(request.body)
+        print('进入密码修改')
+        print(json_receive)
+
+    def select(self, request):  # 学生奖惩信息表
+        pass
 
 
 class Student_ChooseCourse_OP(Student, Op):
@@ -286,13 +241,8 @@ class Student_ChooseCourse_OP(Student, Op):
         logging.info('enter choose_course add_course')
         json_receive = json.loads(request.body)
 
-        # print('进入添加课程')
-        # print(json_receive)
-        # print(json_receive[0])
         course_id = json_receive[0]['id']
         courseClass_id = json_receive[0]['courseClass__id']
-        # print(course_id)
-        # print(courseClass_id)
 
         # 学生信息
         user_id = request.session['user_id']
@@ -383,13 +333,8 @@ class Student_ChooseCourse_OP(Student, Op):
         json_receive = json.loads(request.body)
         logging.debug(json_receive)
 
-        # print('进入添加课程')
-        # print(json_receive)
-        # print(json_receive[0])
         course_id = json_receive[0]['id']
         courseClass_id = json_receive[0]['courseClass__id']
-        # print(course_id)
-        # print(courseClass_id)
 
         # 学生信息
         user_id = request.session['user_id']
@@ -757,6 +702,8 @@ class deal(Op, View):  # 核心! 处理url
         fun = kwargs.get('function')  # 二级网址
         subfun = kwargs.get('subfun')  # 三级网址
 
+        print(obj, fun, subfun)
+
         self.AuthorityCheck(request, obj, fun, subfun)  # 检查 登录和url权限
         print(self.visit_status)
         if (self.visit_status < 10):  # 没登陆
@@ -764,7 +711,7 @@ class deal(Op, View):  # 核心! 处理url
         elif (self.visit_status == 22 or self.visit_status == 11):  # url和权限对应
             if (self.visit_status // 10 == 1):  # 学生
                 t = Student()
-                if (not t.listoffunction(fun)):  # 不存在这项功能就跳转教师首页
+                if (not t.listoffunction(fun)):  # 不存在这项功能就跳转首页
                     return t.visit(request)
                 else:
                     if (fun == 'choose_course'):
@@ -775,17 +722,15 @@ class deal(Op, View):  # 核心! 处理url
                             return scop.visit()
                         else:
                             return scop.dictoffun(subfun, request)
-                    elif (fun == '123'):
-                        pass
-                        '''
-                        xxop = Student_xxx_OP()
-                        if subfun == None: # 不存在子操作就返回功能首页
-                            return xxop.visit(request)
-                        elif(not xxop.listofop(subfun)): # 子操作错误也返回功能首页
-                            return xxop.visit()
+                    elif (fun == 'info'):
+                        saop = Student_Info_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return saop.visit(request)
+                        elif(not saop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return saop.visit()
                         else:
-                            return xxop.dictoffun(subfun, request)
-                        '''
+                            return saop.dictoffun(subfun, request)
+
             elif (self.visit_status // 10 == 2):  # 教师
                 t = Teacher()
                 if (not t.listoffunction(fun)):  # 不存在这项功能就跳转教师首页
@@ -839,17 +784,15 @@ class deal(Op, View):  # 核心! 处理url
                             return scop.visit()
                         else:
                             return scop.dictoffun(subfun, request)
-                    elif (fun == '123'):
-                        pass
-                        '''
-                        xxop = Student_xxx_OP()
-                        if subfun == None: # 不存在子操作就返回功能首页
-                            return xxop.visit(request)
-                        elif(not xxop.listofop(subfun)): # 子操作错误也返回功能首页
-                            return xxop.visit()
+                    elif (fun == 'info'):
+                        saop = Student_Info_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return saop.visit(request)
+                        elif(not saop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return saop.visit()
                         else:
-                            return xxop.dictoffun(subfun, request)
-                        '''
+                            return saop.dictoffun(subfun, request)
+
             elif (self.visit_status // 10 == 2):  # 教师
                 t = Teacher()
                 if (not t.listoffunction(fun)):  # 不存在这项功能就跳转教师首页
