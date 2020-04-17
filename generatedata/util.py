@@ -27,10 +27,10 @@ def retAccount(auth=0, major='080901'):
         account += '11'
     account += major[-2:]
     accounttmp = account
-    accounttmp += str(random.randint(000, 299))
+    accounttmp += str(random.randint(100, 299))
     while(usedaccount.count(accounttmp) >= 1):
         accounttmp = account
-        accounttmp += str(random.randint(000, 299))
+        accounttmp += str(random.randint(100, 299))
     usedaccount.append(accounttmp)
     return accounttmp
 

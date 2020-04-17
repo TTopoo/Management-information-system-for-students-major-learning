@@ -15,11 +15,11 @@ urlpatterns = [
     path('fill_information/', views.fill_information),
     path('alter_information/', views.alter_information),
 
-    path('generatedata/', dataviews.info),
-    path('award/', dataviews.award),
+    path('test/', dataviews.dealdeal.as_view()),
+    path('test/<obj>/', dataviews.dealdeal.as_view()),
 
-    path('<obj>/',                      views.deal.as_view()),
-    path('<obj>/<function>/',           views.deal.as_view()),
-    path('<obj>/<function>/<subfun>/',  views.deal.as_view()),
+    path('manage/<obj>/',                      views.deal.as_view()),
+    path('manage/<obj>/<function>/',           views.deal.as_view()),
+    path('manage/<obj>/<function>/<subfun>/',  views.deal.as_view()),
 
 ]

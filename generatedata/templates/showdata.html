@@ -1,59 +1,58 @@
-<!--新增-->
-<form id="add-info-form" action="#" method="post" class="form-horizontal" role="form">
-    {% csrf_token %}
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">新增记录</h4>
-                </div>
-                <div class="modal-body" style="height: 100%;">
-                    <div class="form-label-group">
-                        <input type="text" class="form-control" name="username" id="username" placeholder="学号"
-                            required="required" autofocus></input>
-                        <label for="lastname" class="col-sm-3 control-label">学号</label>
-                    </div>
-                    <div class="form-label-group">
-                        <input type="email" class="form-control" name="email" id="email" placeholder="邮箱"
-                            required="required"></input>
-                        <label for="lastname" class="col-sm-3 control-label">邮箱</label>
-                    </div>
-                    <div class="form-label-group">
-                        <input type="text" class="form-control" name="name" id="name" placeholder="姓名"
-                            required="required"></input>
-                        <label for="lastname" class="col-sm-3 control-label">姓名</label>
-                    </div>
-                    <div class="form-group">
-                        <select data-placeholder="选择项目..." class="form-control" name="sex" id="sex" required="required">
-                            <option value="male" hassubinfo="true">男</option>
-                            <option value="female" hassubinfo="true">女</option>
-                        </select>
-                    </div>
-                    <div class="form-label-group">
-                        <input type="text" class="form-control" name="idc" id="idc" placeholder="身份证号"
-                            required="required"></input>
-                        <label for="lastname" class="col-sm-3 control-label">身份证号</label>
-                    </div>
-                    <div class="form-label-group">
-                        <input type="text" class="form-control" name="age" id="age" placeholder="年龄"
-                            required="required"></input>
-                        <label for="lastname" class="col-sm-3 control-label">年龄</label>
-                    </div>
-                    <div class="form-group">
-                        <select data-placeholder="选择项目..." class="form-control" name="major" id="major"
-                            required="required">
-                            <option value="080901" hassubinfo="true">计算机科学与技术</option>
-                            <option value="080902" hassubinfo="true">软件工程</option>
-                            <option value="080903" hassubinfo="true">网络工程</option>
-                            <option value="080904K" hassubinfo="true">信息安全</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                    <input type="button" data-dissmiss="modal" onclick="add_info()" class="btn btn-primary" value="提交">
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
+{% extends 'login/base.html' %}
+
+{% block content %}
+{% csrf_token %}
+<input type="button" onclick="generatedata_add_one()" value="添加一条信息记录">
+<input type="button" onclick="generatedata_add_ten()" value="添加十条信息记录">
+<input type="button" onclick="award_add_one()" value="添加一条获奖记录">
+<input type="button" onclick="award_add_one()" value="添加十条获奖记录">
+
+<script type="text/javascript">
+    data = { 'dta': 1 }
+    urls = "./generatedata/"
+    function generatedata_add_one() {
+        data = { 'dta': 1 }
+        urls = "./generatedata/"
+        add()
+    }
+    function generatedata_add_ten() {
+        data = { 'dta': 10 }
+        urls = "./generatedata/"
+        add()
+    }
+    function award_add_one() {
+        data = { 'dta': 1 }
+        urls = "./award/"
+        add()
+    }
+    function award_add_ten() {
+        data = { 'dta': 10 }
+        urls = "./award/"
+        add()
+    }
+    function add() {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            dataType: "json",
+            url: urls,
+            data: data,
+            headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+            async: false,
+
+            success: function (data) {
+                console.log(data);//打印服务端返回的数据(调试用)
+                if (data.status == "success") {
+                    toastr.success('生成数据成功');
+                }
+                if (data.status == "fail") {
+                    toastr.warning('生成数据失败');
+                }
+            },
+            error: function () {
+                toastr.warning("Error");
+            }
+        });
+    }
+</script>
+{% endblock %}

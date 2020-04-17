@@ -1,8 +1,9 @@
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect
 from .util import *
 from login.util import hash_code
 from login.models import *
-
+from django.views.generic import View
 import json
 
 
@@ -16,16 +17,16 @@ def info(request):
     major = retMajor()
     account = retAccount(auth, major)
     psw = hash_code('123456')
-
+    print(account)
     same_name_user = User.objects.filter(account=account)
     if same_name_user:  # 学号唯一
         return HttpResponse(json.dumps({'status': 'stuid1'}))
 
     # 当一切都OK的情况下，创建新用户
-        new_user = User.objects.create()
-        new_user.account = account
-        new_user.password = psw
-        new_user.save()
+    new_user = User.objects.create()
+    new_user.account = account
+    new_user.password = psw
+    new_user.save()
 
     if(auth == 0):
         obj = User.objects.get(account=account)
@@ -37,8 +38,6 @@ def info(request):
         obj = User.objects.get(account=account)
         TeacherInformationModel.objects.create(user_id=obj, email=email, name=name,
                                                sex=sex, idc=idc, graduate_school=age, education_experience=major)
-
-    return HttpResponse(name + ddate + sex + email + idc + major)
 
 
 def award(request):
@@ -58,4 +57,37 @@ def award(request):
     obj = StudentInformationModel.objects.get(user_id__account=account)
     StudentAwardsRecodeModel.objects.create(stu_id=obj, award_type=type,
                                             award_content=content, award_date=date)
-    return HttpResponse(account)
+
+
+class dealdeal(View):  # 核心! 处理url
+    def __init__(self):
+        pass
+
+    def __del__(self):
+        pass
+
+    def get(self, request, **kwargs):  # get返回网页
+        print("helloworld")
+        obj = kwargs.get('obj')  # 一级网址
+        return render(request, 'showdata.html', locals())
+
+    def post(self, request, **kwargs):  # post解决获取浏览器上传的需要生成的信息的类型
+        obj = kwargs.get('obj')  # 一级网址
+        if (obj == 'generatedata'):
+            dta = request.POST.get("dta", None)
+            try:
+                for i in range(int(dta)):
+                    info(request)
+                return HttpResponse(json.dumps({'status': 'success'}))
+            except:
+                return HttpResponse(json.dumps({'status': 'fail'}))
+        elif (obj == 'award'):
+            dta = request.POST.get("dta", None)
+            try:
+                for i in range(int(dta)):
+                    award(request)
+                return HttpResponse(json.dumps({'status': 'success'}))
+            except:
+                return HttpResponse(json.dumps({'status': 'fail'}))
+        else:
+            return render(request, 'showdata.html', locals())
