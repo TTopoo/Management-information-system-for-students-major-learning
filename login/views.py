@@ -282,18 +282,35 @@ class Student_ChooseCourse_OP(Student, Op):
     def add(self, request):
         logging.info('enter choose_course add_course')
         json_receive = json.loads(request.body)
-        print('进入添加课程')
-        print(json_receive)
-        '''
-        # 添加这门课程
-        user_id = request.session['user_id']
-        stu_info = StudentInformationModel.objects.get(id=user_id)
-        course = CourseModel.objects.get(id=course_id)
-        course.students.add(stu_info)
-        '''
-        # 日志
 
+        # print('进入添加课程')
+        # print(json_receive)
+        # print(json_receive[0])
+        course_id = json_receive[0]['id']
+        courseClass_id = json_receive[0]['courseClass__id']
+        # print(course_id)
+        # print(courseClass_id)
+
+        # 学生信息
+        user_id = request.session['user_id']
+        stu_info = StudentInformationModel.objects.get(user_id=user_id)
+
+        # 课程添加该学生
+        course = CourseModel.objects.get(id=course_id)
+        courseClass = course.courseClass.get(id=courseClass_id)
+        stu_score = StudentScoreModel.objects.create(
+            student=stu_info, courseClass=courseClass, score='-', state='学习中')
+        courseClass.studentsScore.add(stu_score)
+        # 日志
+        logging.info("end choose_course add_course")
         return HttpResponse(json.dumps({'status': 'success'}))
+
+    def pout(self, li):
+        print()
+        for i in li:
+            print(i)
+        print()
+        return
 
     def remove_duplicates(self, list01):
         list02 = list()
@@ -301,6 +318,28 @@ class Student_ChooseCourse_OP(Student, Op):
             if i not in list02:
                 list02.append(i)
         return list02
+
+    def course_filter(self, courselist, stu_info_id):
+
+        # 设重
+        for i in courselist:
+            if i['courseClass__studentsScore__student_id'] is not None and \
+                    i['courseClass__studentsScore__student_id'] != stu_info_id:
+                print(i['courseClass__studentsScore__student_id'])
+                i['courseClass__studentsScore__student_id'] = None
+                i['courseClass__studentsScore__score'] = None
+                i['courseClass__studentsScore__state'] = None
+        # 去重
+        courselist = self.remove_duplicates(courselist)
+        # 去空
+        for i in courselist:
+            if i['courseClass__studentsScore__student_id'] == stu_info_id:
+                for j in courselist:
+                    if j['courseClass__id'] == i['courseClass__id'] and \
+                            j['courseClass__studentsScore__student_id'] is None:
+                        print(j['courseClass__id'])
+                        courselist.remove(j)
+        return courselist
 
     # 发送课程
     def select(self, request):
@@ -318,32 +357,19 @@ class Student_ChooseCourse_OP(Student, Op):
         stu_info = StudentInformationModel.objects.get(user_id=user_id)
         unify_class = stu_info.classmodel_set.all()[0]
         major = unify_class.major_id
-        print(user_id, stu_info, unify_class, major)
+        # print(user_id, stu_info, unify_class, major)
         # 该专业可选的课程
         course_set = major.courses
         data['total'] = course_set.count()
         # 课程中该学生的成绩和状态
-        #                            a = course_set[0].studentsScore.filter(student=stu_info).score
-        course_set = course_set.values('id', 'course_name', 'courseClass__teacher__name', 'courseClass__maxNum',
+        course_set = course_set.values('id', 'course_name', 'courseClass__id', 'courseClass__id', 'courseClass__teacher__name', 'courseClass__maxNum',
                                        'courseClass__studentsScore__student_id', 'courseClass__studentsScore__score',
                                        'courseClass__studentsScore__state')
         # print(course_set)
         data['rows'] = list(course_set)
-        # print(data['rows'])
-        for i in data['rows']:
-            if i['courseClass__studentsScore__student_id'] is not None and \
-                    i['courseClass__studentsScore__student_id'] != stu_info.id:
-                i['courseClass__studentsScore__student_id'] = None
-                i['courseClass__studentsScore__score'] = None
-                i['courseClass__studentsScore__state'] = None
-        data['rows'] = self.remove_duplicates(data['rows'])  # 去重
-        for i in data['rows']:
-            if i['courseClass__studentsScore__student_id'] == stu_info.id:
-                for j in data['rows']:
-                    if j['courseClass__teacher__name'] == i['courseClass__teacher__name'] and \
-                            j['courseClass__studentsScore__student_id'] is None:
-                        data['rows'].remove(j)
-        # print(data['rows'])
+        # self.pout(data['rows'])
+        data['rows'] = self.course_filter(data['rows'], stu_info.id)
+        # self.pout(data['rows'])
         return JsonResponse(data)
 
     # 删除课程
@@ -354,15 +380,25 @@ class Student_ChooseCourse_OP(Student, Op):
         json_receive = json.loads(request.body)
         logging.debug(json_receive)
 
-        print('到达删除函数')
-        print(json_receive)
+        # print('进入添加课程')
+        # print(json_receive)
+        # print(json_receive[0])
+        course_id = json_receive[0]['id']
+        courseClass_id = json_receive[0]['courseClass__id']
+        # print(course_id)
+        # print(courseClass_id)
 
-        '''        # 课程移除该学生
+        # 学生信息
         user_id = request.session['user_id']
-        stu_info = StudentInformationModel.objects.get(id=user_id)
+        stu_info = StudentInformationModel.objects.get(user_id=user_id)
+
+        # 课程移除该学生
         course = CourseModel.objects.get(id=course_id)
-        course.students.remove(stu_info)
-        '''
+        courseClass = course.courseClass.get(id=courseClass_id)
+        stu_score = StudentScoreModel.objects.get(
+            student=stu_info, courseClass=courseClass)
+        courseClass.studentsScore.remove(stu_score)
+
         # 日志
         logging.info("end choose_course remove_course")
         return HttpResponse(json.dumps({'status': 'success'}))

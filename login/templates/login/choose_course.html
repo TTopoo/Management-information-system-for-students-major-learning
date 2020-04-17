@@ -191,7 +191,7 @@
         'click .remove_course': function (e, value, row, index) {
             console.log(row);
             bootbox.confirm({
-                title: "删除信息！",
+                title: "删除课程！",
                 size: "small",
                 message: "您确定删除课程 " + row.course_name + " 吗？",
                 buttons: {
@@ -219,7 +219,7 @@
                             success: function (data) {
                                 console.log(data);
                                 if (data.status == "success") {
-                                    toastr.success('删除数据成功');
+                                    toastr.success('删除课程成功');
                                     $("#table").bootstrapTable('refresh');
                                 }
                                 if (data.status == "authority_check0") {
@@ -273,100 +273,7 @@
             ]
         })
     }
-    $remove.click(function () {
-        var ids = getIdSelections();
-        console.log(ids)
-        var select_del = $table.bootstrapTable('getSelections')//待完善删除确认弹出框
-        bootbox.confirm({
-            title: "删除信息！",
-            size: "small",
-            message: "您确定删除该课程吗？",
-            buttons: {
-                confirm: {
-                    label: '是',
-                    className: 'btn-success'
-                },
-                cancel: {
-                    label: '否',
-                    className: 'btn-danger'
-                }
-            },
-            callback: function (result) {
-                if (result) {
-                    $.ajax({
-                        url: "./delete/",
-                        data: JSON.stringify(select_del),
-                        contentType: 'application/json',
-                        type: "POST",
-                        traditional: true,
-                        headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
-                        success: function (result) {
-                            toastr.warning('new_delete success');
-                        },
-                        fail: function (result) {
-                            toastr.warning('new_delete fail');
-                        }
-                    });
 
-                    $table.bootstrapTable('remove', {
-                        field: 'id',
-                        values: ids
-                    })
-                    $remove.prop('disabled', true)
-                }
-            }
-        });
-    })
-
-    function addCourse() {
-        $.ajax({
-            cache: false,
-            type: "POST",
-            dataType: "json",
-            url: "./addCourse/",
-            data: $('#add-course-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
-            async: false,
-
-            success: function (data) {
-                console.log(data);//打印服务端返回的数据(调试用)
-                if (data.status == "success") {
-                    document.getElementById("add-info-form").reset();
-                    $('#addCourseModal').modal('hide');
-                    toastr.success('提交数据成功');
-                    $("#table").bootstrapTable('refresh');
-                }
-                toastr.warning('失败');
-            },
-            error: function () {
-                toastr.warning('错误');
-            }
-        })
-    }
-
-    function removeCourse() {
-        $.ajax({
-            cache: false,
-            type: "POST",
-            dataType: "json",
-            url: "./delete/",
-            data: JSON.stringify(1), //提交到后台的数据
-            async: false,
-
-            success: function (data) {
-                console.log(data);//打印服务端返回的数据(调试用)
-                if (data.status == "success") {
-                    document.getElementById("add-info-form").reset();
-                    $('#removeCourseModal').modal('hide');
-                    toastr.success('取消选课成功');
-                    $("#table").bootstrapTable('refresh');
-                }
-                toastr.warning('失败');
-            },
-            error: function () {
-                toastr.warning('错误');
-            }
-        })
-    }
 </script>
 
 <script>
