@@ -106,20 +106,24 @@ class CollegeModel(models.Model):
 class StudentScoreModel(models.Model):
     student = models.ForeignKey(
         'StudentInformationModel', on_delete=models.CASCADE)
+    courseClass = models.ForeignKey(
+        'CourseClassModel', on_delete=models.CASCADE, null=True)
     score = models.CharField(max_length=16, verbose_name='分数', null=True)
     state = models.CharField(max_length=16, verbose_name='状态', null=True)
 
     def __str__(self):
-        return self.student.name+' '+self.score+' '+self.state
+        return self.courseClass.course.course_name+' '+ self.courseClass.teacher.name+' ' + self.student.name+' '+str(self.score)+' '+self.state
 
     class Meta:
-        ordering = ['score']
+        ordering = ['courseClass']
         verbose_name = '成绩'
         verbose_name_plural = '成绩'
 
 
 # 课程班级模型
 class CourseClassModel(models.Model):
+    course = models.ForeignKey(
+        'CourseModel', on_delete=models.CASCADE, null=True)
     teacher = models.ForeignKey(
         'TeacherInformationModel', on_delete=models.CASCADE)
     maxNum = models.CharField(max_length=16, verbose_name='最大人数')
@@ -127,10 +131,10 @@ class CourseClassModel(models.Model):
         StudentScoreModel, null=True, blank=True)
 
     def __str__(self):
-        return self.teacher.name+' '+self.maxNum
+        return self.course.course_name+' ' + self.teacher.name+' '+self.maxNum
 
     class Meta:
-        ordering = ['maxNum']
+        ordering = ['teacher']
         verbose_name = '课程班级'
         verbose_name_plural = '课程班级'
 
