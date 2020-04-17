@@ -13,6 +13,8 @@ from .util import LogType, OpType, Log, hash_code
 from django.views.generic import View
 
 # 登录
+
+
 def login(request):
     if request.method == "POST":
         login_form = forms.UserForm(request.POST)
@@ -43,6 +45,8 @@ def login(request):
     return render(request, 'login/login.html', locals())
 
 # 登出
+
+
 def logout(request):
     if not request.session.get('is_login', None):  # 如果本来就未登录，也就没有登出一说
         return redirect("/login/")
@@ -50,6 +54,7 @@ def logout(request):
     return redirect("/login/")
 
 ##############################################################################
+
 
 class Op():  # 所有操作的基类
 
@@ -149,7 +154,7 @@ class Student():
         user_id = request.session['user_id']
         account = request.session['account']
         stu_info = StudentInformationModel.objects.get(user_id=user_id)
-        request.session['stu_info_id']=stu_info.id
+        request.session['stu_info_id'] = stu_info.id
         stu_info.sex = sex_map[stu_info.sex]
         stu_info.major = major_map[stu_info.major]
         # 学生所在班级
@@ -173,13 +178,14 @@ class Student():
 
 class Student_Info_OP(Student, Op):
 
-    oplist = ['award', 'alterInfo', 'alterPassword', ]
+    oplist = ['award', 'alterInfo', 'alterPassword', 'alterPassword_']
 
     def dictoffun(self, fun, request):
         operator = {
             "award": self.award,
             "alterInfo": self.alterInfo,
             "alterPassword": self.alterPassword,
+            "alterPassword_": self.alterPassword_,
         }
         return operator[fun](request)
 
@@ -190,10 +196,9 @@ class Student_Info_OP(Student, Op):
         logging.info('enter stu_alter_info op')
 
     def visit(self, request):
-        print('到visit')
         return render(request, 'login/alter_information.html', locals())
 
-    def award(self,request):
+    def award(self, request):
         pass
 
     def alterInfo(self, request):
@@ -204,18 +209,32 @@ class Student_Info_OP(Student, Op):
         email = request.POST.get("email", None)
         if email == '':  # 邮箱非空
             return HttpResponse(json.dumps({'status': 'email0'}))
-        stu_info_id=request.session['stu_info_id']
-        stu_info=StudentInformationModel.objects.get(id=stu_info_id)
-        stu_info.name=name
-        stu_info.email=email
+        stu_info_id = request.session['stu_info_id']
+        stu_info = StudentInformationModel.objects.get(id=stu_info_id)
+        stu_info.name = name
+        stu_info.email = email
         stu_info.save()
         return HttpResponse(json.dumps({'status': 'success'}))
 
-    def alterPassword(self, request):
+    def alterPassword_(self, request):
         logging.info('enter stu_alter_info alterPassword')
-        json_receive = json.loads(request.body)
-        print('进入密码修改')
-        print(json_receive)
+        password0 = request.POST.get('password0', None)
+        password1 = request.POST.get('password1', None)
+        password2 = request.POST.get('password2', None)
+        if password0 == '' or password1 == '' or password2 == '':
+            return HttpResponse(json.dumps({'status': '0'}))
+        user_id = request.session['user_id']
+        user = User.objects.get(id=user_id)
+        if hash_code(password0) != user.password:
+            return HttpResponse(json.dumps({'status': '0f'}))
+        if password1 != password2:
+            return HttpResponse(json.dumps({'status': '12f'}))
+        user.password = hash_code(password1)
+        user.save()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def alterPassword(self, request):
+        return render(request, 'login/alter_password.html', locals())
 
     def select(self, request):  # 学生奖惩信息表
         pass
@@ -251,7 +270,8 @@ class Student_ChooseCourse_OP(Student, Op):
         # 课程添加该学生
         course = CourseModel.objects.get(id=course_id)
         courseClass = course.courseClass.get(id=courseClass_id)
-        stu_scores=StudentScoreModel.objects.filter(student=stu_info, courseClass=courseClass)
+        stu_scores = StudentScoreModel.objects.filter(
+            student=stu_info, courseClass=courseClass)
         if stu_scores.exists():
             return HttpResponse(json.dumps({'status': 'exists'}))
         stu_score = StudentScoreModel.objects.create(
