@@ -51,12 +51,6 @@ def index_student(request):
     return render(request, 'login/index_student.html', locals())
 
 
-# 教师主页
-def index_teacher(request):
-    pass
-    return render(request, 'login/index_teacher.html', locals())
-
-
 # 登录
 def login(request):
     if request.method == "POST":
@@ -384,7 +378,7 @@ class Teacher():
         logging.info('delete teacher op')
 
     def visit(self, request):
-        return redirect("/index_teacher/")
+        return render(request, 'login/index_teacher.html', locals())
 
     def listoffunction(self, fun):
         if (fun in self.funlist):
@@ -723,8 +717,6 @@ class deal(Op, View):  # 核心! 处理url
         obj = kwargs.get('obj')  # 一级网址
         fun = kwargs.get('function')  # 二级网址
         subfun = kwargs.get('subfun')  # 三级网址
-
-        # logging.debug(obj, fun, subfun)
 
         self.AuthorityCheck(request, obj, fun, subfun)  # 检查 登录和url权限
         print(self.visit_status)

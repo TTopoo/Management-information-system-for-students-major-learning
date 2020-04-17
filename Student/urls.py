@@ -9,7 +9,7 @@ urlpatterns = [
     path('captcha/', include('captcha.urls')),
 
     path('index_student/', views.index_student),
-    path('index_teacher/', views.index_teacher),
+
     path('login/', views.login),
     path('logout/', views.logout),
     path('fill_information/', views.fill_information),
