@@ -1,6 +1,10 @@
-import os, random, time
+import os
+import random
+import time
 from datetime import date
 usedaccount = []
+
+
 def get_districtcodes():
     districtcodes = []
     print(os.path.abspath('.')+'./generatedata/districtcode.txt')
@@ -9,28 +13,30 @@ def get_districtcodes():
             districtcodes.append(l.strip()[:6])
     return districtcodes
 
+
 def retAccount(auth=0, major='080901'):
     account = ''
-    if(auth==0):
+    if(auth == 0):
         account = '1'
     else:
         account = '0'
-    account += random.choice(['6','7','8','9'])
+    account += random.choice(['6', '7', '8', '9'])
     if(major > '080900'):
         account += '13'
-    elif(major > '000000' and major<'000005'):
+    elif(major > '000000' and major < '000005'):
         account += '11'
     account += major[-2:]
     accounttmp = account
-    accounttmp += str(random.randint(000,299))
+    accounttmp += str(random.randint(000, 299))
     while(usedaccount.count(accounttmp) >= 1):
         accounttmp = account
-        accounttmp += str(random.randint(000,299))
+        accounttmp += str(random.randint(000, 299))
     usedaccount.append(accounttmp)
     return accounttmp
 
+
 def retID(gender=None):
-    #gender: 控制性别，None为随机, 1:男，0：女
+    # gender: 控制性别，None为随机, 1:男，0：女
 
     # 6位地址码
     codelist = get_districtcodes()
@@ -84,7 +90,8 @@ def retID(gender=None):
     ID_check = cheack_code[str(sum % 11)]
 
     ID = ID_former + ID_check
-    return ID ,age
+    return ID, age
+
 
 def retName():
     xing = '赵钱孙李周吴郑王冯陈褚卫蒋沈韩杨朱秦尤许何吕施张孔曹严华金魏陶姜戚谢邹喻柏水窦章云苏潘葛' \
@@ -111,11 +118,14 @@ def retName():
     M = "".join(random.choice(ming) for i in range(2))
     return X+M
 
+
 def retDate():
     return str(date.today().isoformat())
 
+
 def retSex():
     return random.choice(['female', 'male'])
+
 
 def retEmail():
     randomEmail = random.choice(
@@ -124,6 +134,7 @@ def retEmail():
     randomNumber = "".join(random.choice(__Number)
                            for i in range(random.randint(4, 10)))
     return randomNumber + randomEmail
+
 
 def retMajor():
     return random.choice(['080901', '080902', '080903', '080904', '000001', '000002', '000003'])
