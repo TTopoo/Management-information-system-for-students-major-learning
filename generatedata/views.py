@@ -38,4 +38,24 @@ def info(request):
         TeacherInformationModel.objects.create(user_id=obj, email=email, name=name,
                                                sex=sex, idc=idc, graduate_school=age, education_experience=major)
 
-    return HttpResponse(name+ddate+sex+email+idc+major)
+    return HttpResponse(name + ddate + sex + email + idc + major)
+
+
+def award(request):
+
+    account = User.objects.all().values('account')
+    l = []
+    for i in account:
+        l.append(i['account'])
+
+    account = random.choice(l)
+    type = random.choice(['奖励', '惩罚'])
+    date = time.strftime("%Y-%m-%d", time.localtime())
+    if type == '奖励':
+        content = random.choice(['三好学生', '竞赛一等奖', '竞赛二等奖', '优秀团员'])
+    else:
+        content = random.choice(['考试作弊', '打架斗殴', '夜不归宿', '违反宿舍纪律'])
+    obj = StudentInformationModel.objects.get(user_id__account=account)
+    StudentAwardsRecodeModel.objects.create(stu_id=obj, award_type=type,
+                                            award_content=content, award_date=date)
+    return HttpResponse(account)

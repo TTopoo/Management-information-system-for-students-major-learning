@@ -16,10 +16,10 @@ urlpatterns = [
     path('alter_information/', views.alter_information),
 
     path('generatedata/', dataviews.info),
+    path('award/', dataviews.award),
 
     path('<obj>/',                      views.deal.as_view()),
     path('<obj>/<function>/',           views.deal.as_view()),
     path('<obj>/<function>/<subfun>/',  views.deal.as_view()),
 
-    
 ]
