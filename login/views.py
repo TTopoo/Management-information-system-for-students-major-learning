@@ -209,7 +209,7 @@ class Student_Info_OP(Student, Op):
         stu_info.name=name
         stu_info.email=email
         stu_info.save()
-        return JsonResponse({'msg':'exist'})
+        return HttpResponse(json.dumps({'status': 'success'}))
 
     def alterPassword(self, request):
         logging.info('enter stu_alter_info alterPassword')
@@ -251,6 +251,9 @@ class Student_ChooseCourse_OP(Student, Op):
         # 课程添加该学生
         course = CourseModel.objects.get(id=course_id)
         courseClass = course.courseClass.get(id=courseClass_id)
+        stu_scores=StudentScoreModel.objects.filter(student=stu_info, courseClass=courseClass)
+        if stu_scores.exists():
+            return HttpResponse(json.dumps({'status': 'exists'}))
         stu_score = StudentScoreModel.objects.create(
             student=stu_info, courseClass=courseClass, score='-', state='学习中')
         courseClass.studentsScore.add(stu_score)
@@ -343,10 +346,14 @@ class Student_ChooseCourse_OP(Student, Op):
         # 课程移除该学生
         course = CourseModel.objects.get(id=course_id)
         courseClass = course.courseClass.get(id=courseClass_id)
+        stu_scores = StudentScoreModel.objects.filter(
+            student=stu_info, courseClass=courseClass)
+        if not stu_scores.exists():
+            return HttpResponse(json.dumps({'status': 'nothing'}))
         stu_score = StudentScoreModel.objects.get(
             student=stu_info, courseClass=courseClass)
         courseClass.studentsScore.remove(stu_score)
-
+        stu_score.delete()
         # 日志
         logging.info("end choose_course remove_course")
         return HttpResponse(json.dumps({'status': 'success'}))

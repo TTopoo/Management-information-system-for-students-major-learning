@@ -13,6 +13,52 @@
     }
 </style>
 
+<!-- 添加课程表单 -->
+<form id="add-course-form" action="#" method="post" class="form-horizontal" role="form">
+    {% csrf_token %}
+    <div class="modal fade" id="addCourseModal" tabindex="-1" role="dialog" aria-labelledby="addCourseModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="addCourseModalLabel">添加课程</h4>
+                </div>
+                <div class="modal-body" style="height: 100%;">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <input type="button" data-dissmiss="modal" onclick="addCourse()" class="btn btn-primary" value="添加">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- 移除课程表单 -->
+<form id="remove-course-form" action="#" method="post" class="form-horizontal" role="form">
+    {% csrf_token %}
+    <div class="modal fade" id="removeCourseModal" tabindex="-1" role="dialog" aria-labelledby="removeCourseModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="removeCourseModalLabel">移除课程</h4>
+                </div>
+                <div class="modal-body" style="height: 100%;">
+                    <div class="form-label-group">
+                        <label for="lastname" class="col-sm-3 control-label">确定要移除此课程?</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <input type="button" data-dissmiss="modal" onclick="removeCourse()" class="btn btn-primary"
+                        value="移除">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 <table id="table" data-toolbar="#toolbar" data-search="true" data-show-refresh="true" data-show-toggle="true"
     data-show-fullscreen="true" data-show-columns="true" data-show-columns-toggle-all="true" data-detail-view="true"
@@ -129,6 +175,9 @@
                                 if (data.status == "authority_check0") {
                                     toastr.warning('权限不足');
                                 }
+                                if (data.status == "exists") {
+                                    toastr.warning('您已经选择这门课程, 请不要重复选择!');
+                                }
                             },
                             fail: function (result) {
                                 toastr.warning('添加失败');
@@ -174,6 +223,9 @@
                                 }
                                 if (data.status == "authority_check0") {
                                     toastr.warning('权限不足');
+                                }
+                                if (data.status == "nothing") {
+                                    toastr.warning('您没选择该课程, 所以删除无效!');
                                 }
                             },
                             fail: function (result) {
