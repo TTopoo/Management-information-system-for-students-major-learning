@@ -897,7 +897,90 @@ class Teacher_Major_OP(Teacher,Op):
 class Teacher_Class_OP(Teacher,Op):
     pass
 class Teacher_Course_OP(Teacher,Op):
-    pass
+    oplist = ['add', 'json', 'delete', 'update', 'enter']
+
+    def dictoffun(self, fun, request):
+        operator = {"add": self.add,
+                "json": self.select,
+                "delete": self.delete,
+                "update": self.update,
+                "enter":self.enter}
+        return operator[fun](request)
+
+    def __init__(self):
+        logging.info('enter teacher_course op')
+
+    def __del__(self):
+        logging.info('delete teacher_course op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            return render(args[0], 'login/alter_course.html', locals())
+        elif len(args) == 0:
+            return redirect("/teacher/course/")
+
+    def select(self, request):
+        data = {}
+        logging.info("enter course select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 上一级 专业
+        major_id = request.session['major_id']
+        major = MajorModel.objects.get(id=major_id)
+        courses=major.courses.all()
+        courses=courses.values('id','course_name')
+        data['rows']=list(courses)
+        return JsonResponse(data)
+
+    def add(self, request):
+        logging.info('enter course add')
+        course_name = request.POST.get("name", None)
+        if course_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        course = CourseModel.objects.create(course_name=course_name)
+        course.save()
+        # 反向加到专业里去
+        major_id = request.session['major_id']
+        major = MajorModel.objects.get(id=major_id)
+        major.courses.add(course)
+
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def delete(self, request):
+        logging.info("enter course delete")
+        json_receive = json.loads(request.body)
+        course_id=json_receive[0]['id']
+        course=CourseModel.objects.get(id=course_id)
+        courseClasses=course.courseClass.all()
+        if courseClasses.exists():
+            return HttpResponse(json.dumps({'status': 'have'}))
+        course.delete()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def update(self, request):
+        logging.info('enter course update')
+        course_id = request.POST.get("id_update", None)
+        course_name = request.POST.get("name_update", None)
+        if course_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        course = CourseModel.objects.get(id=course_id)
+        course.course_name = course_name
+        course.save()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def enter(self, request):
+        logging.info("enter course enter")
+        json_receive = json.loads(request.body)
+        # print(json_receive)
+        course_id = json_receive['id']
+        request.session['course_id']=course_id
+        return HttpResponse(json.dumps({}))
+
 class Teacher_CourseClass_OP(Teacher,Op):
     pass
 class Teacher_Score_OP(Teacher,Op):
