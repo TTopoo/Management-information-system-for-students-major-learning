@@ -1,0 +1,114 @@
+{% extends 'login/base.html' %}
+{% block content %}
+{% csrf_token %}
+<style>
+    .left {
+        float: left;
+    }
+
+    .right {
+        float: right;
+    }
+
+    .like {
+        margin-right: 10px;
+    }
+
+    .item {
+        margin-bottom: 20px;
+    }
+</style>
+
+<table id="table1" data-toggle="table">
+    <thead>
+        <tr>
+            <th data-field="detail.details" data-formatter="operateFormatter" data-events="operateEvents">
+                <div id="ttable1">1</div>
+            </th>
+        </tr>
+    </thead>
+</table>
+<table id="table2" data-toggle="table">
+    <thead>
+        <tr>
+            <th data-field="detail.details" data-formatter="operateFormatter" data-events="operateEvents">
+                <div id="ttable2">2</div>
+            </th>
+        </tr>
+    </thead>
+</table>
+
+<script>
+    var $table1 = $('#table1')
+    var $table2 = $('#table2')
+    var $table3 = $('#table3')
+    var $table3 = $('#table4')
+
+    var json = { 'json': '1' }
+    var dta1;
+    $.ajax({
+        url: "./json/",
+        data: JSON.stringify(json),
+        contentType: 'application/json',
+        type: "POST",
+        traditional: true,
+        headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+        success: function (data) {
+            console.log(data);//打印服务端返回的数据(调试用)
+            if (data.status == "success") {
+                toastr.success('提交数据成功');
+            }
+
+            $.ajax({
+                url: "./json/tt",
+                data: JSON.stringify(json),
+                contentType: 'application/json',
+                type: "POST",
+                traditional: true,
+                headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+                success: function (dta) {
+                    console.log("AAA")
+                    dta1 = dta
+                },
+                error: function () {
+                    toastr.warning("请输入所有数据");
+                }
+            });
+
+            for (i = 0; i < data.total; i++) {
+                id = "#table" + i;
+                $(id).bootstrapTable({ data: dta })
+                tid = "ttable" + (i + 1);
+                document.getElementById(tid).innerHTML = dta.detail.cname
+            }
+        },
+        error: function () {
+            toastr.warning("请输入所有数据");
+        }
+    });
+    window.operateEvents = {
+        'click .like': function (e, value, row) {
+            alert('You click like action, row: ' + JSON.stringify(row))
+        },
+        'click .remove': function (e, value, row) {
+            alert('You click remove action, row: ' + JSON.stringify(row))
+        }
+    }
+
+    function operateFormatter(value, row, index) {
+        return [
+            '<div class="left">',
+            '<a href="https://github.com/wenzhixin/' + value + '" target="_blank">' + value + '</a>',
+            '</div>',
+            '<div class="right">',
+            '<a class="like" href="javascript:void(0)" title="Like">',
+            '<i class="fa fa-heart"></i>',
+            '</a>  ',
+            '<a class="remove" href="javascript:void(0)" title="Remove">',
+            '<i class="fa fa-trash"></i>',
+            '</a>',
+            '</div>'
+        ].join('')
+    }
+</script>
+{% endblock %}
