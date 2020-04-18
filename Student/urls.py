@@ -14,8 +14,8 @@ urlpatterns = [
     path('test/', dataviews.dealdeal.as_view()),
     path('test/<obj>/', dataviews.dealdeal.as_view()),
 
-    path('manage/<obj>/',                      views.deal.as_view()),
-    path('manage/<obj>/<function>/',           views.deal.as_view()),
-    path('manage/<obj>/<function>/<subfun>/',  views.deal.as_view()),
-
+    path('manage/<obj>/',                               views.deal.as_view()),
+    path('manage/<obj>/<function>/',                    views.deal.as_view()),
+    path('manage/<obj>/<function>/<subfun>/',           views.deal.as_view()),
+    path('manage/<obj>/<function>/<subfun>/<which>',    views.deal.as_view()),
 ]
