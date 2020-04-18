@@ -726,6 +726,7 @@ class Teacher_Award_OP(Teacher, Op):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 class Admin():
     funlist = ['college', '123']
 
@@ -763,6 +764,8 @@ class Admin_College_OP(Teacher, Op):
         operator = {"json": self.select, "update": self.update}
         return operator[fun](request, which)
 =======
+=======
+>>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
 class Teacher_College_OP(Teacher, Op):
     oplist = ['add', 'json', 'delete', 'update', 'enter']
 
@@ -959,11 +962,15 @@ class Teacher_Course_OP(Teacher,Op):
 
     def __del__(self):
         logging.info('delete teacher_course op')
+<<<<<<< HEAD
+>>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
+=======
 >>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
 
     # 功能主页
     def visit(self, *args):
         if len(args) == 1:
+<<<<<<< HEAD
 <<<<<<< HEAD
             return render(args[0], 'login/college.html', locals())
         elif len(args) == 0:
@@ -1030,6 +1037,8 @@ class Teacher_Course_OP(Teacher,Op):
         return HttpResponse(json.dumps({'status': 'success'}))
 
 =======
+=======
+>>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
             return render(args[0], 'login/alter_course.html', locals())
         elif len(args) == 0:
             return redirect("/teacher/course/")
@@ -1099,6 +1108,9 @@ class Teacher_CourseClass_OP(Teacher,Op):
     pass
 class Teacher_Score_OP(Teacher,Op):
     pass
+<<<<<<< HEAD
+>>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
+=======
 >>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
 
 class deal(Op, View):  # 核心! 处理url
@@ -1114,8 +1126,13 @@ class deal(Op, View):  # 核心! 处理url
         fun = kwargs.get('function')  # 二级网址
         subfun = kwargs.get('subfun')  # 三级网址
 <<<<<<< HEAD
+<<<<<<< HEAD
         which = kwargs.get('which')  # 三级网址
         print(obj, fun, subfun)
+=======
+
+        print('get', obj, fun, subfun)
+>>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
 =======
 
         print('get', obj, fun, subfun)
@@ -1170,6 +1187,7 @@ class deal(Op, View):  # 核心! 处理url
                         else:
                             return taop.dictoffun(subfun, request)
 <<<<<<< HEAD
+<<<<<<< HEAD
             elif (self.visit_status // 10 == 3):  # Admin
                 a = Admin()
                 if (not a.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
@@ -1197,6 +1215,8 @@ class deal(Op, View):  # 核心! 处理url
             elif (self.visit_status // 10 == 2):  # 登录的账号是教师
                 return redirect("/manage/teacher/")
 =======
+=======
+>>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
                     elif (fun == 'college'):
                         tcop = Teacher_College_OP()
                         if subfun == None:  # 不存在子操作就返回功能首页
@@ -1266,10 +1286,13 @@ class deal(Op, View):  # 核心! 处理url
         fun = kwargs.get('function')  # 二级网址
         subfun = kwargs.get('subfun')  # 三级网址
 <<<<<<< HEAD
+<<<<<<< HEAD
         which = kwargs.get('which')  # 三级网址
         print(obj, fun, subfun)
 
 =======
+=======
+>>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
 
         print('post', obj, fun, subfun)
 
@@ -1324,6 +1347,7 @@ class deal(Op, View):  # 核心! 处理url
                         else:
                             return taop.dictoffun(subfun, request)
 <<<<<<< HEAD
+<<<<<<< HEAD
             elif (self.visit_status // 10 == 3):  # Admin
                 a = Admin()
                 if (not a.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
@@ -1351,6 +1375,8 @@ class deal(Op, View):  # 核心! 处理url
             elif (self.visit_status // 10 == 2):  # 登录的账号是教师
                 return redirect("/manage/teacher/")
 =======
+=======
+>>>>>>> b95b0735ecc15484fc279c92eee9a2d9542f1e8f
                     elif (fun == 'college'):
                         tcop = Teacher_College_OP()
                         if subfun == None:  # 不存在子操作就返回功能首页
