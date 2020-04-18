@@ -67,22 +67,27 @@ class Op():  # 所有操作的基类
     def __del__(self):
         logging.info('delete op')
 
-    #                         2          1        0
-    #      status\url      teacher   student    other
-    #  2 teacher              22        21       20
-    #  1 student              12        11       10
-    #  0 nologin              02        01       00
+    #                      3         2          1        0
+    #     status \ url   admin   teacher   student    other
+    #  3 admin             33       32        31       30
+    #  2 teacher           23       22        21       20
+    #  1 student           13       12        11       10
+    #  0 nologin           03       02        01       00
 
     def AuthorityCheck(self, request, obj, function, subfun):
         if request.session['is_login'] == True:  # 登录了
-            if not self.request.session.get('authority', None):
-                self.visit_status = 1  # 学生
-            else:
+            if self.request.session.get('authority') == 0:
                 self.visit_status = 2  # 教师
+            elif self.request.session.get('authority') == 1:
+                self.visit_status = 1  # 学生
+            elif self.request.session.get('authority') == 9:
+                self.visit_status = 3  # admin
         else:
             self.visit_status = 0
         self.visit_status *= 10
-        if (obj == 'teacher'):
+        if (obj == 'aadmin'):
+            self.visit_status += 3
+        elif (obj == 'teacher'):
             self.visit_status += 2
         elif (obj == 'student'):
             self.visit_status += 1
@@ -91,7 +96,8 @@ class Op():  # 所有操作的基类
         print(self.visit_status)
         # 异常处理
         l = Log()
-        if (self.visit_status == 12 or self.visit_status == 21):  # 教师和学生权限相反的任何请求都返回权限错误
+        if (self.visit_status == 12 or self.visit_status == 21 or
+                self.visit_status == 13 or self.visit_status == 31):  # 教师和学生权限相反的任何请求都返回权限错误
             l.logs(request, 0, LogType.WARNING, OpType.VISIT)
         if (self.visit_status < 10):  # 没登陆
             l.logs(request, 1, LogType.WARNING, OpType.VISIT)
@@ -996,6 +1002,111 @@ class Teacher_Score_OP(Teacher, Op):
     pass
 
 
+class Admin():
+    funlist = ['college', '123']
+
+    def __init__(self):
+        logging.info('enter admin op')
+
+    def __del__(self):
+        logging.info('delete admin op')
+
+    def visit(self, request):
+        return render(request, 'login/index_admin.html', locals())
+
+    def listoffunction(self, fun):
+        if (fun in self.funlist):
+            return 1
+        return 0
+
+
+class Admin_College_OP(Teacher, Op):
+
+    oplist = ['json', 'update']
+
+    def __init__(self):
+        logging.info('enter admin_college op')
+
+    def __del__(self):
+        logging.info('delete admin_college op')
+
+    def listofop(self, fun):
+        if (fun in self.oplist):
+            return 1
+        return 0
+
+    def dictoffun(self, fun, request, which=None):
+        operator = {"json": self.select, "update": self.update}
+        return operator[fun](request, which)
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            return render(args[0], 'login/college.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/aadmin/college/")
+
+    # 发送专业信息
+    def select(self, request, which):
+
+        logging.info("enter college_select")
+        # 主逻辑
+        if (which == None):
+            data = {}
+            data['total'] = CollegeModel.objects.count()
+            data['status'] = 'success'
+
+            for i in range(CollegeModel.objects.count()):
+                data[i] = {}
+                data[i]['detail'] = {}
+                data[i]['detail']['cname'] = CollegeModel.objects.values('college_name')[
+                    i]['college_name']
+            return JsonResponse(data)
+        else:
+            ll = ['1', '2', '3']
+            for i in range(CollegeModel.objects.count()):
+                data = ['1', '2']
+                ll[i] = list(MajorModel.objects.filter(
+                    college_id__college_name=CollegeModel.objects.values('college_name')[i]['college_name']).values('major_name'))
+                print(ll[i])
+                data.append(ll[i])  # bug
+                data.append(['3', '4'])
+                print(i, data)
+            return HttpResponse(json.dumps(data))
+            # data[i] = list(MajorModel.objects.filter(
+            #     college_id__college_name=CollegeModel.objects.values('college_name')[i]['college_name']).values('major_name'))
+
+        # 日志系统
+        # lg = Log()
+        # lg_data = {
+        #     "Login_User": request.session['user_id'],
+        #     "total": data
+        # }
+
+        # lg.record(LogType.INFO, StudentInformationModel._meta.model_name,
+        #           OpType.SELECT, lg_data)
+
+        logging.info("end college_select")
+        return JsonResponse(data)
+
+    # 更新专业信息
+    def update(self, request):
+
+        logging.info("enter college_update")
+
+        lg = Log()
+        lg_data = {
+            "Login_User": request.session['user_id'],
+            "username": username, "email": email, "name": name,
+            "sex": sex, "idc": idc, "age": age, "major": major
+        }
+        lg.record(LogType.INFO, str(
+            StudentInformationModel._meta.model_name), OpType.UPDATE, lg_data)
+
+        logging.info("end college_update")
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+
 class deal(Op, View):  # 核心! 处理url
 
     def __init__(self):
@@ -1008,6 +1119,7 @@ class deal(Op, View):  # 核心! 处理url
         obj = kwargs.get('obj')  # 一级网址
         fun = kwargs.get('function')  # 二级网址
         subfun = kwargs.get('subfun')  # 三级网址
+        which = kwargs.get('which')  # 四级网址
 
         print('get', obj, fun, subfun)
 
@@ -1015,7 +1127,7 @@ class deal(Op, View):  # 核心! 处理url
         print(self.visit_status)
         if (self.visit_status < 10):  # 没登陆
             return redirect("/login/")
-        elif (self.visit_status == 22 or self.visit_status == 11):  # url和权限对应
+        elif (self.visit_status == 33 or self.visit_status == 22 or self.visit_status == 11):  # url和权限对应
             if (self.visit_status // 10 == 1):  # 学生
                 t = Student()
                 if (not t.listoffunction(fun)):  # 不存在这项功能就跳转首页
@@ -1112,12 +1224,34 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
-        else:  # 此处包含了20和10、12和21，代表链接不对
-            if (self.visit_status // 10 == 2):  # 登录的账号是教师
-                return redirect("/teacher/")
+            elif (self.visit_status // 10 == 3):  # Admin
+                a = Admin()
+                if (not a.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
+                    return a.visit(request)
+                else:
+                    if (fun == 'college'):
+                        acop = Admin_College_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return acop.visit(request)
+                        elif (not acop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return acop.visit()
+                        else:
+                            return acop.dictoffun(subfun, request, which)
+                    elif (fun == '123'):
+                        axop = Teacher_Award_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return axop.visit(request)
+                        elif (not axop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return axop.visit()
+                        else:
+                            return axop.dictoffun(subfun, request)
+        else:  # 此处包含了30、20和10；13、12和31、21，代表链接不对
+            if (self.visit_status // 10 == 3):  # 登录的账号是教师
+                return redirect("/manage/aadmin/")
+            elif (self.visit_status // 10 == 2):  # 登录的账号是教师
+                return redirect("/manage/teacher/")
             elif (self.visit_status // 10 == 1):  # 登录的账号是学生
-                return redirect("/index_student/")
+                return redirect("/manage/index_student/")
             else:
                 return HttpResponse(404)
 
@@ -1126,18 +1260,18 @@ class deal(Op, View):  # 核心! 处理url
         obj = kwargs.get('obj')  # 一级网址
         fun = kwargs.get('function')  # 二级网址
         subfun = kwargs.get('subfun')  # 三级网址
+        which = kwargs.get('which')  # 四级网址
 
-        print('post', obj, fun, subfun)
+        print('get', obj, fun, subfun)
 
-        # logging.debug(obj, fun, subfun)
         self.AuthorityCheck(request, obj, fun, subfun)  # 检查 登录和url权限
         print(self.visit_status)
         if (self.visit_status < 10):  # 没登陆
             return redirect("/login/")
-        elif (self.visit_status == 22 or self.visit_status == 11):  # url和权限对应
+        elif (self.visit_status == 33 or self.visit_status == 22 or self.visit_status == 11):  # url和权限对应
             if (self.visit_status // 10 == 1):  # 学生
                 t = Student()
-                if (not t.listoffunction(fun)):  # 不存在这项功能就跳转教师首页
+                if (not t.listoffunction(fun)):  # 不存在这项功能就跳转首页
                     return t.visit(request)
                 else:
                     if (fun == 'choose_course'):
@@ -1186,6 +1320,7 @@ class deal(Op, View):  # 核心! 处理url
                             return tcop.visit()
                         else:
                             return tcop.dictoffun(subfun, request)
+
                     elif (fun == 'major'):
                         op = Teacher_Major_OP()
                         if subfun == None:
@@ -1230,12 +1365,34 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
-        else:  # 此处包含了20和10、12和21，代表链接不对
-            if (self.visit_status // 10 == 2):  # 登录的账号是教师
-                return redirect("/teacher/")
+            elif (self.visit_status // 10 == 3):  # Admin
+                a = Admin()
+                if (not a.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
+                    return a.visit(request)
+                else:
+                    if (fun == 'college'):
+                        acop = Admin_College_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return acop.visit(request)
+                        elif (not acop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return acop.visit()
+                        else:
+                            return acop.dictoffun(subfun, request, which)
+                    elif (fun == '123'):
+                        axop = Teacher_Award_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return axop.visit(request)
+                        elif (not axop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return axop.visit()
+                        else:
+                            return axop.dictoffun(subfun, request)
+        else:  # 此处包含了30、20和10；13、12和31、21，代表链接不对
+            if (self.visit_status // 10 == 3):  # 登录的账号是教师
+                return redirect("/manage/aadmin/")
+            elif (self.visit_status // 10 == 2):  # 登录的账号是教师
+                return redirect("/manage/teacher/")
             elif (self.visit_status // 10 == 1):  # 登录的账号是学生
-                return redirect("/index_student/")
+                return redirect("/manage/index_student/")
             else:
                 return HttpResponse(404)
 
