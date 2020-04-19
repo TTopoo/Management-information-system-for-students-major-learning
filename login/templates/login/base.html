@@ -33,6 +33,8 @@
     <!-- toastr -->
     <link href="{% static 'css/toastr.min.css' %}" rel="stylesheet">
     <script src="{% static 'js/toastr.min.js' %}"></script>
+    <!-- echart -->
+    <script src="{% static 'js/echarts.js' %}"></script>
 
     {% block css %}{% endblock %}
 </head>
@@ -56,7 +58,7 @@
 
     {% block navbar %}
     <nav class="navbar navbar-expand-sm navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="/index_student/">学生专业管理系统</a>
+        <a class="navbar-brand" href="/manage/student/">学生专业管理系统</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03"
             aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -77,7 +79,7 @@
                     {% endif %}
                     <div class="dropdown-menu" aria-labelledby="dropdown03">
                         <a class="dropdown-item" href="/manage/student/choose_course/">选课系统</a>
-                        <a class="dropdown-item" href="#">奖惩查看</a>
+                        <a class="dropdown-item" href="/manage/student/award/">奖惩查看</a>
                         <a class="dropdown-item" href="/manage/student/info/">修改信息</a>
                         <a class="dropdown-item" href="/manage/student/info/alterPassword">修改密码</a>
                     </div>
@@ -101,6 +103,7 @@
                         aria-haspopup="true" aria-expanded="false">管理员</a>
                     <div class="dropdown-menu" aria-labelledby="dropdown03">
                         <a class="dropdown-item" href="#">权限管理</a>
+                        <a class="dropdown-item" href="#"></a>
                         <a class="dropdown-item" href="/admin/">admin后台</a>
                     </div>
                 </li>

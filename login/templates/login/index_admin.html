@@ -1,1 +1,47 @@
 {% extends 'login/base.html' %}
+{% block content %}
+<div id="main" style="width: 1000px;height:600px;"></div>
+<script>
+
+    var myChart = echarts.init(document.getElementById('main'));
+    myChart.showLoading();
+    $.get('https://www.runoob.com/static/js/echarts_test_data.json').done(function (data) {
+        myChart.hideLoading();
+        myChart.setOption({
+            backgroundColor: '#2c343c',
+            series: [
+                {
+                    name: '访问来源',
+                    type: 'pie',    // 设置图表类型为饼图
+                    radius: '55%',  // 饼图的半径，外半径为可视区尺寸（容器高宽中较小一项）的 55% 长度。
+                    data: data.data_pie,
+
+
+                    roseType: 'angle',
+                    label: {
+                        normal: {
+                            textStyle: {
+                                color: 'rgba(255, 255, 255, 0.3)'
+                            }
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            lineStyle: {
+                                color: 'rgba(255, 255, 255, 0.3)'
+                            }
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            shadowBlur: 200,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        })
+    });
+</script>
+
+{% endblock %}
