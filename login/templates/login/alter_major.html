@@ -35,7 +35,7 @@
 
 {% block tableinfo %}
 <script>
-    function operateFormatter(value, row, index) {
+  function operateFormatter(value, row, index) {
     return [
       '<a class="remove" href="javascript:void(0)" title="Remove">',
       '<i class="far fa-trash-alt"></i>',
@@ -120,7 +120,7 @@
         traditional: true,
         headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
         success: function (result) {
-          window.location = '/manage/teacher/class/'
+          window.location = '../class/'
           //window.location = result.url
         },
         fail: function (result) {
@@ -137,7 +137,7 @@
         traditional: true,
         headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
         success: function (result) {
-          window.location = '/manage/teacher/course/'
+          window.location = '../course/'
         },
         fail: function (result) {
         }

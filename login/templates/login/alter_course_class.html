@@ -17,28 +17,28 @@
 <div class="form-group">
   <select data-placeholder="选择教师..." class="form-control" name="teacher_id" id="teacher_id" required="required">
     {% for teacher in teachers %}
-    <option value= "{{ teacher.id }}" hassubinfo="true">{{ teacher.name }}</option>
+    <option value="{{ teacher.id }}" hassubinfo="true">{{ teacher.name }}</option>
     {% endfor %}
   </select>
 </div>
 <div class="form-label-group">
-  <input type="text" class="form-control" name="maxNum" id="maxNum" placeholder="课程班级最大人数"
-    required="required"></input>
+  <input type="text" class="form-control" name="maxNum" id="maxNum" placeholder="课程班级最大人数" required="required"></input>
   <label for="lastname" class="col-sm-3 control-label">课程班级最大人数</label>
 </div>
 {% endblock %}
 
 {% block upd-modal-body %}
 <div class="form-label-group">
-  <input type="text" class="form-control" name="id_update" id="id_update" placeholder="课程班级编号"
-    required="required" readonly unselectable="on"></input>
+  <input type="text" class="form-control" name="id_update" id="id_update" placeholder="课程班级编号" required="required"
+    readonly unselectable="on"></input>
   <label for="lastname" class="col-sm-3 control-label">课程班级编号</label>
 </div>
 <div>请选择教师:</div>
 <div class="form-group">
-  <select data-placeholder="选择教师..." class="form-control" name="teacher_id_update" id="teacher_id_update" required="required">
+  <select data-placeholder="选择教师..." class="form-control" name="teacher_id_update" id="teacher_id_update"
+    required="required">
     {% for teacher in teachers %}
-    <option value= "{{ teacher.id }}" hassubinfo="true">{{ teacher.name }}</option>
+    <option value="{{ teacher.id }}" hassubinfo="true">{{ teacher.name }}</option>
     {% endfor %}
   </select>
 </div>
@@ -51,7 +51,7 @@
 
 {% block tableinfo %}
 <script>
-    function operateFormatter(value, row, index) {
+  function operateFormatter(value, row, index) {
     return [
       '<a class="remove" href="javascript:void(0)" title="Remove">',
       '<i class="far fa-trash-alt"></i>',
@@ -133,7 +133,7 @@
         traditional: true,
         headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
         success: function (result) {
-          window.location = '/manage/teacher/score/'
+          window.location = '../score/'
         },
         fail: function (result) {
         }

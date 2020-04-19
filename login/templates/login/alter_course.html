@@ -14,16 +14,15 @@
 
 {% block add-modal-body %}
 <div class="form-label-group">
-  <input type="text" class="form-control" name="name" id="name" placeholder="课程名称"
-    required="required"></input>
+  <input type="text" class="form-control" name="name" id="name" placeholder="课程名称" required="required"></input>
   <label for="lastname" class="col-sm-3 control-label">课程名称</label>
 </div>
 {% endblock %}
 
 {% block upd-modal-body %}
 <div class="form-label-group">
-  <input type="text" class="form-control" name="id_update" id="id_update" placeholder="课程编号"
-    required="required" readonly unselectable="on"></input>
+  <input type="text" class="form-control" name="id_update" id="id_update" placeholder="课程编号" required="required"
+    readonly unselectable="on"></input>
   <label for="lastname" class="col-sm-3 control-label">课程编号</label>
 </div>
 <div class="form-label-group">
@@ -35,7 +34,7 @@
 
 {% block tableinfo %}
 <script>
-    function operateFormatter(value, row, index) {
+  function operateFormatter(value, row, index) {
     return [
       '<a class="remove" href="javascript:void(0)" title="Remove">',
       '<i class="far fa-trash-alt"></i>',
@@ -116,7 +115,7 @@
         traditional: true,
         headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
         success: function (result) {
-          window.location = '/manage/teacher/course_class/'
+          window.location = '../course_class/'
         },
         fail: function (result) {
         }

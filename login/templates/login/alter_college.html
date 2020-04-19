@@ -22,8 +22,8 @@
 
 {% block upd-modal-body %}
 <div class="form-label-group">
-  <input type="text" class="form-control" name="update_id" id="update_id" placeholder="学院编号"
-    required="required" readonly unselectable="on"></input>
+  <input type="text" class="form-control" name="update_id" id="update_id" placeholder="学院编号" required="required"
+    readonly unselectable="on"></input>
   <label for="lastname" class="col-sm-3 control-label">学院编号</label>
 </div>
 <div class="form-label-group">
@@ -35,7 +35,7 @@
 
 {% block tableinfo %}
 <script>
-    function operateFormatter(value, row, index) {
+  function operateFormatter(value, row, index) {
     return [
       '<a class="remove" href="javascript:void(0)" title="Remove">',
       '<i class="far fa-trash-alt"></i>',
@@ -117,7 +117,7 @@
         traditional: true,
         headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
         success: function (result) {
-          window.location = '/manage/teacher/major/'
+          window.location = '../major/'
         },
         fail: function (result) {
         }

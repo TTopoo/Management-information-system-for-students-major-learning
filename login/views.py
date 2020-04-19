@@ -393,7 +393,7 @@ class Student_ChooseCourse_OP(Student, Op):
 
 class Teacher():
     funlist = ['stu_info', 'award', 'college', 'major',
-               'class', 'course', 'course_class', 'score','student']
+               'class', 'course', 'course_class', 'score', 'student']
 
     def __init__(self):
         logging.info('enter teacher op')
@@ -836,7 +836,7 @@ class Teacher_Major_OP(Teacher, Op):
         if len(args) == 1:
             return render(args[0], 'login/alter_major.html', locals())
         elif len(args) == 0:
-            return redirect("/teacher/major/")
+            return redirect("/manage/teacher/major/")
 
     def select(self, request):
         data = {}
@@ -920,7 +920,7 @@ class Teacher_Class_OP(Teacher, Op):
                     "update": self.update,
                     "enter": self.enter}
         return operator[fun](request)
-    
+
     def __init__(self):
         logging.info('enter teacher_class op')
 
@@ -944,11 +944,11 @@ class Teacher_Class_OP(Teacher, Op):
         limit_kw = request.GET.get('limit', 0)
         print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
         # 上一级 专业
-        major_id=request.session['major_id']
+        major_id = request.session['major_id']
         classes = ClassModel.objects.filter(major_id=major_id)
-        classes=classes.values('id','class_name','major_id__major_name')
-        data['total']=classes.count()
-        data['rows']=list(classes)
+        classes = classes.values('id', 'class_name', 'major_id__major_name')
+        data['total'] = classes.count()
+        data['rows'] = list(classes)
         return JsonResponse(data)
 
     def add(self, request):
@@ -956,9 +956,10 @@ class Teacher_Class_OP(Teacher, Op):
         class_name = request.POST.get("name", None)
         if class_name == '':
             return HttpResponse(json.dumps({'status': 'name0'}))
-        major_id=request.session['major_id']
-        major=MajorModel.objects.get(id=major_id)
-        unifyclass=ClassModel.objects.create(class_name=class_name,major_id=major)
+        major_id = request.session['major_id']
+        major = MajorModel.objects.get(id=major_id)
+        unifyclass = ClassModel.objects.create(
+            class_name=class_name, major_id=major)
         unifyclass.save()
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -968,8 +969,8 @@ class Teacher_Class_OP(Teacher, Op):
         class_name = request.POST.get("name_update", None)
         if class_name == '':
             return HttpResponse(json.dumps({'status': 'name0'}))
-        unifyclass=ClassModel.objects.get(id=class_id)
-        unifyclass.class_name=class_name
+        unifyclass = ClassModel.objects.get(id=class_id)
+        unifyclass.class_name = class_name
         unifyclass.save()
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -977,8 +978,8 @@ class Teacher_Class_OP(Teacher, Op):
         logging.info("enter class delete")
         json_receive = json.loads(request.body)
         class_id = json_receive[0]['id']
-        unifyclass=ClassModel.objects.get(id=class_id)
-        students=unifyclass.students.all()
+        unifyclass = ClassModel.objects.get(id=class_id)
+        students = unifyclass.students.all()
         if students.exists():
             return HttpResponse(json.dumps({'status': 'have'}))
         unifyclass.delete()
@@ -991,7 +992,8 @@ class Teacher_Class_OP(Teacher, Op):
         request.session['class_id'] = class_id
         return HttpResponse(json.dumps({}))
 
-class Teacher_Student_OP(Teacher,Op):
+
+class Teacher_Student_OP(Teacher, Op):
     def __init__(self):
         logging.info('enter teacher_student op')
 
@@ -1016,20 +1018,20 @@ class Teacher_Student_OP(Teacher,Op):
         limit_kw = request.GET.get('limit', 0)
         print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
         # 上一级 班级
-        class_id=request.session['class_id']
-        unifyclass=ClassModel.objects.get(id=class_id)
-        students=unifyclass.students.all()
-        students=students.values('id','name','sex','age','email','idc')
-        data['total']=students.count()
-        data['rows']=list(students)
+        class_id = request.session['class_id']
+        unifyclass = ClassModel.objects.get(id=class_id)
+        students = unifyclass.students.all()
+        students = students.values('id', 'name', 'sex', 'age', 'email', 'idc')
+        data['total'] = students.count()
+        data['rows'] = list(students)
         return JsonResponse(data)
 
     def add(self, request):
         logging.info('enter score add')
         student_id = request.POST.get("student_id", None)
         # 获得学生和班级索引
-        class_id=request.session['class_id']
-        unifyclass=ClassModel.objects.get(id=class_id)
+        class_id = request.session['class_id']
+        unifyclass = ClassModel.objects.get(id=class_id)
         student = StudentInformationModel.objects.get(id=student_id)
         # 班级添加学生
         unifyclass.students.add(student)
@@ -1040,10 +1042,11 @@ class Teacher_Student_OP(Teacher,Op):
         json_receive = json.loads(request.body)
         student_id = json_receive[0]['id']
         student = StudentInformationModel.objects.get(id=student_id)
-        class_id=request.session['class_id']
-        unifyclass=ClassModel.objects.get(id=class_id)
+        class_id = request.session['class_id']
+        unifyclass = ClassModel.objects.get(id=class_id)
         unifyclass.students.remove(student)
         return HttpResponse(json.dumps({'status': 'success'}))
+
 
 class Teacher_Course_OP(Teacher, Op):
     oplist = ['add', 'json', 'delete', 'update', 'enter']
@@ -1306,7 +1309,8 @@ class Teacher_Score_OP(Teacher, Op):
 
 
 class Admin():
-    funlist = ['college', '123']
+    funlist = ['college', 'major', 'class',
+               'course', 'course_class', 'score', 'student']
 
     def __init__(self):
         logging.info('enter admin op')
@@ -1323,9 +1327,17 @@ class Admin():
         return 0
 
 
-class Admin_College_OP(Teacher, Op):
+class Admin_College_OP(Admin, Op):
 
-    oplist = ['json', 'update']
+    oplist = ['add', 'json', 'delete', 'update', 'enter']
+
+    def dictoffun(self, fun, request):
+        operator = {"add": self.add,
+                    "json": self.select,
+                    "delete": self.delete,
+                    "update": self.update,
+                    "enter": self.enter}
+        return operator[fun](request)
 
     def __init__(self):
         logging.info('enter admin_college op')
@@ -1333,78 +1345,576 @@ class Admin_College_OP(Teacher, Op):
     def __del__(self):
         logging.info('delete admin_college op')
 
-    def listofop(self, fun):
-        if (fun in self.oplist):
-            return 1
-        return 0
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            return render(args[0], 'login/alter_college.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/aadmin/college/")
 
-    def dictoffun(self, fun, request, which=None):
-        operator = {"json": self.select, "update": self.update}
-        return operator[fun](request, which)
+    def select(self, request):
+        data = {}
+        logging.info("enter admin_college_select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        logging.debug(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 学院列表
+        colleges = CollegeModel.objects.all()
+        data['total'] = colleges.count()
+        colleges = colleges.values('id', 'college_name')
+        data['rows'] = list(colleges)
+        logging.info("end admin_college_select")
+        return JsonResponse(data)
+
+    def add(self, request):
+        logging.info('enter admin_college_add')
+        college_name = request.POST.get("college_name", None)
+        if college_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        college = CollegeModel.objects.create(college_name=college_name)
+        college.save()
+        logging.info('end admin_college_add')
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def delete(self, request):
+        logging.info("enter admin_college_delete")
+        json_receive = json.loads(request.body)
+        college_id = json_receive[0]['id']
+        majors = MajorModel.objects.filter(college_id=college_id)
+        if majors.exists():
+            return HttpResponse(json.dumps({'status': 'have'}))
+        CollegeModel.objects.get(id=college_id).delete()
+        logging.info("end admin_college_delete")
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def update(self, request):
+        logging.info('enter admin_college_update')
+        college_id = request.POST.get("update_id", None)
+        college_name = request.POST.get("update_name", None)
+        if college_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        logging.debug(college_id)
+        college = CollegeModel.objects.get(id=college_id)
+        college.college_name = college_name
+        college.save()
+        logging.info('end admin_college_update')
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def enter(self, request):
+        logging.info("enter college enter")
+        json_receive = json.loads(request.body)
+        college_id = json_receive['id']
+        request.session['college_id'] = college_id
+        logging.info("end college enter")
+        return redirect('/manage/aadmin/major/')
+
+
+class Admin_Major_OP(Admin, Op):
+
+    oplist = ['add', 'json', 'delete', 'update', 'enter_class', 'enter_course']
+
+    def dictoffun(self, fun, request):
+        operator = {"add": self.add,
+                    "json": self.select,
+                    "delete": self.delete,
+                    "update": self.update,
+                    "enter_class": self.enter_class,
+                    "enter_course": self.enter_course,
+                    }
+        return operator[fun](request)
+
+    def __init__(self):
+        logging.info('enter admin_major op')
+
+    def __del__(self):
+        logging.info('delete admin_major op')
 
     # 功能主页
     def visit(self, *args):
         if len(args) == 1:
-            return render(args[0], 'login/college.html', locals())
+            return render(args[0], 'login/alter_major.html', locals())
         elif len(args) == 0:
-            return redirect("/manage/aadmin/college/")
+            return redirect("/manage/aadmin/major/")
 
-    # 发送专业信息
-    def select(self, request, which):
+    def select(self, request):
+        data = {}
+        logging.info("enter admin_major_select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 学院
+        college_id = request.session['college_id']
+        college = CollegeModel.objects.get(id=college_id)
+        # 专业
+        majors = MajorModel.objects.filter(college_id=college_id)
+        data['total'] = majors.count()
+        majors = majors.values('id', 'major_name', 'college_id__college_name')
+        data['rows'] = list(majors)
+        logging.info("end admin_major_select")
+        return JsonResponse(data)
 
-        logging.info("enter college_select")
-        # 主逻辑
-        if (which == None):
-            data = {}
-            data['total'] = CollegeModel.objects.count()
-            data['status'] = 'success'
-            data['cname'] = {}
-            for i in range(CollegeModel.objects.count()):
-                data['cname'][i] = CollegeModel.objects.values('college_name')[
-                    i]['college_name']
-            logging.info("end college_select")
-            return JsonResponse(data)
-        else:
-            data = list(MajorModel.objects.filter(
-                college_id__college_name=CollegeModel.objects.values('college_name')[int(which)]['college_name']).values('major_name'))
-            print(int(which), data)
-            logging.info("end college_select")
-            return HttpResponse(json.dumps(data))
-            # data[i] = list(MajorModel.objects.filter(
-            #     college_id__college_name=CollegeModel.objects.values('college_name')[i]['college_name']).values('major_name'))
+    def add(self, request):
+        logging.info('enter admin_major_add')
+        major_name = request.POST.get("major_name", None)
+        if major_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        # 学院
+        college_id = request.session['college_id']
+        college = CollegeModel.objects.get(id=college_id)
+        # 专业
+        major = MajorModel.objects.create(
+            major_name=major_name, college_id=college)
+        major.save()
+        logging.info('end admin_major_add')
+        return HttpResponse(json.dumps({'status': 'success'}))
 
-        # 日志系统
-        # lg = Log()
-        # lg_data = {
-        #     "Login_User": request.session['user_id'],
-        #     "total": data
-        # }
+    def delete(self, request):
+        logging.info("enter admin_major_delete")
+        json_receive = json.loads(request.body)
+        major_id = json_receive[0]['id']
+        major = MajorModel.objects.get(id=major_id)
+        unifyclasses = ClassModel.objects.filter(major_id=major_id)
+        courses = major.courses.all()
+        if unifyclasses.exists() or courses.exists():
+            return HttpResponse(json.dumps({'status': 'have'}))
+        major.delete()
+        logging.info("end admin_major_delete")
+        return HttpResponse(json.dumps({'status': 'success'}))
 
-        # lg.record(LogType.INFO, StudentInformationModel._meta.model_name,
-        #           OpType.SELECT, lg_data)
+    def update(self, request):
+        logging.info('enter admin_major_update')
+        major_id = request.POST.get("major_id_update", None)
+        major_name = request.POST.get("major_name_update", None)
+        if major_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        major = MajorModel.objects.get(id=major_id)
+        major.major_name = major_name
+        major.save()
+        logging.info('end admin_major_update')
+        return HttpResponse(json.dumps({'status': 'success'}))
 
-    # 更新专业信息
-    def update(self, request, which=None):
+    def enter_class(self, request):
+        logging.info("enter admin_major_enter_class")
+        json_receive = json.loads(request.body)
+        major_id = json_receive['id']
+        request.session['major_id'] = major_id
+        logging.info("end admin_major_enter_class")
+        return HttpResponse(json.dumps({}))
 
-        oldname_college = request.POST.get("college", None)
-        newname_college = request.POST.get("update_college", None)
-        if (newname_college == None or newname_college == ''):
-            return HttpResponse(json.dumps({'status': 'college0'}))
-        MajorModel.objects.filter(major_name=oldname_college).update(
-            major_name=newname_college)
+    def enter_course(self, request):
+        logging.info("enter admin_major_enter_course")
+        json_receive = json.loads(request.body)
+        major_id = json_receive['id']
+        request.session['major_id'] = major_id
+        logging.info("end admin_major_enter_course")
+        return redirect('/manage/aadmin/course/')
 
-        logging.info("enter college_update")
 
-        # lg = Log()
-        # lg_data = {
-        #     "Login_User": request.session['user_id'],
-        #     "username": username, "email": email, "name": name,
-        #     "sex": sex, "idc": idc, "age": age, "major": major
-        # }
-        # lg.record(LogType.INFO, str(
-        #     StudentInformationModel._meta.model_name), OpType.UPDATE, lg_data)
+class Admin_Class_OP(Admin, Op):
+    oplist = ['add', 'json', 'delete', 'update', 'enter']
 
-        logging.info("end college_update")
+    def dictoffun(self, fun, request):
+        operator = {"add": self.add,
+                    "json": self.select,
+                    "delete": self.delete,
+                    "update": self.update,
+                    "enter": self.enter}
+        return operator[fun](request)
+
+    def __init__(self):
+        logging.info('enter admin_class op')
+
+    def __del__(self):
+        logging.info('delete admin_class op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            return render(args[0], 'login/alter_class.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/aadmin/class/")
+
+    def select(self, request):
+        data = {}
+        logging.info("enter admin_class_select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 上一级 专业
+        major_id = request.session['major_id']
+        classes = ClassModel.objects.filter(major_id=major_id)
+        classes = classes.values('id', 'class_name', 'major_id__major_name')
+        data['total'] = classes.count()
+        data['rows'] = list(classes)
+        logging.info("end admin_class_select")
+        return JsonResponse(data)
+
+    def add(self, request):
+        logging.info('enter admin_class_add')
+        class_name = request.POST.get("name", None)
+        if class_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        major_id = request.session['major_id']
+        major = MajorModel.objects.get(id=major_id)
+        unifyclass = ClassModel.objects.create(
+            class_name=class_name, major_id=major)
+        unifyclass.save()
+        logging.info('end admin_class_add')
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def update(self, request):
+        logging.info('enter admin_class_update')
+        class_id = request.POST.get("id_update", None)
+        class_name = request.POST.get("name_update", None)
+        if class_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        unifyclass = ClassModel.objects.get(id=class_id)
+        unifyclass.class_name = class_name
+        unifyclass.save()
+        logging.info('end admin_class_update')
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def delete(self, request):
+        logging.info("enter admin_class_delete")
+        json_receive = json.loads(request.body)
+        class_id = json_receive[0]['id']
+        unifyclass = ClassModel.objects.get(id=class_id)
+        students = unifyclass.students.all()
+        if students.exists():
+            return HttpResponse(json.dumps({'status': 'have'}))
+        unifyclass.delete()
+        logging.info('end admin_class_delete')
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def enter(self, request):
+        logging.info("enter admin_class_enter")
+        json_receive = json.loads(request.body)
+        class_id = json_receive['id']
+        request.session['class_id'] = class_id
+        logging.info("end admin_class_enter")
+        return HttpResponse(json.dumps({}))
+
+
+class Admin_Student_OP(Admin, Op):
+    def __init__(self):
+        logging.info('enter admin_stu op')
+
+    def __del__(self):
+        logging.info('delete admin_stu op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            students = StudentInformationModel.objects.all()
+            return render(args[0], 'login/alter_student.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/aadmin/student/")
+
+    def select(self, request):
+        data = {}
+        logging.info("enter admin_stu_select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 上一级 班级
+        class_id = request.session['class_id']
+        unifyclass = ClassModel.objects.get(id=class_id)
+        students = unifyclass.students.all()
+        students = students.values('id', 'name', 'sex', 'age', 'email', 'idc')
+        data['total'] = students.count()
+        data['rows'] = list(students)
+        logging.info("enter admin_stu_select")
+        return JsonResponse(data)
+
+    def add(self, request):
+        logging.info('enter score add')
+        student_id = request.POST.get("student_id", None)
+        # 获得学生和班级索引
+        class_id = request.session['class_id']
+        unifyclass = ClassModel.objects.get(id=class_id)
+        student = StudentInformationModel.objects.get(id=student_id)
+        # 班级添加学生
+        unifyclass.students.add(student)
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def delete(self, request):
+        logging.info("enter score delete")
+        json_receive = json.loads(request.body)
+        student_id = json_receive[0]['id']
+        student = StudentInformationModel.objects.get(id=student_id)
+        class_id = request.session['class_id']
+        unifyclass = ClassModel.objects.get(id=class_id)
+        unifyclass.students.remove(student)
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+
+class Admin_Course_OP(Admin, Op):
+    oplist = ['add', 'json', 'delete', 'update', 'enter']
+
+    def dictoffun(self, fun, request):
+        operator = {"add": self.add,
+                    "json": self.select,
+                    "delete": self.delete,
+                    "update": self.update,
+                    "enter": self.enter}
+        return operator[fun](request)
+
+    def __init__(self):
+        logging.info('enter admin_course op')
+
+    def __del__(self):
+        logging.info('delete admin_course op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            return render(args[0], 'login/alter_course.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/aadmin/course/")
+
+    def select(self, request):
+        data = {}
+        logging.info("enter course select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 上一级 专业
+        major_id = request.session['major_id']
+        major = MajorModel.objects.get(id=major_id)
+        courses = major.courses.all()
+        courses = courses.values('id', 'course_name')
+        data['rows'] = list(courses)
+        data['total'] = courses.count()
+        return JsonResponse(data)
+
+    def add(self, request):
+        logging.info('enter course add')
+        course_name = request.POST.get("name", None)
+        if course_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        course = CourseModel.objects.create(course_name=course_name)
+        course.save()
+        # 反向加到专业里去
+        major_id = request.session['major_id']
+        major = MajorModel.objects.get(id=major_id)
+        major.courses.add(course)
+
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def delete(self, request):
+        logging.info("enter course delete")
+        json_receive = json.loads(request.body)
+        course_id = json_receive[0]['id']
+        course = CourseModel.objects.get(id=course_id)
+        courseClasses = course.courseClass.all()
+        if courseClasses.exists():
+            return HttpResponse(json.dumps({'status': 'have'}))
+        course.delete()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def update(self, request):
+        logging.info('enter course update')
+        course_id = request.POST.get("id_update", None)
+        course_name = request.POST.get("name_update", None)
+        if course_name == '':
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        course = CourseModel.objects.get(id=course_id)
+        course.course_name = course_name
+        course.save()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def enter(self, request):
+        logging.info("enter course enter")
+        json_receive = json.loads(request.body)
+        course_id = json_receive['id']
+        request.session['course_id'] = course_id
+        return HttpResponse(json.dumps({}))
+
+
+class Admin_CourseClass_OP(Admin, Op):
+    oplist = ['add', 'json', 'delete', 'update', 'enter']
+
+    def dictoffun(self, fun, request):
+        operator = {"add": self.add,
+                    "json": self.select,
+                    "delete": self.delete,
+                    "update": self.update,
+                    "enter": self.enter}
+        return operator[fun](request)
+
+    def __init__(self):
+        logging.info('enter teacher_courseClass op')
+
+    def __del__(self):
+        logging.info('delete teacher_courseClass op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            teachers = TeacherInformationModel.objects.all()
+            return render(args[0], 'login/alter_course_class.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/aadmin/course_class/")
+
+    def select(self, request):
+        data = {}
+        logging.info("enter course_class select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 上一级 课程
+        course_id = request.session['course_id']
+        course = CourseModel.objects.get(id=course_id)
+        courseClasses = course.courseClass.all()
+        data['total'] = courseClasses.count()
+        courseClasses = courseClasses.values(
+            'id', 'course__course_name', 'teacher__id', 'teacher__name', 'maxNum')
+        data['rows'] = list(courseClasses)
+        return JsonResponse(data)
+
+    def add(self, request):
+        logging.info('enter course_class add')
+        teacher_id = request.POST.get("teacher_id", None)
+        maxNum = request.POST.get("maxNum", None)
+        if maxNum == '':
+            return HttpResponse(json.dumps({'status': 'maxNum0'}))
+        # 创建课程班级
+        course_id = request.session['course_id']
+        course = CourseModel.objects.get(id=course_id)
+        teacher = TeacherInformationModel.objects.get(id=teacher_id)
+        courseClass = CourseClassModel.objects.create(
+            course=course, teacher=teacher, maxNum=maxNum)
+        courseClass.save()
+        # 添加进对应的课程
+        course.courseClass.add(courseClass)
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def update(self, request):
+        logging.info('enter course_class update')
+        courseClass_id = request.POST.get("id_update", None)
+        teacher_id = request.POST.get("teacher_id_update", None)
+        maxNum = request.POST.get("maxNum_update", None)
+        if maxNum == '':
+            return HttpResponse(json.dumps({'status': 'maxNum0'}))
+        courseClass = CourseClassModel.objects.get(id=courseClass_id)
+        teacher = TeacherInformationModel.objects.get(id=teacher_id)
+        courseClass.teacher = teacher
+        courseClass.maxNum = maxNum
+        courseClass.save()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def delete(self, request):
+        logging.info("enter course_class delete")
+        json_receive = json.loads(request.body)
+        courseClass_id = json_receive[0]['id']
+        courseClass = CourseClassModel.objects.get(id=courseClass_id)
+        studentsScores = courseClass.studentsScore.all()
+        if studentsScores.exists():
+            return HttpResponse(json.dumps({'status': 'have'}))
+        courseClass.delete()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def enter(self, request):
+        logging.info("enter course_class enter")
+        json_receive = json.loads(request.body)
+        courseClass_id = json_receive['id']
+        request.session['courseClass_id'] = courseClass_id
+        return HttpResponse(json.dumps({}))
+
+
+class Admin_Score_OP(Admin, Op):
+    def __init__(self):
+        logging.info('enter admin_score op')
+
+    def __del__(self):
+        logging.info('delete admin_score op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            students = StudentInformationModel.objects.all()
+            return render(args[0], 'login/alter_score.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/aadmin/score/")
+
+    def select(self, request):
+        data = {}
+        logging.info("enter score select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 上一级 课程班级
+        courseClass_id = request.session['courseClass_id']
+        courseClass = CourseClassModel.objects.get(id=courseClass_id)
+        studentScore = courseClass.studentsScore.all()
+        data['total'] = studentScore.count()
+        studentScore = studentScore.values(
+            'id', 'courseClass__course__course_name', 'student__id', 'student__name', 'score', 'states')
+        data['rows'] = list(studentScore)
+        return JsonResponse(data)
+
+    def add(self, request):
+        logging.info('enter score add')
+        student_id = request.POST.get("student_id", None)
+        score = request.POST.get("score", None)
+        states = request.POST.get("states", None)
+        if states == '':
+            return HttpResponse(json.dumps({'status': 'states0'}))
+        # 创建学生成绩
+        courseClass_id = request.session['courseClass_id']
+        courseClass = CourseClassModel.objects.get(id=courseClass_id)
+        student = StudentInformationModel.objects.get(id=student_id)
+        studentScore = StudentScoreModel.objects.create(
+            student=student, courseClass=courseClass, score=score, states=states)
+        studentScore.save()
+        # 添加进对应的课程班级
+        courseClass.studentsScore.add(studentScore)
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def update(self, request):
+        logging.info('enter score update')
+        studentScore_id = request.POST.get("id_update", None)
+        student_id = request.POST.get("student_id_update", None)
+        score = request.POST.get("score_update", None)
+        states = request.POST.get("states_update", None)
+        print(states)
+        if states == '':
+            return HttpResponse(json.dumps({'status': 'states0'}))
+        studentScore = StudentScoreModel.objects.get(id=studentScore_id)
+        student = StudentInformationModel.objects.get(id=student_id)
+        studentScore.student = student
+        studentScore.score = score
+        studentScore.states = states
+        studentScore.save()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def delete(self, request):
+        logging.info("enter score delete")
+        json_receive = json.loads(request.body)
+        studentScore_id = json_receive[0]['id']
+        studentScore = StudentScoreModel.objects.get(id=studentScore_id)
+        studentScore.delete()
         return HttpResponse(json.dumps({'status': 'success'}))
 
 
@@ -1420,7 +1930,6 @@ class deal(Op, View):  # 核心! 处理url
         obj = kwargs.get('obj')  # 一级网址
         fun = kwargs.get('function')  # 二级网址
         subfun = kwargs.get('subfun')  # 三级网址
-        which = kwargs.get('which')  # 四级网址
 
         print('get', obj, fun, subfun)
 
@@ -1525,7 +2034,7 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-                    
+
                     elif (fun == 'student'):
                         op = Teacher_Student_OP()
                         if subfun == None:
@@ -1547,15 +2056,52 @@ class deal(Op, View):  # 核心! 处理url
                         elif (not acop.listofop(subfun)):  # 子操作错误也返回功能首页
                             return acop.visit()
                         else:
-                            return acop.dictoffun(subfun, request, which)
-                    elif (fun == '123'):
-                        axop = Teacher_Award_OP()
-                        if subfun == None:  # 不存在子操作就返回功能首页
-                            return axop.visit(request)
-                        elif (not axop.listofop(subfun)):  # 子操作错误也返回功能首页
-                            return axop.visit()
+                            return acop.dictoffun(subfun, request)
+                    elif (fun == 'major'):
+                        amop = Admin_Major_OP()
+                        if subfun == None:
+                            return amop.visit(request)
+                        elif (not amop.listofop(subfun)):
+                            return amop.visit()
                         else:
-                            return axop.dictoffun(subfun, request)
+                            return amop.dictoffun(subfun, request)
+
+                    elif (fun == 'class'):
+                        akop = Admin_Class_OP()
+                        if subfun == None:
+                            return akop.visit(request)
+                        elif (not akop.listofop(subfun)):
+                            return akop.visit()
+                        else:
+                            return akop.dictoffun(subfun, request)
+
+                    elif (fun == 'course'):
+                        acuop = Admin_Course_OP()
+                        if subfun == None:
+                            return acuop.visit(request)
+                        elif (not acuop.listofop(subfun)):
+                            return acuop.visit()
+                        else:
+                            return acuop.dictoffun(subfun, request)
+
+                    elif (fun == 'course_class'):
+                        accop = Admin_CourseClass_OP()
+                        if subfun == None:
+                            return accop.visit(request)
+                        elif (not accop.listofop(subfun)):
+                            return accop.visit()
+                        else:
+                            return accop.dictoffun(subfun, request)
+
+                    elif (fun == 'score'):
+                        asop = Admin_Score_OP()
+                        if subfun == None:
+                            return asop.visit(request)
+                        elif (not asop.listofop(subfun)):
+                            return asop.visit()
+                        else:
+                            return asop.dictoffun(subfun, request)
+
         else:  # 此处包含了30、20和10；13、12和31、21，代表链接不对
             if (self.visit_status // 10 == 3):  # 登录的账号是教师
                 return redirect("/manage/aadmin/")
@@ -1571,9 +2117,8 @@ class deal(Op, View):  # 核心! 处理url
         obj = kwargs.get('obj')  # 一级网址
         fun = kwargs.get('function')  # 二级网址
         subfun = kwargs.get('subfun')  # 三级网址
-        which = kwargs.get('which')  # 四级网址
 
-        print('get', obj, fun, subfun)
+        print('post', obj, fun, subfun)
 
         self.AuthorityCheck(request, obj, fun, subfun)  # 检查 登录和url权限
         print(self.visit_status)
@@ -1698,15 +2243,52 @@ class deal(Op, View):  # 核心! 处理url
                         elif (not acop.listofop(subfun)):  # 子操作错误也返回功能首页
                             return acop.visit()
                         else:
-                            return acop.dictoffun(subfun, request, which)
-                    elif (fun == '123'):
-                        axop = Teacher_Award_OP()
-                        if subfun == None:  # 不存在子操作就返回功能首页
-                            return axop.visit(request)
-                        elif (not axop.listofop(subfun)):  # 子操作错误也返回功能首页
-                            return axop.visit()
+                            return acop.dictoffun(subfun, request)
+                    elif (fun == 'major'):
+                        amop = Admin_Major_OP()
+                        if subfun == None:
+                            return amop.visit(request)
+                        elif (not amop.listofop(subfun)):
+                            return amop.visit()
                         else:
-                            return axop.dictoffun(subfun, request)
+                            return amop.dictoffun(subfun, request)
+
+                    elif (fun == 'class'):
+                        akop = Admin_Class_OP()
+                        if subfun == None:
+                            return akop.visit(request)
+                        elif (not akop.listofop(subfun)):
+                            return akop.visit()
+                        else:
+                            return akop.dictoffun(subfun, request)
+
+                    elif (fun == 'course'):
+                        acuop = Admin_Course_OP()
+                        if subfun == None:
+                            return acuop.visit(request)
+                        elif (not acuop.listofop(subfun)):
+                            return acuop.visit()
+                        else:
+                            return acuop.dictoffun(subfun, request)
+
+                    elif (fun == 'course_class'):
+                        accop = Admin_CourseClass_OP()
+                        if subfun == None:
+                            return accop.visit(request)
+                        elif (not accop.listofop(subfun)):
+                            return accop.visit()
+                        else:
+                            return accop.dictoffun(subfun, request)
+
+                    elif (fun == 'score'):
+                        asop = Admin_Score_OP()
+                        if subfun == None:
+                            return asop.visit(request)
+                        elif (not asop.listofop(subfun)):
+                            return asop.visit()
+                        else:
+                            return asop.dictoffun(subfun, request)
+
         else:  # 此处包含了30、20和10；13、12和31、21，代表链接不对
             if (self.visit_status // 10 == 3):  # 登录的账号是教师
                 return redirect("/manage/aadmin/")
