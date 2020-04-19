@@ -1,6 +1,6 @@
 {% extends 'login/base_add_del_upd_sel.html' %}
 
-{% block title %}专业{% endblock %}
+{% block title %}班级{% endblock %}
 
 {% block tableOptions %}
 <table id="table" data-toolbar="#toolbar" data-search="true" data-show-refresh="true" data-show-toggle="true"
@@ -14,22 +14,22 @@
 
 {% block add-modal-body %}
 <div class="form-label-group">
-  <input type="text" class="form-control" name="major_name" id="major_name" placeholder="专业名称"
+  <input type="text" class="form-control" name="name" id="name" placeholder="班级名称"
     required="required"></input>
-  <label for="lastname" class="col-sm-3 control-label">专业名称</label>
+  <label for="lastname" class="col-sm-3 control-label">班级名称</label>
 </div>
 {% endblock %}
 
 {% block upd-modal-body %}
 <div class="form-label-group">
-  <input type="text" class="form-control" name="major_id_update" id="major_id_update" placeholder="专业编号"
+  <input type="text" class="form-control" name="id_update" id="id_update" placeholder="班级编号"
     required="required" readonly unselectable="on"></input>
-  <label for="lastname" class="col-sm-3 control-label">专业编号</label>
+  <label for="lastname" class="col-sm-3 control-label">班级编号</label>
 </div>
 <div class="form-label-group">
-  <input type="text" class="form-control" name="major_name_update" id="major_name_update" placeholder="专业名称"
+  <input type="text" class="form-control" name="name_update" id="name_update" placeholder="班级名称"
     required="required"></input>
-  <label for="lastname" class="col-sm-3 control-label">专业名称</label>
+  <label for="lastname" class="col-sm-3 control-label">班级名称</label>
 </div>
 {% endblock %}
 
@@ -43,12 +43,9 @@
       '<a class="update" href="javascript:void(0)" title="Edit">',
       '<i class="far fa-edit"></i>',
       '</a>  ',
-      '<a class="enter_class" href="javascript:void(0)" title="Enter">',
-      '<i>班级</i>',
-      '</a>  ',
-      '<a class="enter_course" href="javascript:void(0)" title="Enter">',
-      '<i>课程</i>',
-      '</a>  ',
+      '<a class="enter" href="javascript:void(0)" title="Enter">',
+      '<i>进入</i>',
+      '</a>  '
     ].join('')
   }
 </script>
@@ -93,7 +90,7 @@
                     toastr.warning('权限不足');
                   }
                   if (data.status == "have") {
-                    toastr.warning('该栏目下还有子栏目未删除!');
+                    toastr.warning('该班级下还有学生');
                   }
                 },
                 fail: function (result) {
@@ -105,39 +102,21 @@
     },
     'click .update': function (e, value, row, index) {
       console.log(row);
-      $("#major_id_update").val(row.id);
-      $("#major_name_update").val(row.major_name);
+      $("#id_update").val(row.id);
+      $("#name_update").val(row.class_name);
 
       $('#updateModal').modal('show')
     },
-    'click .enter_class': function (e, value, row, index) {
-      console.log([row.college_name]);
+    'click .enter': function (e, value, row, index) {
       $.ajax({
-        url: "./enter_class/",
+        url: "./enter/",
         data: JSON.stringify(row),
         contentType: 'application/json',
         type: "POST",
         traditional: true,
         headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
         success: function (result) {
-          window.location = '/manage/teacher/class/'
-          //window.location = result.url
-        },
-        fail: function (result) {
-        }
-      });
-    },
-    'click .enter_course': function (e, value, row, index) {
-      console.log([row.college_name]);
-      $.ajax({
-        url: "./enter_course/",
-        data: JSON.stringify(row),
-        contentType: 'application/json',
-        type: "POST",
-        traditional: true,
-        headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
-        success: function (result) {
-          window.location = '/manage/teacher/course/'
+          window.location = '/manage/teacher/student/'
         },
         fail: function (result) {
         }
@@ -161,9 +140,9 @@
       height: 600,
       locale: $('#locale').val(),
       columns: [
-        { field: 'college_id__college_name', title: 'college_name', footerFormatter: totalNameFormatter, align: 'center' },
-        { field: 'id', title: 'college_id', footerFormatter: totalNameFormatter, align: 'center' },
-        { field: 'major_name', title: 'major_name', footerFormatter: totalNameFormatter, align: 'center' },
+        { field: 'major_id__major_name', title: 'major_name', footerFormatter: totalNameFormatter, align: 'center' },
+        { field: 'id', title: 'class_id', footerFormatter: totalNameFormatter, align: 'center' },
+        { field: 'class_name', title: 'class_name', footerFormatter: totalNameFormatter, align: 'center' },
         { field: 'operate', title: 'Item Operate', align: 'center', clickToSelect: false, events: window.operateEvents, formatter: operateFormatter }
       ]
     })
@@ -232,7 +211,7 @@
           toastr.warning('权限不足');
         }
         if (data.status == "name0") {
-          toastr.warning('请输入名称');
+          toastr.warning('名称不能为空');
         }
       },
       error: function () {
@@ -258,7 +237,7 @@
           $("#table").bootstrapTable('refresh');
         }
         if (data.status == "name0") {
-          toastr.warning('请输入名称');
+          toastr.warning('名称不能为空');
         }
       },
       error: function () {
