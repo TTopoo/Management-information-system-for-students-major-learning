@@ -1227,23 +1227,17 @@ class Admin_College_OP(Teacher, Op):
             data = {}
             data['total'] = CollegeModel.objects.count()
             data['status'] = 'success'
-
+            data['cname'] = {}
             for i in range(CollegeModel.objects.count()):
-                data[i] = {}
-                data[i]['detail'] = {}
-                data[i]['detail']['cname'] = CollegeModel.objects.values('college_name')[
+                data['cname'][i] = CollegeModel.objects.values('college_name')[
                     i]['college_name']
+            logging.info("end college_select")
             return JsonResponse(data)
         else:
-            ll = ['1', '2', '3']
-            for i in range(CollegeModel.objects.count()):
-                data = ['1', '2']
-                ll[i] = list(MajorModel.objects.filter(
-                    college_id__college_name=CollegeModel.objects.values('college_name')[i]['college_name']).values('major_name'))
-                print(ll[i])
-                data.append(ll[i])  # bug
-                data.append(['3', '4'])
-                print(i, data)
+            data = list(MajorModel.objects.filter(
+                college_id__college_name=CollegeModel.objects.values('college_name')[int(which)]['college_name']).values('major_name'))
+            print(int(which), data)
+            logging.info("end college_select")
             return HttpResponse(json.dumps(data))
             # data[i] = list(MajorModel.objects.filter(
             #     college_id__college_name=CollegeModel.objects.values('college_name')[i]['college_name']).values('major_name'))
@@ -1258,22 +1252,26 @@ class Admin_College_OP(Teacher, Op):
         # lg.record(LogType.INFO, StudentInformationModel._meta.model_name,
         #           OpType.SELECT, lg_data)
 
-        logging.info("end college_select")
-        return JsonResponse(data)
-
     # 更新专业信息
-    def update(self, request):
+    def update(self, request, which=None):
+
+        oldname_college = request.POST.get("college", None)
+        newname_college = request.POST.get("update_college", None)
+        if (newname_college == None or newname_college == ''):
+            return HttpResponse(json.dumps({'status': 'college0'}))
+        MajorModel.objects.filter(major_name=oldname_college).update(
+            major_name=newname_college)
 
         logging.info("enter college_update")
 
-        lg = Log()
-        lg_data = {
-            "Login_User": request.session['user_id'],
-            "username": username, "email": email, "name": name,
-            "sex": sex, "idc": idc, "age": age, "major": major
-        }
-        lg.record(LogType.INFO, str(
-            StudentInformationModel._meta.model_name), OpType.UPDATE, lg_data)
+        # lg = Log()
+        # lg_data = {
+        #     "Login_User": request.session['user_id'],
+        #     "username": username, "email": email, "name": name,
+        #     "sex": sex, "idc": idc, "age": age, "major": major
+        # }
+        # lg.record(LogType.INFO, str(
+        #     StudentInformationModel._meta.model_name), OpType.UPDATE, lg_data)
 
         logging.info("end college_update")
         return HttpResponse(json.dumps({'status': 'success'}))
