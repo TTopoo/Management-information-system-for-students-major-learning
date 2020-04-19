@@ -30,15 +30,15 @@ def login(request):
                     request.session['user_id'] = user.id
                     request.session['account'] = user.account
                     # 教师账号
-                    if account[0] == '0':       
+                    if account[0] == '0':
                         request.session['authority'] = 0
                         return redirect('/manage/teacher/')
                     # 管理员账号
-                    elif account[0] == '9':     
+                    elif account[0] == '9':
                         request.session['authority'] = 9
                         return redirect('/manage/aadmin/')
                     # 剩下的都是学生账号
-                    else:                       
+                    else:
                         request.session['authority'] = 1
                         return redirect('/manage/student/')
                 else:
@@ -287,7 +287,7 @@ class Student_ChooseCourse_OP(Student, Op):
         if stu_scores.exists():
             return HttpResponse(json.dumps({'status': 'exists'}))
         stu_score = StudentScoreModel.objects.create(
-            student=stu_info, courseClass=courseClass, score='-', state='学习中')
+            student=stu_info, courseClass=courseClass, score='-', states='学习中')
         courseClass.studentsScore.add(stu_score)
         # 日志
         logging.info("end choose_course add_course")
@@ -316,7 +316,7 @@ class Student_ChooseCourse_OP(Student, Op):
                 print(i['courseClass__studentsScore__student_id'])
                 i['courseClass__studentsScore__student_id'] = None
                 i['courseClass__studentsScore__score'] = None
-                i['courseClass__studentsScore__state'] = None
+                i['courseClass__studentsScore__states'] = None
         # 去重
         courselist = self.remove_duplicates(courselist)
         # 去空
@@ -352,7 +352,7 @@ class Student_ChooseCourse_OP(Student, Op):
         # 课程中该学生的成绩和状态
         course_set = course_set.values('id', 'course_name', 'courseClass__id', 'courseClass__id', 'courseClass__teacher__name', 'courseClass__maxNum',
                                        'courseClass__studentsScore__student_id', 'courseClass__studentsScore__score',
-                                       'courseClass__studentsScore__state')
+                                       'courseClass__studentsScore__states')
         # print(course_set)
         data['rows'] = list(course_set)
         # self.pout(data['rows'])
@@ -953,7 +953,7 @@ class Teacher_Course_OP(Teacher, Op):
         courses = major.courses.all()
         courses = courses.values('id', 'course_name')
         data['rows'] = list(courses)
-        data['total']=courses.count()
+        data['total'] = courses.count()
         return JsonResponse(data)
 
     def add(self, request):
@@ -1021,7 +1021,7 @@ class Teacher_CourseClass_OP(Teacher, Op):
     # 功能主页
     def visit(self, *args):
         if len(args) == 1:
-            teachers=TeacherInformationModel.objects.all()
+            teachers = TeacherInformationModel.objects.all()
             return render(args[0], 'login/alter_course_class.html', locals())
         elif len(args) == 0:
             return redirect("/teacher/course_class/")
@@ -1036,25 +1036,27 @@ class Teacher_CourseClass_OP(Teacher, Op):
         limit_kw = request.GET.get('limit', 0)
         print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
         # 上一级 课程
-        course_id=request.session['course_id']
-        course=CourseModel.objects.get(id=course_id)
-        courseClasses=course.courseClass.all()
-        data['total']=courseClasses.count()
-        courseClasses=courseClasses.values('id','course__course_name','teacher__id','teacher__name','maxNum')
+        course_id = request.session['course_id']
+        course = CourseModel.objects.get(id=course_id)
+        courseClasses = course.courseClass.all()
+        data['total'] = courseClasses.count()
+        courseClasses = courseClasses.values(
+            'id', 'course__course_name', 'teacher__id', 'teacher__name', 'maxNum')
         data['rows'] = list(courseClasses)
         return JsonResponse(data)
 
     def add(self, request):
         logging.info('enter course_class add')
-        teacher_id=request.POST.get("teacher_id",None)
+        teacher_id = request.POST.get("teacher_id", None)
         maxNum = request.POST.get("maxNum", None)
         if maxNum == '':
             return HttpResponse(json.dumps({'status': 'maxNum0'}))
         # 创建课程班级
-        course_id=request.session['course_id']
-        course=CourseModel.objects.get(id=course_id)
-        teacher=TeacherInformationModel.objects.get(id=teacher_id)
-        courseClass = CourseClassModel.objects.create(course=course,teacher=teacher,maxNum=maxNum)
+        course_id = request.session['course_id']
+        course = CourseModel.objects.get(id=course_id)
+        teacher = TeacherInformationModel.objects.get(id=teacher_id)
+        courseClass = CourseClassModel.objects.create(
+            course=course, teacher=teacher, maxNum=maxNum)
         courseClass.save()
         # 添加进对应的课程
         course.courseClass.add(courseClass)
@@ -1062,15 +1064,15 @@ class Teacher_CourseClass_OP(Teacher, Op):
 
     def update(self, request):
         logging.info('enter course_class update')
-        courseClass_id=request.POST.get("id_update", None)
-        teacher_id=request.POST.get("teacher_id_update",None)
+        courseClass_id = request.POST.get("id_update", None)
+        teacher_id = request.POST.get("teacher_id_update", None)
         maxNum = request.POST.get("maxNum_update", None)
         if maxNum == '':
             return HttpResponse(json.dumps({'status': 'maxNum0'}))
-        courseClass=CourseClassModel.objects.get(id=courseClass_id)
+        courseClass = CourseClassModel.objects.get(id=courseClass_id)
         teacher = TeacherInformationModel.objects.get(id=teacher_id)
-        courseClass.teacher=teacher
-        courseClass.maxNum=maxNum
+        courseClass.teacher = teacher
+        courseClass.maxNum = maxNum
         courseClass.save()
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1079,7 +1081,7 @@ class Teacher_CourseClass_OP(Teacher, Op):
         json_receive = json.loads(request.body)
         courseClass_id = json_receive[0]['id']
         courseClass = CourseClassModel.objects.get(id=courseClass_id)
-        studentsScores=courseClass.studentsScore.all()
+        studentsScores = courseClass.studentsScore.all()
         if studentsScores.exists():
             return HttpResponse(json.dumps({'status': 'have'}))
         courseClass.delete()
@@ -1095,8 +1097,81 @@ class Teacher_CourseClass_OP(Teacher, Op):
 
 
 class Teacher_Score_OP(Teacher, Op):
-    
-    pass
+    def __init__(self):
+        logging.info('enter teacher_score op')
+
+    def __del__(self):
+        logging.info('delete teacher_score op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            students = StudentInformationModel.objects.all()
+            return render(args[0], 'login/alter_score.html', locals())
+        elif len(args) == 0:
+            return redirect("/teacher/score/")
+
+    def select(self, request):
+        data = {}
+        logging.info("enter score select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 上一级 课程班级
+        courseClass_id = request.session['courseClass_id']
+        courseClass = CourseClassModel.objects.get(id=courseClass_id)
+        studentScore = courseClass.studentsScore.all()
+        data['total'] = studentScore.count()
+        studentScore = studentScore.values(
+            'id', 'courseClass__course__course_name', 'student__id', 'student__name', 'score', 'states')
+        data['rows'] = list(studentScore)
+        return JsonResponse(data)
+
+    def add(self, request):
+        logging.info('enter score add')
+        student_id = request.POST.get("student_id", None)
+        score = request.POST.get("score", None)
+        states = request.POST.get("states", None)
+        if states == '':
+            return HttpResponse(json.dumps({'status': 'states0'}))
+        # 创建学生成绩
+        courseClass_id = request.session['courseClass_id']
+        courseClass = CourseClassModel.objects.get(id=courseClass_id)
+        student = StudentInformationModel.objects.get(id=student_id)
+        studentScore = StudentScoreModel.objects.create(
+            student=student, courseClass=courseClass, score=score, states=states)
+        studentScore.save()
+        # 添加进对应的课程班级
+        courseClass.studentsScore.add(studentScore)
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def update(self, request):
+        logging.info('enter score update')
+        studentScore_id = request.POST.get("id_update", None)
+        student_id = request.POST.get("student_id_update", None)
+        score = request.POST.get("score_update", None)
+        states = request.POST.get("states_update", None)
+        print(states)
+        if states == '':
+            return HttpResponse(json.dumps({'status': 'states0'}))
+        studentScore = StudentScoreModel.objects.get(id=studentScore_id)
+        student = StudentInformationModel.objects.get(id=student_id)
+        studentScore.student = student
+        studentScore.score = score
+        studentScore.states = states
+        studentScore.save()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def delete(self, request):
+        logging.info("enter score delete")
+        json_receive = json.loads(request.body)
+        studentScore_id = json_receive[0]['id']
+        studentScore = StudentScoreModel.objects.get(id=studentScore_id)
+        studentScore.delete()
+        return HttpResponse(json.dumps({'status': 'success'}))
 
 
 class Admin():

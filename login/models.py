@@ -112,7 +112,7 @@ class StudentScoreModel(models.Model):
     courseClass = models.ForeignKey(
         'CourseClassModel', on_delete=models.CASCADE, null=True)
     score = models.CharField(max_length=16, verbose_name='分数', null=True)
-    state = models.CharField(max_length=16, verbose_name='状态', null=True)
+    states = models.CharField(max_length=16, verbose_name='状态', null=True)
 
     def __str__(self):
         return self.courseClass.course.course_name+' '+ self.courseClass.teacher.name+' ' + self.student.name+' '+str(self.score)+' '+self.state
