@@ -29,11 +29,17 @@ def login(request):
                     request.session['is_login'] = True
                     request.session['user_id'] = user.id
                     request.session['account'] = user.account
-                    if account[0] == '0':  # 如果是教师账号
-                        request.session['authority'] = True
+                    # 教师账号
+                    if account[0] == '0':       
+                        request.session['authority'] = 0
                         return redirect('/manage/teacher/')
-                    else:
-                        request.session['authority'] = False
+                    # 管理员账号
+                    elif account[0] == '9':     
+                        request.session['authority'] = 9
+                        return redirect('/manage/aadmin/')
+                    # 剩下的都是学生账号
+                    else:                       
+                        request.session['authority'] = 1
                         return redirect('/manage/student/')
                 else:
                     message = "密码不正确！"
@@ -947,6 +953,7 @@ class Teacher_Course_OP(Teacher, Op):
         courses = major.courses.all()
         courses = courses.values('id', 'course_name')
         data['rows'] = list(courses)
+        data['total']=courses.count()
         return JsonResponse(data)
 
     def add(self, request):
@@ -995,10 +1002,100 @@ class Teacher_Course_OP(Teacher, Op):
 
 
 class Teacher_CourseClass_OP(Teacher, Op):
-    pass
+    oplist = ['add', 'json', 'delete', 'update', 'enter']
+
+    def dictoffun(self, fun, request):
+        operator = {"add": self.add,
+                    "json": self.select,
+                    "delete": self.delete,
+                    "update": self.update,
+                    "enter": self.enter}
+        return operator[fun](request)
+
+    def __init__(self):
+        logging.info('enter teacher_courseClass op')
+
+    def __del__(self):
+        logging.info('delete teacher_courseClass op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            teachers=TeacherInformationModel.objects.all()
+            return render(args[0], 'login/alter_course_class.html', locals())
+        elif len(args) == 0:
+            return redirect("/teacher/course_class/")
+
+    def select(self, request):
+        data = {}
+        logging.info("enter course_class select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 上一级 课程
+        course_id=request.session['course_id']
+        course=CourseModel.objects.get(id=course_id)
+        courseClasses=course.courseClass.all()
+        data['total']=courseClasses.count()
+        courseClasses=courseClasses.values('id','course__course_name','teacher__id','teacher__name','maxNum')
+        data['rows'] = list(courseClasses)
+        return JsonResponse(data)
+
+    def add(self, request):
+        logging.info('enter course_class add')
+        teacher_id=request.POST.get("teacher_id",None)
+        maxNum = request.POST.get("maxNum", None)
+        if maxNum == '':
+            return HttpResponse(json.dumps({'status': 'maxNum0'}))
+        # 创建课程班级
+        course_id=request.session['course_id']
+        course=CourseModel.objects.get(id=course_id)
+        teacher=TeacherInformationModel.objects.get(id=teacher_id)
+        courseClass = CourseClassModel.objects.create(course=course,teacher=teacher,maxNum=maxNum)
+        courseClass.save()
+        # 添加进对应的课程
+        course.courseClass.add(courseClass)
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def update(self, request):
+        logging.info('enter course_class update')
+        courseClass_id=request.POST.get("id_update", None)
+        teacher_id=request.POST.get("teacher_id_update",None)
+        maxNum = request.POST.get("maxNum_update", None)
+        if maxNum == '':
+            return HttpResponse(json.dumps({'status': 'maxNum0'}))
+        courseClass=CourseClassModel.objects.get(id=courseClass_id)
+        teacher = TeacherInformationModel.objects.get(id=teacher_id)
+        courseClass.teacher=teacher
+        courseClass.maxNum=maxNum
+        courseClass.save()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def delete(self, request):
+        logging.info("enter course_class delete")
+        json_receive = json.loads(request.body)
+        courseClass_id = json_receive[0]['id']
+        courseClass = CourseClassModel.objects.get(id=courseClass_id)
+        studentsScores=courseClass.studentsScore.all()
+        if studentsScores.exists():
+            return HttpResponse(json.dumps({'status': 'have'}))
+        courseClass.delete()
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    def enter(self, request):
+        logging.info("enter course_class enter")
+        json_receive = json.loads(request.body)
+        # print(json_receive)
+        courseClass_id = json_receive['id']
+        request.session['courseClass_id'] = courseClass_id
+        return HttpResponse(json.dumps({}))
 
 
 class Teacher_Score_OP(Teacher, Op):
+    
     pass
 
 
@@ -1251,7 +1348,7 @@ class deal(Op, View):  # 核心! 处理url
             elif (self.visit_status // 10 == 2):  # 登录的账号是教师
                 return redirect("/manage/teacher/")
             elif (self.visit_status // 10 == 1):  # 登录的账号是学生
-                return redirect("/manage/index_student/")
+                return redirect("/manage/student/")
             else:
                 return HttpResponse(404)
 
@@ -1392,7 +1489,7 @@ class deal(Op, View):  # 核心! 处理url
             elif (self.visit_status // 10 == 2):  # 登录的账号是教师
                 return redirect("/manage/teacher/")
             elif (self.visit_status // 10 == 1):  # 登录的账号是学生
-                return redirect("/manage/index_student/")
+                return redirect("/manage/student/")
             else:
                 return HttpResponse(404)
 

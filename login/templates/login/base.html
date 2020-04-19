@@ -68,11 +68,11 @@
                     <a class="nav-link" href="/manage/student/">主页 <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item dropdown">
-                    {% if request.session.authority %}
-                    <a class="nav-link dropdown-toggle disabled" href="#" id="dropdown03" data-toggle="dropdown"
+                    {% if request.session.authority == 1 %}
+                    <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">学生</a>
                     {% else %}
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown"
+                    <a class="nav-link dropdown-toggle disabled" href="#" id="dropdown03" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">学生</a>
                     {% endif %}
                     <div class="dropdown-menu" aria-labelledby="dropdown03">
@@ -83,7 +83,7 @@
                     </div>
                 </li>
                 <li class="nav-item dropdown">
-                    {% if request.session.authority %}
+                    {% if request.session.authority == 0 %}
                     <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">教师</a>
                     {% else %}
