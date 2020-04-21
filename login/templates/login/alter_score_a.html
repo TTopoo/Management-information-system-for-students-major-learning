@@ -1,0 +1,312 @@
+{% extends 'login/base_add_del_upd_sel.html' %}
+
+{% block title %}成绩{% endblock %}
+
+{% block charts %}
+<!-- 表格部分 -->
+<div style="border:2px solid #666;width:99%;height:450px;" id="chartmain"></div>
+<script type="text/javascript">
+  window.onload = function () {
+    //财务看年度的合同金额echart数据源
+    $.ajax({
+      url: '/manage/aadmin/score/charts/',
+      type: 'post',
+      datatype: 'json',
+      headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+      success: function (data) {
+        console.log(data)
+        option = {
+          backgroundColor: '#2c343c',
+          series: [
+            {
+              name: '访问来源',
+              type: 'pie',    // 设置图表类型为饼图
+              radius: '55%',  // 饼图的半径，外半径为可视区尺寸（容器高宽中较小一项）的 55% 长度。
+              data: data.data_pie,
+
+              roseType: 'angle',
+              label: {
+                normal: {
+                  textStyle: {
+                    color: 'rgba(255, 255, 255, 0.3)'
+                  }
+                }
+              },
+              labelLine: {
+                normal: {
+                  lineStyle: {
+                    color: 'rgba(255, 255, 255, 0.3)'
+                  }
+                }
+              },
+              itemStyle: {
+                normal: {
+                  shadowBlur: 200,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+              }
+            }
+          ]
+        };
+        var myChart = echarts.init(document.getElementById('chartmain'));
+        myChart.setOption(option);
+      }
+    });
+
+  }
+</script>
+{% endblock %}
+
+{% block tableOptions %}
+<table id="table" data-toolbar="#toolbar" data-search="true" data-show-refresh="true" data-show-toggle="true"
+  data-show-fullscreen="true" data-show-columns="true" data-show-columns-toggle-all="true" data-detail-view="true"
+  data-show-export="true" data-click-to-select="true" data-detail-formatter="detailFormatter"
+  data-minimum-count-columns="2" data-show-pagination-switch="true" data-pagination="true" data-id-field="id"
+  data-page-list="[10, 25, 50, 100, all]" data-show-footer="true" data-side-pagination="server" data-url="./json"
+  data-response-handler="responseHandler">
+</table>
+{% endblock %}
+
+{% block add-modal-body %}
+<div>请选择学生:</div>
+<div class="form-group">
+  <select data-placeholder="选择学生..." class="form-control" name="student_id" id="student_id" required="required">
+    {% for student in students %}
+    <option value="{{ student.id }}" hassubinfo="true">{{ student.name }}</option>
+    {% endfor %}
+  </select>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="score" id="score" placeholder="分数" required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">分数</label>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="states" id="states" placeholder="状态" required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">状态</label>
+</div>
+{% endblock %}
+
+{% block upd-modal-body %}
+<div class="form-label-group">
+  <input type="text" class="form-control" name="id_update" id="id_update" placeholder="学生成绩编号" required="required"
+    readonly unselectable="on"></input>
+  <label for="lastname" class="col-sm-3 control-label">学生成绩编号</label>
+</div>
+<div>请选择学生:</div>
+<div class="form-group">
+  <select data-placeholder="选择学生..." class="form-control" name="student_id_update" id="student_id_update"
+    required="required">
+    {% for student in students %}
+    <option value="{{ student.id }}" hassubinfo="true">{{ student.name }}</option>
+    {% endfor %}
+  </select>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="score_update" id="score_update" placeholder="分数"
+    required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">分数</label>
+</div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="states_update" id="states_update" placeholder="状态"
+    required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">状态</label>
+</div>
+{% endblock %}
+
+{% block tableinfo %}
+<script>
+  function operateFormatter(value, row, index) {
+    return [
+      '<a class="remove" href="javascript:void(0)" title="Remove">',
+      '<i class="far fa-trash-alt"></i>',
+      '</a>  ',
+      '<a class="update" href="javascript:void(0)" title="Edit">',
+      '<i class="far fa-edit"></i>',
+      '</a>  '
+    ].join('')
+  }
+</script>
+
+<script>
+  window.operateEvents = {
+    'click .remove': function (e, value, row, index) {
+      console.log([row.college_name]),
+        bootbox.confirm({
+          title: "删除信息！",
+          size: "small",
+          message: "您确定删除选中项吗？",
+          buttons: {
+            confirm: {
+              label: '是',
+              className: 'btn-success'
+            },
+            cancel: {
+              label: '否',
+              className: 'btn-danger'
+            }
+          },
+          callback: function (result) {
+            if (result) {
+              $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                url: "./delete/",
+                data: JSON.stringify([row]),
+                contentType: 'application/json',
+                type: "POST",
+                traditional: true,
+                headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+                success: function (data) {
+                  console.log(data);
+                  if (data.status == "success") {
+                    toastr.success('删除数据成功');
+                    $("#table").bootstrapTable('refresh');
+                  }
+                  if (data.status == "authority_check0") {
+                    toastr.warning('权限不足');
+                  }
+                },
+                fail: function (result) {
+                }
+              });
+            }
+          }
+        });
+    },
+    'click .update': function (e, value, row, index) {
+      console.log(row);
+      $("#id_update").val(row.id);
+      $("#student_id_update").val(row.student__id);
+      $("#score_update").val(row.score);
+      $("#states_update").val(row.states);
+
+      $('#updateModal').modal('show')
+    }
+  }
+  function getIdSelections() {
+    return $.map($table.bootstrapTable('getSelections'), function (row) {
+      return row.id
+    })
+  }
+
+  function responseHandler(res) {
+    $.each(res.rows, function (i, row) {
+      row.state = $.inArray(row.id, selections) !== -1
+    })
+    return res
+  }
+  function initTable() {
+    $table.bootstrapTable('destroy').bootstrapTable({
+      height: 600,
+      locale: $('#locale').val(),
+      columns: [
+        { field: 'courseClass__course__course_name', title: 'course_name', footerFormatter: totalNameFormatter, align: 'center' },
+        { field: 'id', title: 'studentScore_id', footerFormatter: totalNameFormatter, align: 'center' },
+        { field: 'student__name', title: 'student', footerFormatter: totalNameFormatter, align: 'center' },
+        { field: 'score', title: 'score', footerFormatter: totalNameFormatter, align: 'center' },
+        { field: 'states', title: 'states', footerFormatter: totalNameFormatter, align: 'center' },
+        { field: 'operate', title: 'Item Operate', align: 'center', clickToSelect: false, events: window.operateEvents, formatter: operateFormatter }
+      ]
+    })
+
+    $remove.click(function () {
+      var ids = getIdSelections();
+      console.log(ids)
+      var select_del = $table.bootstrapTable('getSelections')//待完善删除确认弹出框
+      bootbox.confirm({
+        title: "删除信息！",
+        size: "small",
+        message: "您确定删除选中项吗？",
+        buttons: {
+          confirm: {
+            label: '是',
+            className: 'btn-success'
+          },
+          cancel: {
+            label: '否',
+            className: 'btn-danger'
+          }
+        },
+        callback: function (result) {
+          if (result) {
+            $.ajax({
+              url: "./delete/",
+              data: JSON.stringify(select_del),
+              contentType: 'application/json',
+              type: "POST",
+              traditional: true,
+              headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+              success: function (result) {
+              },
+              fail: function (result) {
+              }
+            });
+
+            $table.bootstrapTable('remove', {
+              field: 'id',
+              values: ids
+            })
+            $remove.prop('disabled', true)
+          }
+        }
+      });
+    })
+  }
+  function add_info() {
+    $.ajax({
+      cache: false,
+      type: "POST",
+      dataType: "json",
+      url: "./add/",
+      data: $('#add-info-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
+      async: false,  //必须要为false,必须必须
+
+      success: function (data) {
+        console.log(data);//打印服务端返回的数据(调试用)
+        if (data.status == "success") {
+          document.getElementById("add-info-form").reset();
+          $('#myModal').modal('hide');
+          toastr.success('提交数据成功');
+          $("#table").bootstrapTable('refresh');
+        }
+        if (data.status == "authority_check0") {
+          toastr.warning('权限不足');
+        }
+        if (data.status == "states0") {
+          toastr.warning('学生状态不能为空');
+        }
+      },
+      error: function () {
+        toastr.warning("错误");
+      }
+    });
+  }
+  function update_info() {
+    $.ajax({
+      cache: false,
+      type: "POST",
+      dataType: "json",
+      url: "./update/",
+      data: $('#update-info-form').serialize(), //将模态框的form表单数据序列化，以便提交到后台
+      async: false,  //必须要为false,必须必须
+
+      success: function (data) {
+        console.log(data);//打印服务端返回的数据(调试用)
+        if (data.status == "success") {
+          document.getElementById("update-info-form").reset();
+          $('#updateModal').modal('hide');
+          toastr.success('提交数据成功');
+          $("#table").bootstrapTable('refresh');
+        }
+        if (data.status == "states0") {
+          toastr.warning('学生状态不能为空');
+        }
+      },
+      error: function () {
+        toastr.warning("错误");
+      }
+    });
+  }
+</script>
+{% endblock %}
