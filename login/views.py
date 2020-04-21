@@ -795,7 +795,7 @@ class Teacher_CourseClass_OP(Teacher, Op):
         user_id = request.session['user_id']
         teacher = TeacherInformationModel.objects.get(user_id=user_id)
         # 该教师教的课
-        courseClasses=CourseClassModel.objects.filter(teacher=teacher)
+        courseClasses = CourseClassModel.objects.filter(teacher=teacher)
         data['total'] = courseClasses.count()
         courseClasses = courseClasses.values(
             'id', 'course__course_name', 'teacher__id', 'teacher__name', 'maxNum')
@@ -1629,7 +1629,6 @@ class Admin_Privilege_OP(Admin, Op):
         return JsonResponse(data)
 
     # 删除管理员信息
-
     def delete(self, request):
         logging.info("enter admim_privilege_delete")
         json_receive = json.loads(request.body)
@@ -1868,14 +1867,6 @@ class deal(Op, View):  # 核心! 处理url
                             return asop.visit()
                         else:
                             return asop.dictoffun(subfun, request)
-                    elif (fun == 'student'):
-                        op = Teacher_Student_OP()
-                        if subfun == None:
-                            return op.visit(request)
-                        elif (not op.listofop(subfun)):
-                            return op.visit()
-                        else:
-                            return op.dictoffun(subfun, request)
                     elif (fun == 'stu_info'):
                         tsop = Teacher_StuInfo_OP()
                         if subfun == None:  # 不存在子操作就返回功能首页
@@ -1892,38 +1883,6 @@ class deal(Op, View):  # 核心! 处理url
                             return taop.visit()
                         else:
                             return taop.dictoffun(subfun, request)
-                    elif (fun == 'college'):
-                        tcop = Teacher_College_OP()
-                        if subfun == None:  # 不存在子操作就返回功能首页
-                            return tcop.visit(request)
-                        elif (not tcop.listofop(subfun)):  # 子操作错误也返回功能首页
-                            return tcop.visit()
-                        else:
-                            return tcop.dictoffun(subfun, request)
-                    elif (fun == 'major'):
-                        op = Teacher_Major_OP()
-                        if subfun == None:
-                            return op.visit(request)
-                        elif (not op.listofop(subfun)):
-                            return op.visit()
-                        else:
-                            return op.dictoffun(subfun, request)
-                    elif (fun == 'class'):
-                        op = Teacher_Class_OP()
-                        if subfun == None:
-                            return op.visit(request)
-                        elif (not op.listofop(subfun)):
-                            return op.visit()
-                        else:
-                            return op.dictoffun(subfun, request)
-                    elif (fun == 'course'):
-                        op = Teacher_Course_OP()
-                        if subfun == None:
-                            return op.visit(request)
-                        elif (not op.listofop(subfun)):
-                            return op.visit()
-                        else:
-                            return op.dictoffun(subfun, request)
                     elif (fun == 'course_class'):
                         op = Teacher_CourseClass_OP()
                         if subfun == None:
@@ -1934,14 +1893,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.dictoffun(subfun, request)
                     elif (fun == 'score'):
                         op = Teacher_Score_OP()
-                        if subfun == None:
-                            return op.visit(request)
-                        elif (not op.listofop(subfun)):
-                            return op.visit()
-                        else:
-                            return op.dictoffun(subfun, request)
-                    elif (fun == 'student'):
-                        op = Teacher_Student_OP()
                         if subfun == None:
                             return op.visit(request)
                         elif (not op.listofop(subfun)):
@@ -1969,11 +1920,13 @@ class deal(Op, View):  # 核心! 处理url
 
         self.AuthorityCheck(request, obj, fun, subfun)  # 检查 登录和url权限
         print(self.visit_status)
-
         if (self.visit_status < 10):  # 没登陆
             return redirect("/login/")
-        elif (self.visit_status == 33 or self.visit_status == 22 or self.visit_status == 11):  # url和权限对应
-            if (self.visit_status // 10 == 1):  # 学生
+        elif (self.visit_status == 33 or
+              self.visit_status == 22 or
+              self.visit_status == 11 or
+              self.visit_status == 24):  # url和权限对应
+            if (self.visit_status == 11):  # 学生
                 t = Student()
                 if (not t.listoffunction(fun)):  # 不存在这项功能就跳转首页
                     return t.visit(request)
@@ -1995,7 +1948,7 @@ class deal(Op, View):  # 核心! 处理url
                         else:
                             return saop.dictoffun(subfun, request)
 
-            elif (self.visit_status // 10 == 2):  # 教师
+            elif (self.visit_status == 22):  # 教师
                 t = Teacher()
                 if (not t.listoffunction(fun)):  # 不存在这项功能就跳转教师首页
                     return t.visit(request)
@@ -2033,7 +1986,7 @@ class deal(Op, View):  # 核心! 处理url
                         else:
                             return op.dictoffun(subfun, request)
 
-            elif (self.visit_status // 10 == 3):  # Admin
+            elif (self.visit_status == 33):  # Admin
                 a = Admin()
                 if (not a.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
                     return a.visit(request)
@@ -2095,7 +2048,107 @@ class deal(Op, View):  # 核心! 处理url
                         else:
                             return asop.dictoffun(subfun, request)
                     elif (fun == 'student'):
-                        op = Teacher_Student_OP()
+                        op = Admin_Student_OP()
+                        if subfun == None:
+                            return op.visit(request)
+                        elif (not op.listofop(subfun)):
+                            return op.visit()
+                        else:
+                            return op.dictoffun(subfun, request)
+            elif (self.visit_status == 24):  # teachertoadmin
+                if (obj == 'teacher'):
+                    O = Teacher()
+                elif (obj == 'aadmin'):
+                    O = Admin()
+                else:
+                    return Teacher.visit(request)
+                if (not O.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
+                    return O.visit(request)
+                else:
+                    if (fun == 'privilege'):
+                        apop = Admin_Privilege_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return apop.visit(request)
+                        elif (not apop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return apop.visit()
+                        else:
+                            return apop.dictoffun(subfun, request)
+                    elif (fun == 'college'):
+                        acop = Admin_College_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return acop.visit(request)
+                        elif (not acop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return acop.visit()
+                        else:
+                            return acop.dictoffun(subfun, request)
+                    elif (fun == 'major'):
+                        amop = Admin_Major_OP()
+                        if subfun == None:
+                            return amop.visit(request)
+                        elif (not amop.listofop(subfun)):
+                            return amop.visit()
+                        else:
+                            return amop.dictoffun(subfun, request)
+                    elif (fun == 'class'):
+                        akop = Admin_Class_OP()
+                        if subfun == None:
+                            return akop.visit(request)
+                        elif (not akop.listofop(subfun)):
+                            return akop.visit()
+                        else:
+                            return akop.dictoffun(subfun, request)
+                    elif (fun == 'course'):
+                        acuop = Admin_Course_OP()
+                        if subfun == None:
+                            return acuop.visit(request)
+                        elif (not acuop.listofop(subfun)):
+                            return acuop.visit()
+                        else:
+                            return acuop.dictoffun(subfun, request)
+                    elif (fun == 'course_class'):
+                        accop = Admin_CourseClass_OP()
+                        if subfun == None:
+                            return accop.visit(request)
+                        elif (not accop.listofop(subfun)):
+                            return accop.visit()
+                        else:
+                            return accop.dictoffun(subfun, request)
+                    elif (fun == 'score'):
+                        asop = Admin_Score_OP()
+                        if subfun == None:
+                            return asop.visit(request)
+                        elif (not asop.listofop(subfun)):
+                            return asop.visit()
+                        else:
+                            return asop.dictoffun(subfun, request)
+
+                    elif (fun == 'stu_info'):
+                        tsop = Teacher_StuInfo_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return tsop.visit(request)
+                        elif (not tsop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return tsop.visit()
+                        else:
+                            return tsop.dictoffun(subfun, request)
+                    elif (fun == 'award'):
+                        taop = Teacher_Award_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return taop.visit(request)
+                        elif (not taop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return taop.visit()
+                        else:
+                            return taop.dictoffun(subfun, request)
+
+                    elif (fun == 'course_class'):
+                        op = Teacher_CourseClass_OP()
+                        if subfun == None:
+                            return op.visit(request)
+                        elif (not op.listofop(subfun)):
+                            return op.visit()
+                        else:
+                            return op.dictoffun(subfun, request)
+                    elif (fun == 'score'):
+                        op = Teacher_Score_OP()
                         if subfun == None:
                             return op.visit(request)
                         elif (not op.listofop(subfun)):
