@@ -190,11 +190,12 @@ class Student():
 
 class Student_Info_OP(Student, Op):
 
-    oplist = ['award', 'alterInfo', 'alterPassword', 'alterPassword_']
+    oplist = ['award','award_', 'alterInfo', 'alterPassword', 'alterPassword_']
 
     def dictoffun(self, fun, request):
         operator = {
             "award": self.award,
+            "award_": self.award_,
             "alterInfo": self.alterInfo,
             "alterPassword": self.alterPassword,
             "alterPassword_": self.alterPassword_,
@@ -205,13 +206,35 @@ class Student_Info_OP(Student, Op):
         logging.info('enter stu_alter_info op')
 
     def __del__(self):
-        logging.info('enter stu_alter_info op')
+        logging.info('delete stu_alter_info op')
 
-    def visit(self, request):
-        return render(request, 'login/alter_information.html', locals())
+    def visit(self, *args):
+        if len(args) == 1:
+            return render(args[0], 'login/alter_information.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/student/info/")
 
     def award(self, request):
-        pass
+        logging.info("enter stu_award page")
+        return render(request, 'login/stu_award.html', locals())
+    
+    def award_(self,request):
+        data = {}
+        logging.info("enter stu_award select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        # 学生信息ID
+        stu_info_id=request.session['stu_info_id']
+        awards=StudentAwardsRecodeModel.objects.filter(stu_id=stu_info_id)
+        awards=awards.values('id','stu_id__name','award_type','award_content','award_date')
+        data['total']=awards.count()
+        data['rows']=list(awards)
+        print(data)
+        return JsonResponse(data)
 
     def alterInfo(self, request):
         logging.info('enter stu_alter_info alterInfo')
@@ -248,8 +271,6 @@ class Student_Info_OP(Student, Op):
     def alterPassword(self, request):
         return render(request, 'login/alter_password.html', locals())
 
-    def select(self, request):  # 学生奖惩信息表
-        pass
 
 
 class Student_ChooseCourse_OP(Student, Op):
@@ -311,20 +332,20 @@ class Student_ChooseCourse_OP(Student, Op):
 
         # 设重
         for i in courselist:
-            if i['courseClass__studentsScore__student_id'] is not None and \
-                    i['courseClass__studentsScore__student_id'] != stu_info_id:
-                print(i['courseClass__studentsScore__student_id'])
-                i['courseClass__studentsScore__student_id'] = None
+            if i['courseClass__studentsScore__student__id'] is not None and \
+                    i['courseClass__studentsScore__student__id'] != stu_info_id:
+                print(i['courseClass__studentsScore__student__id'])
+                i['courseClass__studentsScore__student__id'] = None
                 i['courseClass__studentsScore__score'] = None
                 i['courseClass__studentsScore__states'] = None
         # 去重
         courselist = self.remove_duplicates(courselist)
         # 去空
         for i in courselist:
-            if i['courseClass__studentsScore__student_id'] == stu_info_id:
+            if i['courseClass__studentsScore__student__id'] == stu_info_id:
                 for j in courselist:
                     if j['courseClass__id'] == i['courseClass__id'] and \
-                            j['courseClass__studentsScore__student_id'] is None:
+                            j['courseClass__studentsScore__student__id'] is None:
                         print(j['courseClass__id'])
                         courselist.remove(j)
         return courselist
@@ -350,10 +371,10 @@ class Student_ChooseCourse_OP(Student, Op):
         course_set = major.courses
         data['total'] = course_set.count()
         # 课程中该学生的成绩和状态
-        course_set = course_set.values('id', 'course_name', 'courseClass__id', 'courseClass__id', 'courseClass__teacher__name', 'courseClass__maxNum',
-                                       'courseClass__studentsScore__student_id', 'courseClass__studentsScore__score',
+        course_set = course_set.values('id', 'course_name', 'courseClass__id', 'courseClass__teacher__name', 'courseClass__maxNum',
+                                       'courseClass__studentsScore__student__id', 'courseClass__studentsScore__score',
                                        'courseClass__studentsScore__states')
-        # print(course_set)
+        print(course_set)
         data['rows'] = list(course_set)
         # self.pout(data['rows'])
         data['rows'] = self.course_filter(data['rows'], stu_info.id)
