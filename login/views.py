@@ -1011,7 +1011,7 @@ class Teacher_Class_OP(Teacher, Op):
         json_receive = json.loads(request.body)
         class_id = json_receive['id']
         request.session['class_id'] = class_id
-        return HttpResponse(json.dumps({}))
+        return HttpResponse(json.dumps({'status':'teacher'}))
 
 
 class Teacher_Student_OP(Teacher, Op):
@@ -1622,7 +1622,7 @@ class Admin_Class_OP(Admin, Op):
         class_id = json_receive['id']
         request.session['class_id'] = class_id
         logging.info("end admin_class_enter")
-        return HttpResponse(json.dumps({}))
+        return HttpResponse(json.dumps({'status':'aadmin'}))
 
 
 class Admin_Student_OP(Admin, Op):
@@ -2095,7 +2095,7 @@ class deal(Op, View):  # 核心! 处理url
                             return akop.visit()
                         else:
                             return akop.dictoffun(subfun, request)
-
+                    
                     elif (fun == 'course'):
                         acuop = Admin_Course_OP()
                         if subfun == None:
@@ -2123,6 +2123,15 @@ class deal(Op, View):  # 核心! 处理url
                         else:
                             return asop.dictoffun(subfun, request)
 
+                    elif (fun == 'student'):
+                        op = Teacher_Student_OP()
+                        if subfun == None:
+                            return op.visit(request)
+                        elif (not op.listofop(subfun)):
+                            return op.visit()
+                        else:
+                            return op.dictoffun(subfun, request)
+                    
         else:  # 此处包含了30、20和10；13、12和31、21，代表链接不对
             if (self.visit_status // 10 == 3):  # 登录的账号是教师
                 return redirect("/manage/aadmin/")
@@ -2310,6 +2319,15 @@ class deal(Op, View):  # 核心! 处理url
                         else:
                             return asop.dictoffun(subfun, request)
 
+                    elif (fun == 'student'):
+                        op = Teacher_Student_OP()
+                        if subfun == None:
+                            return op.visit(request)
+                        elif (not op.listofop(subfun)):
+                            return op.visit()
+                        else:
+                            return op.dictoffun(subfun, request)
+                    
         else:  # 此处包含了30、20和10；13、12和31、21，代表链接不对
             if (self.visit_status // 10 == 3):  # 登录的账号是教师
                 return redirect("/manage/aadmin/")
