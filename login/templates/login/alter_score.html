@@ -2,6 +2,61 @@
 
 {% block title %}成绩{% endblock %}
 
+{% block charts %}
+<!-- 表格部分 -->
+<div style="border:2px solid #666;width:49%;height:450px;float:left" id="chartmain"></div>
+<script type="text/javascript">
+  window.onload = function () {
+    //财务看年度的合同金额echart数据源
+    $.ajax({
+      url: '/manage/teacher/score/charts/',
+      type: 'post',
+      datatype: 'json',
+      headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+      success: function (data) {
+        console.log(data)
+        option = {
+          backgroundColor: '#2c343c',
+          series: [
+            {
+              name: '访问来源',
+              type: 'pie',    // 设置图表类型为饼图
+              radius: '55%',  // 饼图的半径，外半径为可视区尺寸（容器高宽中较小一项）的 55% 长度。
+              data: data.data_pie,
+
+              roseType: 'angle',
+              label: {
+                normal: {
+                  textStyle: {
+                    color: 'rgba(255, 255, 255, 0.3)'
+                  }
+                }
+              },
+              labelLine: {
+                normal: {
+                  lineStyle: {
+                    color: 'rgba(255, 255, 255, 0.3)'
+                  }
+                }
+              },
+              itemStyle: {
+                normal: {
+                  shadowBlur: 200,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+              }
+            }
+          ]
+        };
+        var myChart = echarts.init(document.getElementById('chartmain'));
+        myChart.setOption(option);
+      }
+    });
+
+  }
+</script>
+{% endblock %}
+
 {% block tableOptions %}
 <table id="table" data-toolbar="#toolbar" data-search="true" data-show-refresh="true" data-show-toggle="true"
   data-show-fullscreen="true" data-show-columns="true" data-show-columns-toggle-all="true" data-detail-view="true"
@@ -17,33 +72,32 @@
 <div class="form-group">
   <select data-placeholder="选择学生..." class="form-control" name="student_id" id="student_id" required="required">
     {% for student in students %}
-    <option value= "{{ student.id }}" hassubinfo="true">{{ student.name }}</option>
+    <option value="{{ student.id }}" hassubinfo="true">{{ student.name }}</option>
     {% endfor %}
   </select>
 </div>
 <div class="form-label-group">
-  <input type="text" class="form-control" name="score" id="score" placeholder="分数"
-    required="required"></input>
+  <input type="text" class="form-control" name="score" id="score" placeholder="分数" required="required"></input>
   <label for="lastname" class="col-sm-3 control-label">分数</label>
 </div>
 <div class="form-label-group">
-  <input type="text" class="form-control" name="states" id="states" placeholder="状态"
-    required="required"></input>
+  <input type="text" class="form-control" name="states" id="states" placeholder="状态" required="required"></input>
   <label for="lastname" class="col-sm-3 control-label">状态</label>
 </div>
 {% endblock %}
 
 {% block upd-modal-body %}
 <div class="form-label-group">
-  <input type="text" class="form-control" name="id_update" id="id_update" placeholder="学生成绩编号"
-    required="required" readonly unselectable="on"></input>
+  <input type="text" class="form-control" name="id_update" id="id_update" placeholder="学生成绩编号" required="required"
+    readonly unselectable="on"></input>
   <label for="lastname" class="col-sm-3 control-label">学生成绩编号</label>
 </div>
 <div>请选择学生:</div>
 <div class="form-group">
-  <select data-placeholder="选择学生..." class="form-control" name="student_id_update" id="student_id_update" required="required">
+  <select data-placeholder="选择学生..." class="form-control" name="student_id_update" id="student_id_update"
+    required="required">
     {% for student in students %}
-    <option value= "{{ student.id }}" hassubinfo="true">{{ student.name }}</option>
+    <option value="{{ student.id }}" hassubinfo="true">{{ student.name }}</option>
     {% endfor %}
   </select>
 </div>
@@ -61,7 +115,7 @@
 
 {% block tableinfo %}
 <script>
-    function operateFormatter(value, row, index) {
+  function operateFormatter(value, row, index) {
     return [
       '<a class="remove" href="javascript:void(0)" title="Remove">',
       '<i class="far fa-trash-alt"></i>',

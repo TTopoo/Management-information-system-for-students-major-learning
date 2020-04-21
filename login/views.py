@@ -788,7 +788,7 @@ class Teacher_CourseClass_OP(Teacher, Op):
         user_id = request.session['user_id']
         teacher = TeacherInformationModel.objects.get(user_id=user_id)
         # 该教师教的课
-        courseClasses=CourseClassModel.objects.filter(teacher=teacher)
+        courseClasses = CourseClassModel.objects.filter(teacher=teacher)
         data['total'] = courseClasses.count()
         courseClasses = courseClasses.values(
             'id', 'course__course_name', 'teacher__id', 'teacher__name', 'maxNum')
@@ -847,6 +847,17 @@ class Teacher_CourseClass_OP(Teacher, Op):
 
 
 class Teacher_Score_OP(Teacher, Op):
+
+    oplist = ['add', 'json', 'delete', 'update', 'charts']
+
+    def dictoffun(self, fun, request):
+        operator = {"add": self.add,
+                    "json": self.select,
+                    "delete": self.delete,
+                    "update": self.update,
+                    "charts": self.charts}
+        return operator[fun](request)
+
     def __init__(self):
         logging.info('enter teacher_score op')
 
@@ -922,6 +933,49 @@ class Teacher_Score_OP(Teacher, Op):
         studentScore = StudentScoreModel.objects.get(id=studentScore_id)
         studentScore.delete()
         return HttpResponse(json.dumps({'status': 'success'}))
+
+    def charts(self, request):
+        data = {}
+        logging.info("enter charts select")
+        # 课程班级
+        courseClass_id = request.session['courseClass_id']
+        courseClass = CourseClassModel.objects.get(id=courseClass_id)
+        # 学生成绩
+        studentScores = courseClass.studentsScore.all()
+        # 处理
+        excellent = 0
+        well = 0
+        general = 0
+        passed = 0
+        fail = 0
+        learning = 0
+        for i in studentScores:
+            print(i.score, i.states)
+            if i.states == '学习中':
+                learning += 1
+                continue
+            if int(i.score) >= 90:
+                excellent += 1
+            elif int(i.score) >= 80:
+                well += 1
+            elif int(i.score) >= 70:
+                general += 1
+            elif int(i.score) >= 60:
+                passed += 1
+            else:
+                fail += 1
+        data={
+            'data_pie':[
+                {'value':excellent,'name':'优秀'},
+                {'value':well,'name':'良好'},
+                {'value':general,'name':'普通'},
+                {'value':passed,'name':'及格'},
+                {'value':fail,'name':'不及格'},
+                {'value':learning,'name':'学习中'},
+            ]
+        }
+        print(data)
+        return JsonResponse(data)
 
 
 class Admin():
