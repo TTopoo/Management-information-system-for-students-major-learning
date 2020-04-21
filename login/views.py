@@ -1432,13 +1432,14 @@ class Admin_Student_OP(Admin, Op):
 
 
 class Admin_Course_OP(Admin, Op):
-    oplist = ['add', 'json', 'delete', 'update', 'enter']
+    oplist = ['add', 'json', 'delete', 'update', 'enter','select']
 
     def dictoffun(self, fun, request):
         operator = {"add": self.add,
                     "json": self.select,
                     "delete": self.delete,
                     "update": self.update,
+                    "select": self.select_,
                     "enter": self.enter}
         return operator[fun](request)
 
@@ -1451,6 +1452,7 @@ class Admin_Course_OP(Admin, Op):
     # 功能主页
     def visit(self, *args):
         if len(args) == 1:
+            courses=CourseModel.objects.all()
             return render(args[0], 'login/alter_course.html', locals())
         elif len(args) == 0:
             return redirect("/manage/aadmin/course/")
@@ -1473,6 +1475,7 @@ class Admin_Course_OP(Admin, Op):
         data['total'] = courses.count()
         return JsonResponse(data)
 
+    # 新建课程
     def add(self, request):
         logging.info('enter course add')
         course_name = request.POST.get("name", None)
@@ -1484,7 +1487,17 @@ class Admin_Course_OP(Admin, Op):
         major_id = request.session['major_id']
         major = MajorModel.objects.get(id=major_id)
         major.courses.add(course)
+        return HttpResponse(json.dumps({'status': 'success'}))
 
+    # 添加现有课程
+    def select_(self, request):
+        logging.info('enter course select_')
+        course_id = request.POST.get("course_id", None)
+        course = CourseModel.objects.get(id=course_id)
+        # 反向加到专业里去
+        major_id = request.session['major_id']
+        major = MajorModel.objects.get(id=major_id)
+        major.courses.add(course)
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def delete(self, request):
