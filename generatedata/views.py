@@ -37,7 +37,7 @@ def info(request):
         education_experience = random.choice(['本科', '硕士', '博士'])
         obj = User.objects.get(account=account)
         TeacherInformationModel.objects.create(user_id=obj, email=email, name=name, age=age,
-                                               sex=sex, idc=idc, graduate_school=age, education_experience=major)
+                                               sex=sex, idc=idc, graduate_school=age, education_experience=education_experience)
 
 
 def award(request):

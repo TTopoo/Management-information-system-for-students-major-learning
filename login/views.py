@@ -932,7 +932,7 @@ class Teacher_Score_OP(Teacher, Op):
 
 
 class Admin():
-    funlist = ['privilege', 'college', 'major', 'class',
+    funlist = ['teacher_info', 'privilege', 'college', 'major', 'class',
                'course', 'course_class', 'score', 'student']
 
     def __init__(self):
@@ -942,7 +942,8 @@ class Admin():
         logging.info('delete admin op')
 
     def visit(self, request):
-        return render(request, 'login/index_admin.html', locals())
+        # return render(request, 'login/index_admin.html', locals())
+        return redirect("/manage/aadmin/teacher_info/")
 
     def listoffunction(self, fun):
         if (fun in self.funlist):
@@ -1648,6 +1649,191 @@ class Admin_Privilege_OP(Admin, Op):
         return HttpResponse(json.dumps({'status': 'success'}))
 
 
+class Admin_TeacherInfo_OP(Admin, Op):
+
+    def __init__(self):
+        logging.info('enter admin_teacherinfo op')
+
+    def __del__(self):
+        logging.info('delete admin_teacherinfo op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            return render(args[0], 'login/teacher_info.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/aadmin/teacher_info/")
+
+    # 添加教师信息
+    def add(self, request):
+
+        logging.info("enter teacher_info_add")
+        username = request.POST.get("username", None)
+        if username == '':  # 学号非空
+            return HttpResponse(json.dumps({'status': 'stuid0'}))
+        email = request.POST.get("email", None)
+        if email == '':  # 邮箱非空
+            return HttpResponse(json.dumps({'status': 'email0'}))
+        name = request.POST.get("name", None)
+        if name == '':  # 姓名非空
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        sex = request.POST.get("sex", None)
+        idc = request.POST.get("idc", None)
+        if idc == '':  # 身份证号非空
+            return HttpResponse(json.dumps({'status': 'idc0'}))
+        age = request.POST.get("age", None)
+        if age == '':  # 年龄非空
+            return HttpResponse(json.dumps({'status': 'age0'}))
+        graduate = request.POST.get("graduate", None)
+        if graduate == '':  # 年龄非空
+            return HttpResponse(json.dumps({'status': 'graduate0'}))
+        experience = request.POST.get("experience", None)
+
+        same_name_user = User.objects.filter(account=username)
+        if same_name_user:  # 学号唯一
+            return HttpResponse(json.dumps({'status': 'stuid1'}))
+
+        # 当一切都OK的情况下，创建新用户
+        new_user = User.objects.create()
+        new_user.account = username
+        new_user.password = hash_code(username)  # 使用学号当做初始加密密码
+        new_user.save()
+
+        obj = User.objects.get(account=username)
+        TeacherInformationModel.objects.create(user_id=obj, email=email, name=name,
+                                               sex=sex, idc=idc, age=age,
+                                               graduate_school=graduate, education_experience=experience)
+        # 日志系统
+        lg = Log()
+        lg_data = {
+            "Login_User": request.session['user_id'],
+            "username": username, "email": email, "name": name,
+            "sex": sex, "idc": idc, "age": age, "graduate": graduate, "experience": experience
+        }
+        lg.record(LogType.INFO, str(TeacherInformationModel._meta.model_name) +
+                  ' & ' + str(new_user._meta.model_name), OpType.ADD, lg_data)
+        logging.info("end teacher_info_add")
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    # 发送教师信息
+    def select(self, request):
+
+        data = {}
+        logging.info("enter teacher_info_select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        if (search_kw != ''):
+            result_set = TeacherInformationModel.objects.filter(
+                Q(user_id__account__contains=search_kw) |
+                Q(email__contains=search_kw) |
+                Q(name__contains=search_kw) |
+                Q(sex__contains=search_kw) |
+                Q(idc__contains=search_kw) |
+                Q(age__contains=search_kw) |
+                Q(graduate_school__contains=search_kw) |
+                Q(education_experience__contains=search_kw)
+            ).all()
+            data['total'] = TeacherInformationModel.objects.filter(
+                Q(user_id__account__contains=search_kw) |
+                Q(email__contains=search_kw) |
+                Q(name__contains=search_kw) |
+                Q(sex__contains=search_kw) |
+                Q(idc__contains=search_kw) |
+                Q(age__contains=search_kw) |
+                Q(graduate_school__contains=search_kw) |
+                Q(education_experience__contains=search_kw)
+            ).count()
+        else:
+            result_set = TeacherInformationModel.objects.all()
+            data['total'] = TeacherInformationModel.objects.all().count()
+        if (sort_kw != ''):
+            if (order_kw == 'asc'):
+                result_set = result_set.order_by(sort_kw)
+            else:
+                result_set = result_set.order_by(('-' + sort_kw))
+
+        result_set = result_set.values('user_id__account', 'email', 'name', 'sex', 'idc', 'age', 'graduate_school', 'education_experience')[
+            int(offset_kw):(int(offset_kw) + int(limit_kw))]
+        print(result_set)
+        data['rows'] = list(result_set)
+        print(data['rows'])
+        # 日志系统
+        lg = Log()
+        lg_data = {
+            "Login_User": request.session['user_id'],
+            "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+            "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
+
+        lg.record(LogType.INFO, TeacherInformationModel._meta.model_name,
+                  OpType.SELECT, lg_data)
+
+        logging.info("end teacher_info_select")
+        return JsonResponse(data)
+
+    # 更新教师信息
+    def update(self, request):
+
+        logging.info("enter teacher_info_update")
+        username = request.POST.get("update_username", None)
+        if username == '':  # 学号非空
+            return HttpResponse(json.dumps({'status': 'stuid0'}))
+        email = request.POST.get("update_email", None)
+        if email == '':  # 邮箱非空
+            return HttpResponse(json.dumps({'status': 'email0'}))
+        name = request.POST.get("update_name", None)
+        if name == '':  # 姓名非空
+            return HttpResponse(json.dumps({'status': 'name0'}))
+        sex = request.POST.get("update_sex", None)
+        idc = request.POST.get("update_idc", None)
+        if idc == '':  # 身份证号非空
+            return HttpResponse(json.dumps({'status': 'idc0'}))
+        age = request.POST.get("update_age", None)
+        if age == '':  # 年龄非空
+            return HttpResponse(json.dumps({'status': 'age0'}))
+        graduate = request.POST.get("update_graduate", None)
+        if graduate == '':  # 年龄非空
+            return HttpResponse(json.dumps({'status': 'graduate0'}))
+        experience = request.POST.get("update_experience", None)
+
+        obj = User.objects.get(account=username)
+        TeacherInformationModel.objects.filter(user_id=obj).update(user_id=obj, email=email, name=name,
+                                                                   sex=sex, idc=idc, age=age,
+                                                                   graduate_school=graduate, education_experience=experience)
+        lg = Log()
+        lg_data = {
+            "Login_User": request.session['user_id'],
+            "username": username, "email": email, "name": name,
+            "sex": sex, "idc": idc, "age": age, "graduate": graduate, "experience": experience
+        }
+        lg.record(LogType.INFO, str(
+            TeacherInformationModel._meta.model_name), OpType.UPDATE, lg_data)
+
+        logging.info("end teacher_info_update")
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    # 删除教师信息
+    def delete(self, request):
+        logging.info("enter teacher_info_delete")
+        json_receive = json.loads(request.body)
+        logging.debug(json_receive)
+        for i in json_receive:
+            logging.debug(i.keys())
+            user_id = i['user_id__account']
+            logging.debug(user_id)
+            User.objects.filter(account=user_id).delete()
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'], "user_id": user_id}
+            lg.record(LogType.INFO, str(
+                TeacherInformationModel._meta.model_name), OpType.DELETE, lg_data)
+
+        logging.info("end teacher_info_delete")
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+
 class deal(Op, View):  # 核心! 处理url
 
     def __init__(self):
@@ -1800,6 +1986,15 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
+                    elif (fun == 'teacher_info'):
+                        op = Admin_TeacherInfo_OP()
+                        if subfun == None:
+                            return op.visit(request)
+                        elif (not op.listofop(subfun)):
+                            return op.visit()
+                        else:
+                            return op.dictoffun(subfun, request)
+
             elif (self.visit_status == 24):  # teachertoadmin
                 print("AAA")
                 if (obj == 'teacher'):
@@ -1893,6 +2088,14 @@ class deal(Op, View):  # 核心! 处理url
                             return op.dictoffun(subfun, request)
                     elif (fun == 'score'):
                         op = Teacher_Score_OP()
+                        if subfun == None:
+                            return op.visit(request)
+                        elif (not op.listofop(subfun)):
+                            return op.visit()
+                        else:
+                            return op.dictoffun(subfun, request)
+                    elif (fun == 'teacher_info'):
+                        op = Admin_TeacherInfo_OP()
                         if subfun == None:
                             return op.visit(request)
                         elif (not op.listofop(subfun)):
@@ -2055,7 +2258,17 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
+                    elif (fun == 'teacher_info'):
+                        op = Admin_TeacherInfo_OP()
+                        if subfun == None:
+                            return op.visit(request)
+                        elif (not op.listofop(subfun)):
+                            return op.visit()
+                        else:
+                            return op.dictoffun(subfun, request)
+
             elif (self.visit_status == 24):  # teachertoadmin
+                print("AAA")
                 if (obj == 'teacher'):
                     O = Teacher()
                 elif (obj == 'aadmin'):
@@ -2121,7 +2334,6 @@ class deal(Op, View):  # 核心! 处理url
                             return asop.visit()
                         else:
                             return asop.dictoffun(subfun, request)
-
                     elif (fun == 'stu_info'):
                         tsop = Teacher_StuInfo_OP()
                         if subfun == None:  # 不存在子操作就返回功能首页
@@ -2138,7 +2350,6 @@ class deal(Op, View):  # 核心! 处理url
                             return taop.visit()
                         else:
                             return taop.dictoffun(subfun, request)
-
                     elif (fun == 'course_class'):
                         op = Teacher_CourseClass_OP()
                         if subfun == None:
@@ -2149,6 +2360,14 @@ class deal(Op, View):  # 核心! 处理url
                             return op.dictoffun(subfun, request)
                     elif (fun == 'score'):
                         op = Teacher_Score_OP()
+                        if subfun == None:
+                            return op.visit(request)
+                        elif (not op.listofop(subfun)):
+                            return op.visit()
+                        else:
+                            return op.dictoffun(subfun, request)
+                    elif (fun == 'teacher_info'):
+                        op = Admin_TeacherInfo_OP()
                         if subfun == None:
                             return op.visit(request)
                         elif (not op.listofop(subfun)):

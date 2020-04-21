@@ -38,15 +38,15 @@
   <input type="text" class="form-control" name="age" id="age" placeholder="年龄" required="required"></input>
   <label for="lastname" class="col-sm-3 control-label">年龄</label>
 </div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="graduate" id="graduate" placeholder="毕业学校" required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">毕业学校</label>
+</div>
 <div class="form-group">
-  <select data-placeholder="选择项目..." class="form-control" name="major" id="major" required="required">
-    <option value="080901" hassubinfo="true">计算机科学与技术</option>
-    <option value="080902" hassubinfo="true">软件工程</option>
-    <option value="080903" hassubinfo="true">网络工程</option>
-    <option value="080904" hassubinfo="true">信息安全</option>
-    <option value="000001" hassubinfo="true">纺织化学工程系</option>
-    <option value="000002" hassubinfo="true">应用化学系</option>
-    <option value="000003" hassubinfo="true">生物工程系及基础化学部</option>
+  <select data-placeholder="选择项目..." class="form-control" name="experience" id="experience" required="required">
+    <option value="本科" hassubinfo="true">本科</option>
+    <option value="硕士" hassubinfo="true">硕士</option>
+    <option value="博士" hassubinfo="true">博士</option>
   </select>
 </div>
 {% endblock %}
@@ -82,15 +82,17 @@
     required="required"></input>
   <label for="lastname" class="col-sm-3 control-label">年龄</label>
 </div>
+<div class="form-label-group">
+  <input type="text" class="form-control" name="update_graduate" id="update_graduate" placeholder="毕业学校"
+    required="required"></input>
+  <label for="lastname" class="col-sm-3 control-label">毕业学校</label>
+</div>
 <div class="form-group">
-  <select data-placeholder="选择项目..." class="form-control" name="update_major" id="update_major" required="required">
-    <option value="080901" hassubinfo="true">计算机科学与技术</option>
-    <option value="080902" hassubinfo="true">软件工程</option>
-    <option value="080903" hassubinfo="true">网络工程</option>
-    <option value="080904" hassubinfo="true">信息安全</option>
-    <option value="000001" hassubinfo="true">纺织化学工程系</option>
-    <option value="000002" hassubinfo="true">应用化学系</option>
-    <option value="000003" hassubinfo="true">生物工程系及基础化学部</option>
+  <select data-placeholder="选择项目..." class="form-control" name="update_experience" id="update_experience"
+    required="required">
+    <option value="本科" hassubinfo="true">本科</option>
+    <option value="硕士" hassubinfo="true">硕士</option>
+    <option value="博士" hassubinfo="true">博士</option>
   </select>
 </div>
 {% endblock %}
@@ -157,8 +159,8 @@
       $("#update_sex").val(row.sex);
       $("#update_idc").val(row.idc);
       $("#update_age").val(row.age);
-      $("#update_major").val(row.major);
-
+      $("#update_graduate").val(row.graduate_school);
+      $("#update_experience").val(row.education_experience);
       //弹出修改模态框，非新增模态框
       $('#updateModal').modal('show')
 
@@ -184,15 +186,16 @@
         [
           { field: 'state', checkbox: true, rowspan: 2, align: 'center', valign: 'middle' },
           { title: 'Stu_ID', field: 'user_id__account', rowspan: 2, align: 'center', valign: 'middle', sortable: true, footerFormatter: totalTextFormatter },
-          { title: 'Item Detail', colspan: 7, align: 'center' }
+          { title: 'Item Detail', colspan: 8, align: 'center' }
         ],
         [
           { field: 'name', title: 'Name', footerFormatter: totalNameFormatter, align: 'center' },
-          { field: 'major', title: 'Major', sortable: true, align: 'center' },
           { field: 'sex', title: 'Sex', align: 'center' },
           { field: 'age', title: 'Age', sortable: true, align: 'center' },
           { field: 'email', title: 'Email', align: 'center' },
           { field: 'idc', title: 'IDCard', align: 'center' },
+          { field: 'graduate_school', title: 'graduate_school', sortable: true, align: 'center' },
+          { field: 'education_experience', title: 'education_experience', sortable: true, align: 'center' },
           { field: 'operate', title: 'Item Operate', align: 'center', clickToSelect: false, events: window.operateEvents, formatter: operateFormatter }
         ]
       ]
@@ -276,6 +279,9 @@
         if (data.status == "age0") {
           toastr.warning('请输入年龄');
         }
+        if (data.status == "graduate0") {
+          toastr.warning('请输入毕业学校');
+        }
         if (data.status == "stuidname1") {
           toastr.warning('学号重复');
         }
@@ -316,6 +322,9 @@
         }
         if (data.status == "age0") {
           toastr.warning('请输入年龄');
+        }
+        if (data.status == "graduate0") {
+          toastr.warning('请输入毕业学校');
         }
       },
       error: function () {
