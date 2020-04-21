@@ -115,7 +115,7 @@ class StudentScoreModel(models.Model):
     states = models.CharField(max_length=16, verbose_name='状态', null=True)
 
     def __str__(self):
-        return self.courseClass.course.course_name+' '+ self.courseClass.teacher.name+' ' + self.student.name+' '+str(self.score)+' '+self.state
+        return self.courseClass.course.course_name+' ' + self.courseClass.teacher.name+' ' + self.student.name+' '+str(self.score)+' '+self.state
 
     class Meta:
         ordering = ['courseClass']
@@ -192,3 +192,10 @@ class ClassModel(models.Model):
 class OperationLogs(models.Model):
     type = models.CharField(default='info', max_length=64, verbose_name="日志类型")
     content = models.TextField(verbose_name="修改详情", null=True)
+
+
+# 权限表（只记录teacher升admin的账号）
+class Privilege(models.Model):
+    type = models.TextField(max_length=64)
+    account = models.ForeignKey(
+        'TeacherInformationModel', on_delete=models.CASCADE)

@@ -190,7 +190,8 @@ class Student():
 
 class Student_Info_OP(Student, Op):
 
-    oplist = ['award','award_', 'alterInfo', 'alterPassword', 'alterPassword_']
+    oplist = ['award', 'award_', 'alterInfo',
+              'alterPassword', 'alterPassword_']
 
     def dictoffun(self, fun, request):
         operator = {
@@ -217,8 +218,8 @@ class Student_Info_OP(Student, Op):
     def award(self, request):
         logging.info("enter stu_award page")
         return render(request, 'login/stu_award.html', locals())
-    
-    def award_(self,request):
+
+    def award_(self, request):
         data = {}
         logging.info("enter stu_award select")
         search_kw = request.GET.get('search', '')
@@ -228,11 +229,12 @@ class Student_Info_OP(Student, Op):
         limit_kw = request.GET.get('limit', 0)
         print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
         # 学生信息ID
-        stu_info_id=request.session['stu_info_id']
-        awards=StudentAwardsRecodeModel.objects.filter(stu_id=stu_info_id)
-        awards=awards.values('id','stu_id__name','award_type','award_content','award_date')
-        data['total']=awards.count()
-        data['rows']=list(awards)
+        stu_info_id = request.session['stu_info_id']
+        awards = StudentAwardsRecodeModel.objects.filter(stu_id=stu_info_id)
+        awards = awards.values('id', 'stu_id__name',
+                               'award_type', 'award_content', 'award_date')
+        data['total'] = awards.count()
+        data['rows'] = list(awards)
         print(data)
         return JsonResponse(data)
 
@@ -270,7 +272,6 @@ class Student_Info_OP(Student, Op):
 
     def alterPassword(self, request):
         return render(request, 'login/alter_password.html', locals())
-
 
 
 class Student_ChooseCourse_OP(Student, Op):
@@ -1011,7 +1012,7 @@ class Teacher_Class_OP(Teacher, Op):
         json_receive = json.loads(request.body)
         class_id = json_receive['id']
         request.session['class_id'] = class_id
-        return HttpResponse(json.dumps({'status':'teacher'}))
+        return HttpResponse(json.dumps({'status': 'teacher'}))
 
 
 class Teacher_Student_OP(Teacher, Op):
@@ -1330,7 +1331,7 @@ class Teacher_Score_OP(Teacher, Op):
 
 
 class Admin():
-    funlist = ['college', 'major', 'class',
+    funlist = ['privilege', 'college', 'major', 'class',
                'course', 'course_class', 'score', 'student']
 
     def __init__(self):
@@ -1622,7 +1623,7 @@ class Admin_Class_OP(Admin, Op):
         class_id = json_receive['id']
         request.session['class_id'] = class_id
         logging.info("end admin_class_enter")
-        return HttpResponse(json.dumps({'status':'aadmin'}))
+        return HttpResponse(json.dumps({'status': 'aadmin'}))
 
 
 class Admin_Student_OP(Admin, Op):
@@ -1939,6 +1940,114 @@ class Admin_Score_OP(Admin, Op):
         return HttpResponse(json.dumps({'status': 'success'}))
 
 
+class Admin_Privilege_OP(Admin, Op):
+
+    def __init__(self):
+        logging.info('enter admim_privilege op')
+
+    def __del__(self):
+        logging.info('delete admim_privilege op')
+
+    # 功能主页
+    def visit(self, *args):
+        if len(args) == 1:
+            return render(args[0], 'login/admin_privilege.html', locals())
+        elif len(args) == 0:
+            return redirect("/manage/aadmin/privilege/")
+
+    # 添加管理员信息
+    def add(self, request):
+
+        logging.info("enter admim_privilege_add")
+        account = request.POST.get("account", None)
+        if account == '':  # 账号非空
+            return HttpResponse(json.dumps({'status': 'account0'}))
+
+        exist_account = TeacherInformationModel.objects.filter(
+            user_id__account=account)
+        if not exist_account:  # 教师信息不存在
+            return HttpResponse(json.dumps({'status': 'account1'}))
+
+        same_account = Privilege.objects.filter(
+            account__user_id__account=account)
+        if same_account:  # 账号在权限表中存在
+            return HttpResponse(json.dumps({'status': 'account2'}))
+
+        # 当一切都OK的情况下，添加新管理员
+        obj = TeacherInformationModel.objects.get(user_id__account=account)
+        Privilege.objects.create(account=obj, type='3')
+
+        # 日志系统
+        lg = Log()
+        lg_data = {
+            "Login_User": request.session['user_id'],
+            "account": account,
+        }
+        lg.record(LogType.INFO, str(
+            Privilege._meta.model_name), OpType.ADD, lg_data)
+        logging.info("end admim_privilege_add")
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    # 发送管理员信息
+    def select(self, request):
+
+        data = {}
+        logging.info("enter admim_privilege_select")
+        search_kw = request.GET.get('search', '')
+        sort_kw = request.GET.get('sort', '')
+        order_kw = request.GET.get('order', '')
+        offset_kw = request.GET.get('offset', 0)
+        limit_kw = request.GET.get('limit', 0)
+        if (search_kw != ''):
+            result_set = Privilege.objects.filter(
+                Q(account__name__contains=search_kw) |
+                Q(account__user_id__account__contains=search_kw)).all()
+            data['total'] = Privilege.objects.filter(
+                Q(account__name__contains=search_kw) |
+                Q(account__user_id__account__contains=search_kw)).count()
+        else:
+            result_set = Privilege.objects.all()
+            data['total'] = Privilege.objects.all().count()
+
+        result_set = result_set.values("id", "account__name", "account__user_id__account")[int(
+            offset_kw):(int(offset_kw) + int(limit_kw))]
+        print(result_set)
+        data['rows'] = list(result_set)
+        print(data['rows'])
+        # 日志系统
+        lg = Log()
+        lg_data = {
+            "Login_User": request.session['user_id'],
+            "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+            "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
+
+        lg.record(LogType.INFO, Privilege._meta.model_name,
+                  OpType.SELECT, lg_data)
+
+        logging.info("end admim_privilege_select")
+        return JsonResponse(data)
+
+    # 删除管理员信息
+
+    def delete(self, request):
+        logging.info("enter admim_privilege_delete")
+        json_receive = json.loads(request.body)
+        logging.debug(json_receive)
+        for i in json_receive:
+            logging.debug(i.keys())
+            account = i['account__user_id__account']
+            Privilege.objects.filter(
+                account__user_id__account=account).delete()
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'], "account": account}
+            lg.record(LogType.INFO, str(Privilege._meta.model_name),
+                      OpType.DELETE, lg_data)
+
+        logging.info("end admim_privilege_delete")
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+
 class deal(Op, View):  # 核心! 处理url
 
     def __init__(self):
@@ -2010,7 +2119,6 @@ class deal(Op, View):  # 核心! 处理url
                             return tcop.visit()
                         else:
                             return tcop.dictoffun(subfun, request)
-
                     elif (fun == 'major'):
                         op = Teacher_Major_OP()
                         if subfun == None:
@@ -2019,7 +2127,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'class'):
                         op = Teacher_Class_OP()
                         if subfun == None:
@@ -2028,7 +2135,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'course'):
                         op = Teacher_Course_OP()
                         if subfun == None:
@@ -2037,7 +2143,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'course_class'):
                         op = Teacher_CourseClass_OP()
                         if subfun == None:
@@ -2046,7 +2151,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'score'):
                         op = Teacher_Score_OP()
                         if subfun == None:
@@ -2055,7 +2159,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'student'):
                         op = Teacher_Student_OP()
                         if subfun == None:
@@ -2070,7 +2173,15 @@ class deal(Op, View):  # 核心! 处理url
                 if (not a.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
                     return a.visit(request)
                 else:
-                    if (fun == 'college'):
+                    if (fun == 'privilege'):
+                        apop = Admin_Privilege_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return apop.visit(request)
+                        elif (not apop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return apop.visit()
+                        else:
+                            return apop.dictoffun(subfun, request)
+                    elif (fun == 'college'):
                         acop = Admin_College_OP()
                         if subfun == None:  # 不存在子操作就返回功能首页
                             return acop.visit(request)
@@ -2086,7 +2197,6 @@ class deal(Op, View):  # 核心! 处理url
                             return amop.visit()
                         else:
                             return amop.dictoffun(subfun, request)
-
                     elif (fun == 'class'):
                         akop = Admin_Class_OP()
                         if subfun == None:
@@ -2095,7 +2205,6 @@ class deal(Op, View):  # 核心! 处理url
                             return akop.visit()
                         else:
                             return akop.dictoffun(subfun, request)
-                    
                     elif (fun == 'course'):
                         acuop = Admin_Course_OP()
                         if subfun == None:
@@ -2104,7 +2213,6 @@ class deal(Op, View):  # 核心! 处理url
                             return acuop.visit()
                         else:
                             return acuop.dictoffun(subfun, request)
-
                     elif (fun == 'course_class'):
                         accop = Admin_CourseClass_OP()
                         if subfun == None:
@@ -2113,7 +2221,6 @@ class deal(Op, View):  # 核心! 处理url
                             return accop.visit()
                         else:
                             return accop.dictoffun(subfun, request)
-
                     elif (fun == 'score'):
                         asop = Admin_Score_OP()
                         if subfun == None:
@@ -2122,7 +2229,6 @@ class deal(Op, View):  # 核心! 处理url
                             return asop.visit()
                         else:
                             return asop.dictoffun(subfun, request)
-
                     elif (fun == 'student'):
                         op = Teacher_Student_OP()
                         if subfun == None:
@@ -2131,7 +2237,7 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-                    
+
         else:  # 此处包含了30、20和10；13、12和31、21，代表链接不对
             if (self.visit_status // 10 == 3):  # 登录的账号是教师
                 return redirect("/manage/aadmin/")
@@ -2148,7 +2254,7 @@ class deal(Op, View):  # 核心! 处理url
         fun = kwargs.get('function')  # 二级网址
         subfun = kwargs.get('subfun')  # 三级网址
 
-        print('post', obj, fun, subfun)
+        print('get', obj, fun, subfun)
 
         self.AuthorityCheck(request, obj, fun, subfun)  # 检查 登录和url权限
         print(self.visit_status)
@@ -2206,7 +2312,6 @@ class deal(Op, View):  # 核心! 处理url
                             return tcop.visit()
                         else:
                             return tcop.dictoffun(subfun, request)
-
                     elif (fun == 'major'):
                         op = Teacher_Major_OP()
                         if subfun == None:
@@ -2215,7 +2320,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'class'):
                         op = Teacher_Class_OP()
                         if subfun == None:
@@ -2224,7 +2328,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'course'):
                         op = Teacher_Course_OP()
                         if subfun == None:
@@ -2233,7 +2336,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'course_class'):
                         op = Teacher_CourseClass_OP()
                         if subfun == None:
@@ -2242,7 +2344,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'score'):
                         op = Teacher_Score_OP()
                         if subfun == None:
@@ -2251,7 +2352,6 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-
                     elif (fun == 'student'):
                         op = Teacher_Student_OP()
                         if subfun == None:
@@ -2266,7 +2366,15 @@ class deal(Op, View):  # 核心! 处理url
                 if (not a.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
                     return a.visit(request)
                 else:
-                    if (fun == 'college'):
+                    if (fun == 'privilege'):
+                        apop = Admin_Privilege_OP()
+                        if subfun == None:  # 不存在子操作就返回功能首页
+                            return apop.visit(request)
+                        elif (not apop.listofop(subfun)):  # 子操作错误也返回功能首页
+                            return apop.visit()
+                        else:
+                            return apop.dictoffun(subfun, request)
+                    elif (fun == 'college'):
                         acop = Admin_College_OP()
                         if subfun == None:  # 不存在子操作就返回功能首页
                             return acop.visit(request)
@@ -2282,7 +2390,6 @@ class deal(Op, View):  # 核心! 处理url
                             return amop.visit()
                         else:
                             return amop.dictoffun(subfun, request)
-
                     elif (fun == 'class'):
                         akop = Admin_Class_OP()
                         if subfun == None:
@@ -2291,7 +2398,6 @@ class deal(Op, View):  # 核心! 处理url
                             return akop.visit()
                         else:
                             return akop.dictoffun(subfun, request)
-
                     elif (fun == 'course'):
                         acuop = Admin_Course_OP()
                         if subfun == None:
@@ -2300,7 +2406,6 @@ class deal(Op, View):  # 核心! 处理url
                             return acuop.visit()
                         else:
                             return acuop.dictoffun(subfun, request)
-
                     elif (fun == 'course_class'):
                         accop = Admin_CourseClass_OP()
                         if subfun == None:
@@ -2309,7 +2414,6 @@ class deal(Op, View):  # 核心! 处理url
                             return accop.visit()
                         else:
                             return accop.dictoffun(subfun, request)
-
                     elif (fun == 'score'):
                         asop = Admin_Score_OP()
                         if subfun == None:
@@ -2318,7 +2422,6 @@ class deal(Op, View):  # 核心! 处理url
                             return asop.visit()
                         else:
                             return asop.dictoffun(subfun, request)
-
                     elif (fun == 'student'):
                         op = Teacher_Student_OP()
                         if subfun == None:
@@ -2327,7 +2430,7 @@ class deal(Op, View):  # 核心! 处理url
                             return op.visit()
                         else:
                             return op.dictoffun(subfun, request)
-                    
+
         else:  # 此处包含了30、20和10；13、12和31、21，代表链接不对
             if (self.visit_status // 10 == 3):  # 登录的账号是教师
                 return redirect("/manage/aadmin/")
@@ -2337,5 +2440,4 @@ class deal(Op, View):  # 核心! 处理url
                 return redirect("/manage/student/")
             else:
                 return HttpResponse(404)
-
-##############################################################################
+        ##############################################################################

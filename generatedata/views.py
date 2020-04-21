@@ -8,7 +8,7 @@ import json
 
 
 def info(request):
-    auth = 0
+    auth = 1
     name = retName()
     ddate = retDate()
     sex = retSex()
@@ -36,7 +36,7 @@ def info(request):
         graduate_school = random.choice(['东华', '清华', '北师大'])
         education_experience = random.choice(['本科', '硕士', '博士'])
         obj = User.objects.get(account=account)
-        TeacherInformationModel.objects.create(user_id=obj, email=email, name=name,
+        TeacherInformationModel.objects.create(user_id=obj, email=email, name=name, age=age,
                                                sex=sex, idc=idc, graduate_school=age, education_experience=major)
 
 
