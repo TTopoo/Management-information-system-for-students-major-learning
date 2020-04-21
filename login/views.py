@@ -971,14 +971,14 @@ class Teacher_Score_OP(Teacher, Op):
                 passed += 1
             else:
                 fail += 1
-        data={
-            'data_pie':[
-                {'value':excellent,'name':'优秀'},
-                {'value':well,'name':'良好'},
-                {'value':general,'name':'普通'},
-                {'value':passed,'name':'及格'},
-                {'value':fail,'name':'不及格'},
-                {'value':learning,'name':'学习中'},
+        data = {
+            'data_pie': [
+                {'value': excellent, 'name': '优秀'},
+                {'value': well, 'name': '良好'},
+                {'value': general, 'name': '普通'},
+                {'value': passed, 'name': '及格'},
+                {'value': fail, 'name': '不及格'},
+                {'value': learning, 'name': '学习中'},
             ]
         }
         print(data)
@@ -2056,7 +2056,7 @@ class deal(Op, View):  # 核心! 处理url
                 elif (obj == 'aadmin'):
                     O = Admin()
                 else:
-                    return Teacher.visit(request)
+                    return redirect("/manage/teacher/")
                 if (not O.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
                     return O.visit(request)
                 else:
@@ -2328,7 +2328,7 @@ class deal(Op, View):  # 核心! 处理url
                 elif (obj == 'aadmin'):
                     O = Admin()
                 else:
-                    return Teacher.visit(request)
+                    return redirect("/manage/teacher/")
                 if (not O.listoffunction(fun)):  # 不存在这项功能就跳转管理员首页
                     return O.visit(request)
                 else:
