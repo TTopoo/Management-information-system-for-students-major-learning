@@ -1655,13 +1655,14 @@ class Admin_Student_OP(Admin, Op):
 
 
 class Admin_Course_OP(Admin, Op):
-    oplist = ['add', 'json', 'delete', 'update', 'enter']
+    oplist = ['add', 'json', 'delete', 'update', 'enter', 'select']
 
     def dictoffun(self, fun, request):
         operator = {"add": self.add,
                     "json": self.select,
                     "delete": self.delete,
                     "update": self.update,
+                    "select": self.select_,
                     "enter": self.enter}
         return operator[fun](request)
 
@@ -1674,6 +1675,7 @@ class Admin_Course_OP(Admin, Op):
     # 功能主页
     def visit(self, *args):
         if len(args) == 1:
+            courses = CourseModel.objects.all()
             return render(args[0], 'login/alter_course.html', locals())
         elif len(args) == 0:
             return redirect("/manage/aadmin/course/")
@@ -1709,6 +1711,7 @@ class Admin_Course_OP(Admin, Op):
         logging.info("end course select")
         return JsonResponse(data)
 
+    # 新建课程
     def add(self, request):
         logging.info('enter course add')
         course_name = request.POST.get("name", None)
