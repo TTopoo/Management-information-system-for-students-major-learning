@@ -5,27 +5,26 @@
 <style type="text/css">
     .div1 {
 
-        width: 400px;
+        width: 300px;
         margin: auto;
     }
-
-
 </style>
 
 <div class='div1'>
-
-        <h2 class="sub-header">{{ account }} {{ stu_info.name }}</h2>
-        <div>{{ message }}</div>
-        <div>{{ account }}</div>
-        <div>{{ stu_info.name }}</div>
-        <div>{{ stu_info.sex }}</div>
-        <div>{{ stu_info.age }}</div>
-        <div>{{ stu_info.email }}</div>
-        <div>{{ stu_info.idc }}</div>
-        <div>{{ stu_info.major }}</div>
-        <div>{{ unify_class.class_name }}</div>
-        <div>{{ major.major_name }}</div>
-        <div>{{ college.college_name }}</div>
+    <br>
+    <h2 class="sub-header">{{ account }} {{ stu_info.name }}</h2>
+    <div>{{ message }}</div>
+    <br>
+    <br>
+    <div>账号: {{ account }}</div><br>
+    <div>姓名: {{ stu_info.name }}</div><br>
+    <div>性别: {{ stu_info.sex }}</div><br>
+    <div>年龄: {{ stu_info.age }}</div><br>
+    <div>邮箱: {{ stu_info.email }}</div><br>
+    <div>身份证号: {{ stu_info.idc }}</div><br>
+    <div>班级: {{ unify_class.class_name }}</div><br>
+    <div>专业: {{ major.major_name }}</div><br>
+    <div>学院: {{ college.college_name }}</div><br>
 
 </div>
 {% endblock %}
