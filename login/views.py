@@ -197,7 +197,7 @@ class Student():
 
 class Student_Info_OP(Student, Op):
 
-    oplist = ['award', 'award_', 'alterInfo','getInfo',
+    oplist = ['award', 'award_', 'alterInfo', 'getInfo',
               'alterPassword', 'alterPassword_']
 
     def dictoffun(self, fun, request):
@@ -219,8 +219,8 @@ class Student_Info_OP(Student, Op):
 
     def visit(self, *args):
         if len(args) == 1:
-            user_id=args[0].session['user_id']
-            stu_info=StudentInformationModel.objects.get(user_id=user_id)
+            user_id = args[0].session['user_id']
+            stu_info = StudentInformationModel.objects.get(user_id=user_id)
             return render(args[0], 'login/alter_information.html', locals())
         elif len(args) == 0:
             return redirect("/manage/student/info/")
@@ -286,8 +286,8 @@ class Student_Info_OP(Student, Op):
         logging.info('enter stu_alter_info getInfo')
         stu_info_id = request.session['stu_info_id']
         stu_info = StudentInformationModel.objects.get(id=stu_info_id)
-        data={
-            'status':'success',
+        data = {
+            'status': 'success',
             'name': stu_info.name,
             'email': stu_info.email,
         }
@@ -1131,12 +1131,12 @@ class Teacher_Score_OP(Teacher, Op):
                 fail += 1
         data = {
             'data_pie': [
-                {'value': excellent, 'name': '优秀'},
-                {'value': well, 'name': '良好'},
-                {'value': general, 'name': '普通'},
-                {'value': passed, 'name': '及格'},
-                {'value': fail, 'name': '不及格'},
-                {'value': learning, 'name': '学习中'},
+                {'value': excellent, 'name': '优秀'+str(excellent)},
+                {'value': well, 'name': '良好'+str(well)},
+                {'value': general, 'name': '普通'+str(general)},
+                {'value': passed, 'name': '及格'+str(passed)},
+                {'value': fail, 'name': '不及格'+str(fail)},
+                {'value': learning, 'name': '学习中'+str(learning)},
             ]
         }
         print(data)
@@ -2121,12 +2121,12 @@ class Admin_Score_OP(Admin, Op):
                 fail += 1
         data = {
             'data_pie': [
-                {'value': excellent, 'name': '优秀'},
-                {'value': well, 'name': '良好'},
-                {'value': general, 'name': '普通'},
-                {'value': passed, 'name': '及格'},
-                {'value': fail, 'name': '不及格'},
-                {'value': learning, 'name': '学习中'},
+                {'value': excellent, 'name': '优秀'+str(excellent)},
+                {'value': well, 'name': '良好'+str(well)},
+                {'value': general, 'name': '普通'+str(general)},
+                {'value': passed, 'name': '及格'+str(passed)},
+                {'value': fail, 'name': '不及格'+str(fail)},
+                {'value': learning, 'name': '学习中'+str(learning)},
             ]
         }
         logging.debug(data)

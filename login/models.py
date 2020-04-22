@@ -115,7 +115,7 @@ class StudentScoreModel(models.Model):
     states = models.CharField(max_length=16, verbose_name='状态', null=True)
 
     def __str__(self):
-        return self.courseClass.course.course_name+' ' + self.courseClass.teacher.name+' ' + self.student.name+' '+str(self.score)+' '+self.state
+        return self.courseClass.course.course_name+' ' + self.courseClass.teacher.name+' ' + self.student.name+' '+str(self.score)+' '+self.states
 
     class Meta:
         ordering = ['courseClass']
