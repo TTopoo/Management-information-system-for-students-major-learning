@@ -34,6 +34,28 @@
 </form>
 
 <script>
+    function getInfo() {
+        $("#update_name").val();
+        $("#update_email").val();
+        $.ajax({
+            cache: false,
+            type: "POST",
+            dataType: "json",
+            headers: { "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val() },
+            url: "./getInfo/",
+            data: $('#alter-info-form').serialize(),
+            async: false,
+
+            success: function (data) {
+                if (data.status == "success") {
+
+                }
+            },
+            error: function () {
+                toastr.warning("错误, 获取原信息失败");
+            }
+        });
+    }
     function alterInfo() {
         $.ajax({
             cache: false,
@@ -44,7 +66,6 @@
             async: false,
 
             success: function (data) {
-                console.log(data);
                 if (data.status == "success") {
                     toastr.success('修改信息成功');
                     window.location = '/manage/student/'

@@ -2,16 +2,30 @@
 {% block title %}主页{% endblock %}
 
 {% block content %}
-<h2 class="sub-header">{{ account }} {{ stu_info.name }}</h2>
-<div>{{ message }}</div>
-<div>{{ account }}</div>
-<div>{{ stu_info.name }}</div>
-<div>{{ stu_info.sex }}</div>
-<div>{{ stu_info.age }}</div>
-<div>{{ stu_info.email }}</div>
-<div>{{ stu_info.idc }}</div>
-<div>{{ stu_info.major }}</div>
-<div>{{ unify_class.class_name }}</div>
-<div>{{ major.major_name }}</div>
-<div>{{ college.college_name }}</div>
+<style type="text/css">
+    .div1 {
+
+        width: 400px;
+        margin: auto;
+    }
+
+
+</style>
+
+<div class='div1'>
+
+        <h2 class="sub-header">{{ account }} {{ stu_info.name }}</h2>
+        <div>{{ message }}</div>
+        <div>{{ account }}</div>
+        <div>{{ stu_info.name }}</div>
+        <div>{{ stu_info.sex }}</div>
+        <div>{{ stu_info.age }}</div>
+        <div>{{ stu_info.email }}</div>
+        <div>{{ stu_info.idc }}</div>
+        <div>{{ stu_info.major }}</div>
+        <div>{{ unify_class.class_name }}</div>
+        <div>{{ major.major_name }}</div>
+        <div>{{ college.college_name }}</div>
+
+</div>
 {% endblock %}

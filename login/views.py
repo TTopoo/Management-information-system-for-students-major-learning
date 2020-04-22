@@ -197,7 +197,7 @@ class Student():
 
 class Student_Info_OP(Student, Op):
 
-    oplist = ['award', 'award_', 'alterInfo',
+    oplist = ['award', 'award_', 'alterInfo','getInfo',
               'alterPassword', 'alterPassword_']
 
     def dictoffun(self, fun, request):
@@ -205,6 +205,7 @@ class Student_Info_OP(Student, Op):
             "award": self.award,
             "award_": self.award_,
             "alterInfo": self.alterInfo,
+            "getInfo": self.getInfo,
             "alterPassword": self.alterPassword,
             "alterPassword_": self.alterPassword_,
         }
@@ -218,6 +219,8 @@ class Student_Info_OP(Student, Op):
 
     def visit(self, *args):
         if len(args) == 1:
+            user_id=args[0].session['user_id']
+            stu_info=StudentInformationModel.objects.get(user_id=user_id)
             return render(args[0], 'login/alter_information.html', locals())
         elif len(args) == 0:
             return redirect("/manage/student/info/")
@@ -278,6 +281,17 @@ class Student_Info_OP(Student, Op):
             StudentInformationModel._meta.model_name), OpType.ADD, lg_data)
         logging.info('end stu_alter_info alterInfo')
         return HttpResponse(json.dumps({'status': 'success'}))
+
+    def getInfo(self, request):
+        logging.info('enter stu_alter_info getInfo')
+        stu_info_id = request.session['stu_info_id']
+        stu_info = StudentInformationModel.objects.get(id=stu_info_id)
+        data={
+            'status':'success',
+            'name': stu_info.name,
+            'email': stu_info.email,
+        }
+        return HttpResponse(json.dumps(data))
 
     def alterPassword_(self, request):
         logging.info('enter stu_alter_info alterPassword')
