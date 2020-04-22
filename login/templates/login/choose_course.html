@@ -121,7 +121,10 @@
                                     toastr.warning('权限不足');
                                 }
                                 if (data.status == "exists") {
-                                    toastr.warning('您已经选择这门课程, 请不要重复选择!');
+                                    toastr.warning('您已经选择该课程下的一个班级, 请不要重复选择!');
+                                }
+                                if (data.status == "none") {
+                                    toastr.warning('该课程下未开设班级,敬请期待!');
                                 }
                             },
                             fail: function (result) {
@@ -171,6 +174,9 @@
                                 }
                                 if (data.status == "nothing") {
                                     toastr.warning('您没选择该课程, 所以删除无效!');
+                                }
+                                if (data.status == "none") {
+                                    toastr.warning('该课程下未开设班级,敬请期待!');
                                 }
                             },
                             fail: function (result) {

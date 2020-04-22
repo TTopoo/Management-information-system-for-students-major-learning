@@ -347,17 +347,26 @@ class Student_ChooseCourse_OP(Student, Op):
         course_id = json_receive[0]['id']
         courseClass_id = json_receive[0]['courseClass__id']
 
-        # 学生信息
+        # 获取学生信息
         user_id = request.session['user_id']
         stu_info = StudentInformationModel.objects.get(user_id=user_id)
 
-        # 课程添加该学生
+        # 获取课程班级
         course = CourseModel.objects.get(id=course_id)
-        courseClass = course.courseClass.get(id=courseClass_id)
-        stu_scores = StudentScoreModel.objects.filter(
-            student=stu_info, courseClass=courseClass)
-        if stu_scores.exists():
-            return HttpResponse(json.dumps({'status': 'exists'}))
+        # 课程有可能没开班级
+        courseClasses = course.courseClass.filter(id=courseClass_id)
+        if not courseClasses.exists():
+            return HttpResponse(json.dumps({'status': 'none'}))
+        courseClass = courseClasses[0]
+
+        # 防止选择同类课程
+        courseClasses=course.courseClass.all()
+        for i in courseClasses:
+            s = i.studentsScore.filter(student=stu_info)
+            if s.exists():
+                return HttpResponse(json.dumps({'status': 'exists'}))
+
+        # 创建学生成绩模型
         stu_score = StudentScoreModel.objects.create(
             student=stu_info, courseClass=courseClass, score='-', states='学习中')
         courseClass.studentsScore.add(stu_score)
@@ -430,13 +439,15 @@ class Student_ChooseCourse_OP(Student, Op):
         course_set = major.courses
         data['total'] = course_set.count()
         # 课程中该学生的成绩和状态
-        course_set = course_set.values('id', 'course_name', 'courseClass__id', 'courseClass__teacher__name', 'courseClass__maxNum',
+        course_set_v = course_set.values('id', 'course_name', 'courseClass__id', 'courseClass__teacher__name', 'courseClass__maxNum',
                                        'courseClass__studentsScore__student__id', 'courseClass__studentsScore__score',
                                        'courseClass__studentsScore__states')
-        logging.debug(course_set)
-        data['rows'] = list(course_set)
-        data['rows'] = self.course_filter(data['rows'], stu_info.id)
+        logging.debug(course_set_v)
+        courseList = list(course_set_v)
+        courseList = self.course_filter(courseList, stu_info.id)
 
+        data['rows'] = courseList
+        
         # 日志系统
         lg = Log()
         lg_data = {
@@ -465,7 +476,10 @@ class Student_ChooseCourse_OP(Student, Op):
 
         # 课程移除该学生
         course = CourseModel.objects.get(id=course_id)
-        courseClass = course.courseClass.get(id=courseClass_id)
+        courseClasses = course.courseClass.filter(id=courseClass_id)
+        if not courseClasses.exists():
+            return HttpResponse(json.dumps({'status': 'none'}))
+        courseClass = courseClasses[0]
         stu_scores = StudentScoreModel.objects.filter(
             student=stu_info, courseClass=courseClass)
         if not stu_scores.exists():
