@@ -443,7 +443,7 @@ class Student_ChooseCourse_OP(Student, Op):
             "Login_User": request.session['user_id'],
             "data": data,
         }
-        lg.record(LogType.INFO, str(course_set._meta.model_name),
+        lg.record(LogType.INFO, str(CourseModel._meta.model_name),
                   OpType.SELECT, lg_data)
         logging.info("end stu_ChooseCourse_select")
         return JsonResponse(data)
@@ -1749,6 +1749,17 @@ class Admin_Course_OP(Admin, Op):
         except:
             logging.warning("database error")
         logging.info('end course add')
+        return HttpResponse(json.dumps({'status': 'success'}))
+
+    # 添加现有课程
+    def select_(self, request):
+        logging.info('enter course select_')
+        course_id = request.POST.get("course_id", None)
+        course = CourseModel.objects.get(id=course_id)
+        # 反向加到专业里去
+        major_id = request.session['major_id']
+        major = MajorModel.objects.get(id=major_id)
+        major.courses.add(course)
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def delete(self, request):
