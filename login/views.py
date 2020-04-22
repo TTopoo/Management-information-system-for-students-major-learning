@@ -1003,6 +1003,19 @@ class Teacher_Score_OP(Teacher, Op):
         studentScore = studentScore.values(
             'id', 'courseClass__course__course_name', 'student__id', 'student__name', 'score', 'states')
         data['rows'] = list(studentScore)
+        try:
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw
+            }
+            lg.record(LogType.INFO, CourseClassModel._meta.model_name,
+                      OpType.SELETE, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end score select")
         return JsonResponse(data)
 
     def add(self, request):
@@ -1014,13 +1027,26 @@ class Teacher_Score_OP(Teacher, Op):
             return HttpResponse(json.dumps({'status': 'states0'}))
         # 创建学生成绩
         courseClass_id = request.session['courseClass_id']
-        courseClass = CourseClassModel.objects.get(id=courseClass_id)
-        student = StudentInformationModel.objects.get(id=student_id)
-        studentScore = StudentScoreModel.objects.create(
-            student=student, courseClass=courseClass, score=score, states=states)
-        studentScore.save()
-        # 添加进对应的课程班级
-        courseClass.studentsScore.add(studentScore)
+        try:
+            courseClass = CourseClassModel.objects.get(id=courseClass_id)
+            student = StudentInformationModel.objects.get(id=student_id)
+            studentScore = StudentScoreModel.objects.create(
+                student=student, courseClass=courseClass, score=score, states=states)
+            studentScore.save()
+            # 添加进对应的课程班级
+            courseClass.studentsScore.add(studentScore)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "student_id": student_id, "score": score, "states": states,
+                "courseClass_id": courseClass_id
+            }
+            lg.record(LogType.INFO, CourseClassModel._meta.model_name,
+                      OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info('end score add')
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def update(self, request):
@@ -1029,23 +1055,48 @@ class Teacher_Score_OP(Teacher, Op):
         student_id = request.POST.get("student_id_update", None)
         score = request.POST.get("score_update", None)
         states = request.POST.get("states_update", None)
-        print(states)
+        logging.debug(states)
         if states == '':
             return HttpResponse(json.dumps({'status': 'states0'}))
-        studentScore = StudentScoreModel.objects.get(id=studentScore_id)
-        student = StudentInformationModel.objects.get(id=student_id)
-        studentScore.student = student
-        studentScore.score = score
-        studentScore.states = states
-        studentScore.save()
+        try:
+            studentScore = StudentScoreModel.objects.get(id=studentScore_id)
+            student = StudentInformationModel.objects.get(id=student_id)
+            studentScore.student = student
+            studentScore.score = score
+            studentScore.states = states
+            studentScore.save()
+
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "studentScore_id": studentScore_id, "student_id": student_id,
+                "score": score, "states": states
+            }
+            lg.record(LogType.INFO, studentScore._meta.model_name,
+                      OpType.UPDATE, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info('end score update')
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def delete(self, request):
         logging.info("enter score delete")
         json_receive = json.loads(request.body)
         studentScore_id = json_receive[0]['id']
-        studentScore = StudentScoreModel.objects.get(id=studentScore_id)
-        studentScore.delete()
+        try:
+            studentScore = StudentScoreModel.objects.get(id=studentScore_id)
+            studentScore.delete()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "studentScore_id": studentScore_id,
+            }
+            lg.record(LogType.INFO, studentScore._meta.model_name,
+                      OpType.DELETE, lg_data)
+        except:
+            logging.warning("database error")
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def charts(self, request):
@@ -1151,6 +1202,18 @@ class Admin_College_OP(Admin, Op):
         data['total'] = colleges.count()
         colleges = colleges.values('id', 'college_name')
         data['rows'] = list(colleges)
+        try:
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw
+            }
+            lg.record(LogType.INFO, CollegeModel._meta.model_name,
+                      OpType.SELETE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end admin_college_select")
         return JsonResponse(data)
 
@@ -1159,8 +1222,19 @@ class Admin_College_OP(Admin, Op):
         college_name = request.POST.get("college_name", None)
         if college_name == '':
             return HttpResponse(json.dumps({'status': 'name0'}))
-        college = CollegeModel.objects.create(college_name=college_name)
-        college.save()
+        try:
+            college = CollegeModel.objects.create(college_name=college_name)
+            college.save()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "college_name": college_name,
+            }
+            lg.record(LogType.INFO, CollegeModel._meta.model_name,
+                      OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
         logging.info('end admin_college_add')
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1171,7 +1245,18 @@ class Admin_College_OP(Admin, Op):
         majors = MajorModel.objects.filter(college_id=college_id)
         if majors.exists():
             return HttpResponse(json.dumps({'status': 'have'}))
-        CollegeModel.objects.get(id=college_id).delete()
+        try:
+            CollegeModel.objects.get(id=college_id).delete()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "college_id": college_id,
+            }
+            lg.record(LogType.INFO, CollegeModel._meta.model_name,
+                      OpType.DELETE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end admin_college_delete")
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1182,9 +1267,20 @@ class Admin_College_OP(Admin, Op):
         if college_name == '':
             return HttpResponse(json.dumps({'status': 'name0'}))
         logging.debug(college_id)
-        college = CollegeModel.objects.get(id=college_id)
-        college.college_name = college_name
-        college.save()
+        try:
+            college = CollegeModel.objects.get(id=college_id)
+            college.college_name = college_name
+            college.save()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "college_id": college_id,
+            }
+            lg.record(LogType.INFO, CollegeModel._meta.model_name,
+                      OpType.UPDATE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info('end admin_college_update')
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1235,12 +1331,25 @@ class Admin_Major_OP(Admin, Op):
         print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
         # 学院
         college_id = request.session['college_id']
-        college = CollegeModel.objects.get(id=college_id)
-        # 专业
-        majors = MajorModel.objects.filter(college_id=college_id)
-        data['total'] = majors.count()
-        majors = majors.values('id', 'major_name', 'college_id__college_name')
-        data['rows'] = list(majors)
+        try:
+            college = CollegeModel.objects.get(id=college_id)
+            # 专业
+            majors = MajorModel.objects.filter(college_id=college_id)
+            data['total'] = majors.count()
+            majors = majors.values(
+                'id', 'major_name', 'college_id__college_name')
+            data['rows'] = list(majors)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw
+            }
+            lg.record(LogType.INFO, MajorModel._meta.model_name,
+                      OpType.SELETE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end admin_major_select")
         return JsonResponse(data)
 
@@ -1251,11 +1360,22 @@ class Admin_Major_OP(Admin, Op):
             return HttpResponse(json.dumps({'status': 'name0'}))
         # 学院
         college_id = request.session['college_id']
-        college = CollegeModel.objects.get(id=college_id)
-        # 专业
-        major = MajorModel.objects.create(
-            major_name=major_name, college_id=college)
-        major.save()
+        try:
+            college = CollegeModel.objects.get(id=college_id)
+            # 专业
+            major = MajorModel.objects.create(
+                major_name=major_name, college_id=college)
+            major.save()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "major_name": major_name, "college_id": college_id
+            }
+            lg.record(LogType.INFO, MajorModel._meta.model_name,
+                      OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
         logging.info('end admin_major_add')
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1268,7 +1388,18 @@ class Admin_Major_OP(Admin, Op):
         courses = major.courses.all()
         if unifyclasses.exists() or courses.exists():
             return HttpResponse(json.dumps({'status': 'have'}))
-        major.delete()
+        try:
+            major.delete()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "major_id": major_id,
+            }
+            lg.record(LogType.INFO, MajorModel._meta.model_name,
+                      OpType.DELETE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end admin_major_delete")
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1278,9 +1409,20 @@ class Admin_Major_OP(Admin, Op):
         major_name = request.POST.get("major_name_update", None)
         if major_name == '':
             return HttpResponse(json.dumps({'status': 'name0'}))
-        major = MajorModel.objects.get(id=major_id)
-        major.major_name = major_name
-        major.save()
+        try:
+            major = MajorModel.objects.get(id=major_id)
+            major.major_name = major_name
+            major.save()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "major_id": major_id, "major_name": major_name,
+            }
+            lg.record(LogType.INFO, MajorModel._meta.model_name,
+                      OpType.UPDATE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info('end admin_major_update')
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1340,6 +1482,18 @@ class Admin_Class_OP(Admin, Op):
         classes = classes.values('id', 'class_name', 'major_id__major_name')
         data['total'] = classes.count()
         data['rows'] = list(classes)
+        try:
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw
+            }
+            lg.record(LogType.INFO, ClassModel._meta.model_name,
+                      OpType.SELETE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end admin_class_select")
         return JsonResponse(data)
 
@@ -1349,10 +1503,21 @@ class Admin_Class_OP(Admin, Op):
         if class_name == '':
             return HttpResponse(json.dumps({'status': 'name0'}))
         major_id = request.session['major_id']
-        major = MajorModel.objects.get(id=major_id)
-        unifyclass = ClassModel.objects.create(
-            class_name=class_name, major_id=major)
-        unifyclass.save()
+        try:
+            major = MajorModel.objects.get(id=major_id)
+            unifyclass = ClassModel.objects.create(
+                class_name=class_name, major_id=major)
+            unifyclass.save()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "class_name": class_name, "major_id": major_id
+            }
+            lg.record(LogType.INFO, ClassModel._meta.model_name,
+                      OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
         logging.info('end admin_class_add')
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1362,9 +1527,20 @@ class Admin_Class_OP(Admin, Op):
         class_name = request.POST.get("name_update", None)
         if class_name == '':
             return HttpResponse(json.dumps({'status': 'name0'}))
-        unifyclass = ClassModel.objects.get(id=class_id)
-        unifyclass.class_name = class_name
-        unifyclass.save()
+        try:
+            unifyclass = ClassModel.objects.get(id=class_id)
+            unifyclass.class_name = class_name
+            unifyclass.save()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "class_id": class_id, "class_name": class_name
+            }
+            lg.record(LogType.INFO, ClassModel._meta.model_name,
+                      OpType.UPDATE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info('end admin_class_update')
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1372,11 +1548,22 @@ class Admin_Class_OP(Admin, Op):
         logging.info("enter admin_class_delete")
         json_receive = json.loads(request.body)
         class_id = json_receive[0]['id']
-        unifyclass = ClassModel.objects.get(id=class_id)
-        students = unifyclass.students.all()
-        if students.exists():
-            return HttpResponse(json.dumps({'status': 'have'}))
-        unifyclass.delete()
+        try:
+            unifyclass = ClassModel.objects.get(id=class_id)
+            students = unifyclass.students.all()
+            if students.exists():
+                return HttpResponse(json.dumps({'status': 'have'}))
+            unifyclass.delete()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "class_id": class_id, "class_name": class_name
+            }
+            lg.record(LogType.INFO, ClassModel._meta.model_name,
+                      OpType.UPDATE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info('end admin_class_delete')
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1420,7 +1607,19 @@ class Admin_Student_OP(Admin, Op):
         students = students.values('id', 'name', 'sex', 'age', 'email', 'idc')
         data['total'] = students.count()
         data['rows'] = list(students)
-        logging.info("enter admin_stu_select")
+        try:
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw
+            }
+            lg.record(LogType.INFO, MajorModel._meta.model_name,
+                      OpType.SELETE, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end admin_stu_select")
         return JsonResponse(data)
 
     def add(self, request):
@@ -1428,25 +1627,49 @@ class Admin_Student_OP(Admin, Op):
         student_id = request.POST.get("student_id", None)
         # 获得学生和班级索引
         class_id = request.session['class_id']
-        unifyclass = ClassModel.objects.get(id=class_id)
-        student = StudentInformationModel.objects.get(id=student_id)
-        # 班级添加学生
-        unifyclass.students.add(student)
+        try:
+            unifyclass = ClassModel.objects.get(id=class_id)
+            student = StudentInformationModel.objects.get(id=student_id)
+            # 班级添加学生
+            unifyclass.students.add(student)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "student_id": student_id, "class_id": class_id
+            }
+            lg.record(LogType.INFO, MajorModel._meta.model_name,
+                      OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info('end score add')
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def delete(self, request):
         logging.info("enter score delete")
         json_receive = json.loads(request.body)
         student_id = json_receive[0]['id']
-        student = StudentInformationModel.objects.get(id=student_id)
         class_id = request.session['class_id']
-        unifyclass = ClassModel.objects.get(id=class_id)
-        unifyclass.students.remove(student)
+        try:
+            student = StudentInformationModel.objects.get(id=student_id)
+            unifyclass = ClassModel.objects.get(id=class_id)
+            unifyclass.students.remove(student)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "student_id": student_id, "class_id": class_id
+            }
+            lg.record(LogType.INFO, MajorModel._meta.model_name,
+                      OpType.DELETE, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end score delete")
         return HttpResponse(json.dumps({'status': 'success'}))
 
 
 class Admin_Course_OP(Admin, Op):
-    oplist = ['add', 'json', 'delete', 'update', 'enter','select']
+    oplist = ['add', 'json', 'delete', 'update', 'enter', 'select']
 
     def dictoffun(self, fun, request):
         operator = {"add": self.add,
@@ -1466,7 +1689,7 @@ class Admin_Course_OP(Admin, Op):
     # 功能主页
     def visit(self, *args):
         if len(args) == 1:
-            courses=CourseModel.objects.all()
+            courses = CourseModel.objects.all()
             return render(args[0], 'login/alter_course.html', locals())
         elif len(args) == 0:
             return redirect("/manage/aadmin/course/")
@@ -1479,7 +1702,7 @@ class Admin_Course_OP(Admin, Op):
         order_kw = request.GET.get('order', '')
         offset_kw = request.GET.get('offset', 0)
         limit_kw = request.GET.get('limit', 0)
-        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        logging.debug(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
         # 上一级 专业
         major_id = request.session['major_id']
         major = MajorModel.objects.get(id=major_id)
@@ -1487,6 +1710,19 @@ class Admin_Course_OP(Admin, Op):
         courses = courses.values('id', 'course_name')
         data['rows'] = list(courses)
         data['total'] = courses.count()
+        try:
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw
+            }
+            lg.record(LogType.INFO, MajorModel._meta.model_name,
+                      OpType.SELECT, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end course select")
         return JsonResponse(data)
 
     # 新建课程
@@ -1495,23 +1731,24 @@ class Admin_Course_OP(Admin, Op):
         course_name = request.POST.get("name", None)
         if course_name == '':
             return HttpResponse(json.dumps({'status': 'name0'}))
-        course = CourseModel.objects.create(course_name=course_name)
-        course.save()
         # 反向加到专业里去
         major_id = request.session['major_id']
-        major = MajorModel.objects.get(id=major_id)
-        major.courses.add(course)
-        return HttpResponse(json.dumps({'status': 'success'}))
-
-    # 添加现有课程
-    def select_(self, request):
-        logging.info('enter course select_')
-        course_id = request.POST.get("course_id", None)
-        course = CourseModel.objects.get(id=course_id)
-        # 反向加到专业里去
-        major_id = request.session['major_id']
-        major = MajorModel.objects.get(id=major_id)
-        major.courses.add(course)
+        try:
+            course = CourseModel.objects.create(course_name=course_name)
+            course.save()
+            major = MajorModel.objects.get(id=major_id)
+            major.courses.add(course)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "course_name": course_name,
+            }
+            lg.record(LogType.INFO, course._meta.model_name,
+                      OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info('end course add')
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def delete(self, request):
@@ -1522,7 +1759,19 @@ class Admin_Course_OP(Admin, Op):
         courseClasses = course.courseClass.all()
         if courseClasses.exists():
             return HttpResponse(json.dumps({'status': 'have'}))
-        course.delete()
+        try:
+            course.delete()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "course_id": course_id,
+            }
+            lg.record(LogType.INFO, course._meta.model_name,
+                      OpType.DELETE, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end course delete")
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def update(self, request):
@@ -1531,9 +1780,22 @@ class Admin_Course_OP(Admin, Op):
         course_name = request.POST.get("name_update", None)
         if course_name == '':
             return HttpResponse(json.dumps({'status': 'name0'}))
-        course = CourseModel.objects.get(id=course_id)
-        course.course_name = course_name
-        course.save()
+        try:
+            course = CourseModel.objects.get(id=course_id)
+            course.course_name = course_name
+            course.save()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "course_id": course_id,
+                "course_name": course_name
+            }
+            lg.record(LogType.INFO, course._meta.model_name,
+                      OpType.UPDATE, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info('end course update')
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def enter(self, request):
@@ -1541,6 +1803,7 @@ class Admin_Course_OP(Admin, Op):
         json_receive = json.loads(request.body)
         course_id = json_receive['id']
         request.session['course_id'] = course_id
+        logging.info("end course enter")
         return HttpResponse(json.dumps({}))
 
 
@@ -1586,6 +1849,18 @@ class Admin_CourseClass_OP(Admin, Op):
         courseClasses = courseClasses.values(
             'id', 'course__course_name', 'teacher__id', 'teacher__name', 'maxNum')
         data['rows'] = list(courseClasses)
+        try:
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw
+            }
+            lg.record(LogType.INFO, courseClasses._meta.model_name,
+                      OpType.SELECT, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end course_class select")
         return JsonResponse(data)
 
     def add(self, request):
@@ -1596,13 +1871,25 @@ class Admin_CourseClass_OP(Admin, Op):
             return HttpResponse(json.dumps({'status': 'maxNum0'}))
         # 创建课程班级
         course_id = request.session['course_id']
-        course = CourseModel.objects.get(id=course_id)
-        teacher = TeacherInformationModel.objects.get(id=teacher_id)
-        courseClass = CourseClassModel.objects.create(
-            course=course, teacher=teacher, maxNum=maxNum)
-        courseClass.save()
-        # 添加进对应的课程
-        course.courseClass.add(courseClass)
+        try:
+            course = CourseModel.objects.get(id=course_id)
+            teacher = TeacherInformationModel.objects.get(id=teacher_id)
+            courseClass = CourseClassModel.objects.create(
+                course=course, teacher=teacher, maxNum=maxNum)
+            courseClass.save()
+            # 添加进对应的课程
+            course.courseClass.add(courseClass)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "teacher_id": teacher_id, "maxNum": maxNum
+            }
+            lg.record(LogType.INFO, courseClass._meta.model_name,
+                      OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info('end course_class add')
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def update(self, request):
@@ -1612,22 +1899,48 @@ class Admin_CourseClass_OP(Admin, Op):
         maxNum = request.POST.get("maxNum_update", None)
         if maxNum == '':
             return HttpResponse(json.dumps({'status': 'maxNum0'}))
-        courseClass = CourseClassModel.objects.get(id=courseClass_id)
-        teacher = TeacherInformationModel.objects.get(id=teacher_id)
-        courseClass.teacher = teacher
-        courseClass.maxNum = maxNum
-        courseClass.save()
+        try:
+            courseClass = CourseClassModel.objects.get(id=courseClass_id)
+            teacher = TeacherInformationModel.objects.get(id=teacher_id)
+            courseClass.teacher = teacher
+            courseClass.maxNum = maxNum
+            courseClass.save()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "courseClass_id": courseClass_id,
+                "teacher_id": teacher_id, "maxNum": maxNum
+            }
+            lg.record(LogType.INFO, courseClass._meta.model_name,
+                      OpType.UPDATE, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info('end course_class update')
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def delete(self, request):
         logging.info("enter course_class delete")
         json_receive = json.loads(request.body)
         courseClass_id = json_receive[0]['id']
-        courseClass = CourseClassModel.objects.get(id=courseClass_id)
-        studentsScores = courseClass.studentsScore.all()
-        if studentsScores.exists():
-            return HttpResponse(json.dumps({'status': 'have'}))
-        courseClass.delete()
+        try:
+            courseClass = CourseClassModel.objects.get(id=courseClass_id)
+            studentsScores = courseClass.studentsScore.all()
+            if studentsScores.exists():
+                return HttpResponse(json.dumps({'status': 'have'}))
+            courseClass.delete()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "courseClass_id": courseClass_id
+            }
+            lg.record(LogType.INFO, courseClass._meta.model_name,
+                      OpType.DELETE, lg_data)
+        except:
+            logging.warning("database error")
+
+        logging.info("end course_class delete")
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def enter(self, request):
@@ -1635,6 +1948,7 @@ class Admin_CourseClass_OP(Admin, Op):
         json_receive = json.loads(request.body)
         courseClass_id = json_receive['id']
         request.session['courseClass_id'] = courseClass_id
+        logging.info("end course_class enter")
         return HttpResponse(json.dumps({}))
 
 
@@ -1672,7 +1986,7 @@ class Admin_Score_OP(Admin, Op):
         order_kw = request.GET.get('order', '')
         offset_kw = request.GET.get('offset', 0)
         limit_kw = request.GET.get('limit', 0)
-        print(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
+        logging.debug(search_kw, sort_kw, order_kw, offset_kw, limit_kw)
         # 上一级 课程班级
         courseClass_id = request.session['courseClass_id']
         courseClass = CourseClassModel.objects.get(id=courseClass_id)
@@ -1681,6 +1995,19 @@ class Admin_Score_OP(Admin, Op):
         studentScore = studentScore.values(
             'id', 'courseClass__course__course_name', 'student__id', 'student__name', 'score', 'states')
         data['rows'] = list(studentScore)
+        try:
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
+
+            lg.record(LogType.INFO, studentScore._meta.model_name,
+                      OpType.SELECT, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end score select")
         return JsonResponse(data)
 
     def add(self, request):
@@ -1692,13 +2019,25 @@ class Admin_Score_OP(Admin, Op):
             return HttpResponse(json.dumps({'status': 'states0'}))
         # 创建学生成绩
         courseClass_id = request.session['courseClass_id']
-        courseClass = CourseClassModel.objects.get(id=courseClass_id)
-        student = StudentInformationModel.objects.get(id=student_id)
-        studentScore = StudentScoreModel.objects.create(
-            student=student, courseClass=courseClass, score=score, states=states)
-        studentScore.save()
-        # 添加进对应的课程班级
-        courseClass.studentsScore.add(studentScore)
+        try:
+            courseClass = CourseClassModel.objects.get(id=courseClass_id)
+            student = StudentInformationModel.objects.get(id=student_id)
+            studentScore = StudentScoreModel.objects.create(
+                student=student, courseClass=courseClass, score=score, states=states)
+            studentScore.save()
+            # 添加进对应的课程班级
+            courseClass.studentsScore.add(studentScore)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "student_id": student_id, "score": score, "states": states
+            }
+            lg.record(LogType.INFO, studentScore._meta.model_name,
+                      OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end score add")
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def update(self, request):
@@ -1710,20 +2049,44 @@ class Admin_Score_OP(Admin, Op):
         print(states)
         if states == '':
             return HttpResponse(json.dumps({'status': 'states0'}))
-        studentScore = StudentScoreModel.objects.get(id=studentScore_id)
-        student = StudentInformationModel.objects.get(id=student_id)
-        studentScore.student = student
-        studentScore.score = score
-        studentScore.states = states
-        studentScore.save()
+        try:
+            studentScore = StudentScoreModel.objects.get(id=studentScore_id)
+            student = StudentInformationModel.objects.get(id=student_id)
+            studentScore.student = student
+            studentScore.score = score
+            studentScore.states = states
+            studentScore.save()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "student_id": student_id, "score": score, "states": states
+            }
+            lg.record(LogType.INFO, studentScore._meta.model_name,
+                      OpType.UPDATE, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end score update")
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def delete(self, request):
         logging.info("enter score delete")
         json_receive = json.loads(request.body)
         studentScore_id = json_receive[0]['id']
-        studentScore = StudentScoreModel.objects.get(id=studentScore_id)
-        studentScore.delete()
+        try:
+            studentScore = StudentScoreModel.objects.get(id=studentScore_id)
+            studentScore.delete()
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "studentScore_id": studentScore_id,
+            }
+            lg.record(LogType.INFO, studentScore._meta.model_name,
+                      OpType.DELETE, lg_data)
+        except:
+            logging.warning("database error")
+        logging.info("end score update")
         return HttpResponse(json.dumps({'status': 'success'}))
 
     def charts(self, request):
@@ -1766,7 +2129,8 @@ class Admin_Score_OP(Admin, Op):
                 {'value': learning, 'name': '学习中'},
             ]
         }
-        print(data)
+        logging.debug(data)
+        logging.info("end charts select")
         return JsonResponse(data)
 
 
@@ -1803,18 +2167,21 @@ class Admin_Privilege_OP(Admin, Op):
         if same_account:  # 账号在权限表中存在
             return HttpResponse(json.dumps({'status': 'account2'}))
 
-        # 当一切都OK的情况下，添加新管理员
-        obj = TeacherInformationModel.objects.get(user_id__account=account)
-        Privilege.objects.create(account=obj, type='3')
+        try:
+            # 当一切都OK的情况下，添加新管理员
+            obj = TeacherInformationModel.objects.get(user_id__account=account)
+            Privilege.objects.create(account=obj, type='3')
 
-        # 日志系统
-        lg = Log()
-        lg_data = {
-            "Login_User": request.session['user_id'],
-            "account": account,
-        }
-        lg.record(LogType.INFO, str(
-            Privilege._meta.model_name), OpType.ADD, lg_data)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "account": account,
+            }
+            lg.record(LogType.INFO, str(
+                Privilege._meta.model_name), OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end admim_privilege_add")
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1844,16 +2211,18 @@ class Admin_Privilege_OP(Admin, Op):
         print(result_set)
         data['rows'] = list(result_set)
         print(data['rows'])
-        # 日志系统
-        lg = Log()
-        lg_data = {
-            "Login_User": request.session['user_id'],
-            "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
-            "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
+        try:
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
 
-        lg.record(LogType.INFO, Privilege._meta.model_name,
-                  OpType.SELECT, lg_data)
-
+            lg.record(LogType.INFO, Privilege._meta.model_name,
+                      OpType.SELECT, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end admim_privilege_select")
         return JsonResponse(data)
 
@@ -1862,17 +2231,19 @@ class Admin_Privilege_OP(Admin, Op):
         logging.info("enter admim_privilege_delete")
         json_receive = json.loads(request.body)
         logging.debug(json_receive)
-        for i in json_receive:
-            logging.debug(i.keys())
-            account = i['account__user_id__account']
-            Privilege.objects.filter(
-                account__user_id__account=account).delete()
-            lg = Log()
-            lg_data = {
-                "Login_User": request.session['user_id'], "account": account}
-            lg.record(LogType.INFO, str(Privilege._meta.model_name),
-                      OpType.DELETE, lg_data)
-
+        try:
+            for i in json_receive:
+                logging.debug(i.keys())
+                account = i['account__user_id__account']
+                Privilege.objects.filter(
+                    account__user_id__account=account).delete()
+                lg = Log()
+                lg_data = {
+                    "Login_User": request.session['user_id'], "account": account}
+                lg.record(LogType.INFO, str(Privilege._meta.model_name),
+                          OpType.DELETE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end admim_privilege_delete")
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1921,25 +2292,28 @@ class Admin_TeacherInfo_OP(Admin, Op):
         if same_name_user:  # 学号唯一
             return HttpResponse(json.dumps({'status': 'stuid1'}))
 
-        # 当一切都OK的情况下，创建新用户
-        new_user = User.objects.create()
-        new_user.account = username
-        new_user.password = hash_code(username)  # 使用学号当做初始加密密码
-        new_user.save()
+        try:
+            # 当一切都OK的情况下，创建新用户
+            new_user = User.objects.create()
+            new_user.account = username
+            new_user.password = hash_code(username)  # 使用学号当做初始加密密码
+            new_user.save()
 
-        obj = User.objects.get(account=username)
-        TeacherInformationModel.objects.create(user_id=obj, email=email, name=name,
-                                               sex=sex, idc=idc, age=age,
-                                               graduate_school=graduate, education_experience=experience)
-        # 日志系统
-        lg = Log()
-        lg_data = {
-            "Login_User": request.session['user_id'],
-            "username": username, "email": email, "name": name,
-            "sex": sex, "idc": idc, "age": age, "graduate": graduate, "experience": experience
-        }
-        lg.record(LogType.INFO, str(TeacherInformationModel._meta.model_name) +
-                  ' & ' + str(new_user._meta.model_name), OpType.ADD, lg_data)
+            obj = User.objects.get(account=username)
+            TeacherInformationModel.objects.create(user_id=obj, email=email, name=name,
+                                                   sex=sex, idc=idc, age=age,
+                                                   graduate_school=graduate, education_experience=experience)
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "username": username, "email": email, "name": name,
+                "sex": sex, "idc": idc, "age": age, "graduate": graduate, "experience": experience
+            }
+            lg.record(LogType.INFO, str(TeacherInformationModel._meta.model_name) +
+                      ' & ' + str(new_user._meta.model_name), OpType.ADD, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end teacher_info_add")
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -1985,18 +2359,22 @@ class Admin_TeacherInfo_OP(Admin, Op):
 
         result_set = result_set.values('user_id__account', 'email', 'name', 'sex', 'idc', 'age', 'graduate_school', 'education_experience')[
             int(offset_kw):(int(offset_kw) + int(limit_kw))]
-        print(result_set)
+        logging.debug(result_set)
         data['rows'] = list(result_set)
-        print(data['rows'])
-        # 日志系统
-        lg = Log()
-        lg_data = {
-            "Login_User": request.session['user_id'],
-            "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
-            "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
+        logging.debug(data['rows'])
 
-        lg.record(LogType.INFO, TeacherInformationModel._meta.model_name,
-                  OpType.SELECT, lg_data)
+        try:
+            # 日志系统
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "total": data['total'], "search_kw": search_kw, "sort_kw": sort_kw,
+                "order_kw": order_kw, "offset_kw": offset_kw, "limit_kw": limit_kw}
+
+            lg.record(LogType.INFO, TeacherInformationModel._meta.model_name,
+                      OpType.SELECT, lg_data)
+        except:
+            logging.warning("database error")
 
         logging.info("end teacher_info_select")
         return JsonResponse(data)
@@ -2026,19 +2404,21 @@ class Admin_TeacherInfo_OP(Admin, Op):
             return HttpResponse(json.dumps({'status': 'graduate0'}))
         experience = request.POST.get("update_experience", None)
 
-        obj = User.objects.get(account=username)
-        TeacherInformationModel.objects.filter(user_id=obj).update(user_id=obj, email=email, name=name,
-                                                                   sex=sex, idc=idc, age=age,
-                                                                   graduate_school=graduate, education_experience=experience)
-        lg = Log()
-        lg_data = {
-            "Login_User": request.session['user_id'],
-            "username": username, "email": email, "name": name,
-            "sex": sex, "idc": idc, "age": age, "graduate": graduate, "experience": experience
-        }
-        lg.record(LogType.INFO, str(
-            TeacherInformationModel._meta.model_name), OpType.UPDATE, lg_data)
-
+        try:
+            obj = User.objects.get(account=username)
+            TeacherInformationModel.objects.filter(user_id=obj).update(user_id=obj, email=email, name=name,
+                                                                       sex=sex, idc=idc, age=age,
+                                                                       graduate_school=graduate, education_experience=experience)
+            lg = Log()
+            lg_data = {
+                "Login_User": request.session['user_id'],
+                "username": username, "email": email, "name": name,
+                "sex": sex, "idc": idc, "age": age, "graduate": graduate, "experience": experience
+            }
+            lg.record(LogType.INFO, str(
+                TeacherInformationModel._meta.model_name), OpType.UPDATE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end teacher_info_update")
         return HttpResponse(json.dumps({'status': 'success'}))
 
@@ -2047,17 +2427,19 @@ class Admin_TeacherInfo_OP(Admin, Op):
         logging.info("enter teacher_info_delete")
         json_receive = json.loads(request.body)
         logging.debug(json_receive)
-        for i in json_receive:
-            logging.debug(i.keys())
-            user_id = i['user_id__account']
-            logging.debug(user_id)
-            User.objects.filter(account=user_id).delete()
-            lg = Log()
-            lg_data = {
-                "Login_User": request.session['user_id'], "user_id": user_id}
-            lg.record(LogType.INFO, str(
-                TeacherInformationModel._meta.model_name), OpType.DELETE, lg_data)
-
+        try:
+            for i in json_receive:
+                logging.debug(i.keys())
+                user_id = i['user_id__account']
+                logging.debug(user_id)
+                User.objects.filter(account=user_id).delete()
+                lg = Log()
+                lg_data = {
+                    "Login_User": request.session['user_id'], "user_id": user_id}
+                lg.record(LogType.INFO, str(
+                    TeacherInformationModel._meta.model_name), OpType.DELETE, lg_data)
+        except:
+            logging.warning("database error")
         logging.info("end teacher_info_delete")
         return HttpResponse(json.dumps({'status': 'success'}))
 
