@@ -34,9 +34,15 @@
 </form>
 
 <script>
+    $(function(){
+        getInfo()
+    })
+</script>
+
+<script>
+
     function getInfo() {
-        $("#update_name").val();
-        $("#update_email").val();
+
         $.ajax({
             cache: false,
             type: "POST",
@@ -47,8 +53,10 @@
             async: false,
 
             success: function (data) {
+                console.log(data)
                 if (data.status == "success") {
-
+                    $("#name").val(data.name);
+                    $("#email").val(data.email);
                 }
             },
             error: function () {
