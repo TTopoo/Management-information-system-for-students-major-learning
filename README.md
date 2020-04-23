@@ -3,6 +3,9 @@
 ## 项目架构
 前端采用基于HTML、CSS、JavaScript的Bootstrap(4.41) + BootstrapTable(1.16)  
 后端采用基于Python的MVC设计模式的Django(3.0.4) + MySQL(5.7.29)  
+## 联系方式  
+石京儒：QQ496738668  
+夏泽坤：QQ1101381102  
 ## 项目目录结构
 C:.  
 │  .gitattributes  
@@ -129,6 +132,3 @@ C:.
     │  wsgi.py  
     │  __init__.py  
       
-## 联系方式
-石京儒：QQ496738668
-夏泽坤：QQ1101381102
