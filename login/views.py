@@ -29,6 +29,7 @@ def login(request):
                     request.session['is_login'] = True
                     request.session['user_id'] = user.id
                     request.session['account'] = user.account
+                    request.session['teachertoadmin'] = 0
                     # 教师账号
                     if account[0] == '0':
                         request.session['authority'] = 0
@@ -106,6 +107,7 @@ class Op():  # 所有操作的基类
                 account__user_id__account=request.session["account"])
             if same_account:  # 账号在权限表中存在
                 self.visit_status = 24
+                request.session['teachertoadmin'] = 1
 
         # 异常处理
         l = Log()
@@ -360,7 +362,7 @@ class Student_ChooseCourse_OP(Student, Op):
         courseClass = courseClasses[0]
 
         # 防止选择同类课程
-        courseClasses=course.courseClass.all()
+        courseClasses = course.courseClass.all()
         for i in courseClasses:
             s = i.studentsScore.filter(student=stu_info)
             if s.exists():
@@ -440,14 +442,14 @@ class Student_ChooseCourse_OP(Student, Op):
         data['total'] = course_set.count()
         # 课程中该学生的成绩和状态
         course_set_v = course_set.values('id', 'course_name', 'courseClass__id', 'courseClass__teacher__name', 'courseClass__maxNum',
-                                       'courseClass__studentsScore__student__id', 'courseClass__studentsScore__score',
-                                       'courseClass__studentsScore__states')
+                                         'courseClass__studentsScore__student__id', 'courseClass__studentsScore__score',
+                                         'courseClass__studentsScore__states')
         logging.debug(course_set_v)
         courseList = list(course_set_v)
         courseList = self.course_filter(courseList, stu_info.id)
 
         data['rows'] = courseList
-        
+
         # 日志系统
         lg = Log()
         lg_data = {
