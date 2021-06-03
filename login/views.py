@@ -625,7 +625,7 @@ class Teacher_StuInfo_OP(Teacher, Op):
         result_set = result_set.values('user_id__account', 'email', 'name', 'sex', 'idc', 'age', 'major')[
             int(offset_kw):(int(offset_kw) + int(limit_kw))]
         print(result_set)
-        data['rows'] = list(result_set)
+        data['rows'] = list(result_set).copy()
         print(data['rows'])
         # 日志系统
         lg = Log()
